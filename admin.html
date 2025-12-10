@@ -3,42 +3,35 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>احجز خدمة - ASH</title>
-<script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+<title>طلبات العملاء - ASH</title>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
-<link rel="stylesheet" href="style.css">
+<style>
+body { font-family: Arial, sans-serif; padding: 20px; }
+table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
+th { background-color: #4CAF50; color: white; }
+</style>
 </head>
 <body>
 
-<h2>احجز خدمة</h2>
-<form id="booking-form">
-  <label>الاسم</label>
-  <input id="name" required>
-
-  <label>رقم الهاتف</label>
-  <input id="phone" required>
-
-  <label>الخدمة</label>
-  <select id="service">
-    <option>تنظيف النوافذ</option>
-    <option>تنظيف الواجهات</option>
-    <option>خدمات دورية</option>
-  </select>
-
-  <label>العنوان</label>
-  <input id="address">
-
-  <label>التاريخ</label>
-  <input id="date" type="date">
-
-  <button type="submit">إرسال الطلب</button>
-</form>
-
-<p id="msg"></p>
+<h2>طلبات العملاء</h2>
+<table>
+  <thead>
+    <tr>
+      <th>الاسم</th>
+      <th>الهاتف</th>
+      <th>الخدمة</th>
+      <th>العنوان</th>
+      <th>التاريخ</th>
+      <th>الحالة</th>
+    </tr>
+  </thead>
+  <tbody id="bookings-body"></tbody>
+</table>
 
 <script>
-// Firebase Config
+// ==== Firebase ====
 const firebaseConfig = {
   apiKey: "AIzaSyAJxzFknapSh0fnPfIXwEEK3OijSKlqxco",
   authDomain: "admin-ash-f622c.firebaseapp.com",
@@ -51,32 +44,23 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-// EmailJS Config
-const EMAILJS_PUBLIC_KEY = "dKDZhGvgDZ2OwDlZF";
-const EMAILJS_SERVICE = "service_glkvhot";
-const EMAILJS_TEMPLATE = "template_v6qi0el";
-emailjs.init(EMAILJS_PUBLIC_KEY);
-
-// Send Booking
-document.getElementById('booking-form').addEventListener('submit', function(e){
-  e.preventDefault();
-  const data = {
-    name: document.getElementById('name').value.trim(),
-    phone: document.getElementById('phone').value.trim(),
-    service: document.getElementById('service').value,
-    address: document.getElementById('address').value.trim(),
-    date: document.getElementById('date').value || '',
-    status: 'new',
-    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-  };
-  db.collection('bookings').add(data)
-    .then(() => {
-      emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, data)
-        .then(() => { document.getElementById('msg').textContent = "✔ تم إرسال الطلب بنجاح!"; })
-        .catch(err => { console.error(err); document.getElementById('msg').textContent = "تم الحفظ لكن لم يتم إرسال الإيميل."; });
-      document.getElementById('booking-form').reset();
-    })
-    .catch(err => { console.error(err); document.getElementById('msg').textContent = "❌ حدث خطأ، حاول مرة أخرى."; });
+// ==== جلب الطلبات ====
+db.collection('bookings').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
+  const tbody = document.getElementById('bookings-body');
+  tbody.innerHTML = '';
+  snapshot.forEach(doc => {
+    const data = doc.data();
+    tbody.innerHTML += `
+      <tr>
+        <td>${data.name}</td>
+        <td>${data.phone}</td>
+        <td>${data.service}</td>
+        <td>${data.address}</td>
+        <td>${data.date}</td>
+        <td>${data.status}</td>
+      </tr>
+    `;
+  });
 });
 </script>
 
