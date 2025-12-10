@@ -1,0 +1,13 @@
+
+body{font-family:Arial, sans-serif; background:#f5f9ff; margin:0; color:#222}
+.site-header{background:#0a3d62;color:#fff;padding:14px 18px;display:flex;justify-content:space-between;align-items:center}
+.site-header .logo{font-weight:bold}
+nav a{color:#fff;margin-left:10px;text-decoration:none}
+.container{max-width:960px;margin:24px auto;padding:12px}
+.hero{text-align:center;padding:60px 12px}
+.cta{display:inline-block;background:#0a3d62;color:#fff;padding:12px 20px;border-radius:8px;text-decoration:none}
+.btn{background:#0a3d62;color:#fff;padding:10px 12px;border:none;border-radius:6px;cursor:pointer}
+input,select,textarea{width:100%;padding:10px;margin-top:8px;border-radius:6px;border:1px solid #ccc}
+table{width:100%;border-collapse:collapse;background:#fff;margin-top:12px}
+table th, table td{padding:10px;border-bottom:1px solid #eee;text-align:right}
+.mini{background:#ff6666;color:#fff;border:none;padding:6px 10px;border-radius:6px;cursor:pointer}

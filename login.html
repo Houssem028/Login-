@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>تسجيل دخول - Admin</title>
+<link rel="stylesheet" href="style.css">
+<!-- Firebase (compat) -->
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+</head>
+<body>
+<header class="site-header"><div class="logo">ASH Admin</div></header>
+<main class="container">
+  <h2>تسجيل دخول المدير</h2>
+  <input id="email" placeholder="البريد الإلكتروني" />
+  <input id="password" type="password" placeholder="كلمة السر" />
+  <button id="loginBtn" class="btn">دخول</button>
+  <p id="loginMsg"></p>
+  <p>ملاحظة: إن لم تقم بإنشاء حساب Admin، ادخل لوحة Firebase Authentication وأنشئ مستخدم بالإيميل admin@ash.tn</p>
+</main>
+
+<script>
+// paste your firebaseConfig here (same as booking page)
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_AUTH_DOMAIN",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_STORAGE_BUCKET",
+  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+
+document.getElementById('loginBtn').addEventListener('click', function(){
+  const email = document.getElementById('email').value.trim();
+  const pass = document.getElementById('password').value.trim();
+  auth.signInWithEmailAndPassword(email, pass)
+    .then(()=> { window.location.href = 'admin.html'; })
+    .catch(err => { document.getElementById('loginMsg').textContent = 'خطأ في الدخول: ' + err.message; });
+});
+</script>
+</body>
+</html>

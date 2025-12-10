@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>احجز خدمة - ASH</title>
+<link rel="stylesheet" href="style.css">
+<!-- EmailJS -->
+<script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+<!-- Firebase (compat) -->
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+</head>
+<body>
+<header class="site-header">
+  <div class="logo">ASH Window Cleaning</div>
+  <nav><a href="index.html">الرئيسية</a> | <a href="login.html">لوحة التحكم</a></nav>
+</header>
+
+<main class="container">
+  <h2>احجز خدمة</h2>
+  <form id="booking-form">
+    <label>الاسم</label>
+    <input id="name" name="name" required>
+    <label>رقم الهاتف</label>
+    <input id="phone" name="phone" required>
+    <label>الخدمة</label>
+    <select id="service" name="service">
+      <option>تنظيف النوافذ</option>
+      <option>تنظيف الواجهات</option>
+      <option>خدمات دورية</option>
+    </select>
+    <label>العنوان</label>
+    <input id="address" name="address">
+    <label>التاريخ</label>
+    <input id="date" name="date" type="date">
+    <button type="submit" class="btn">إرسال الطلب</button>
+  </form>
+  <p id="msg"></p>
+</main>
+
+<script>
+// === CONFIGURATION YOU MUST FILL ===
+// Create a Firebase project, enable Authentication (Email/Password) and Firestore.
+// Then paste your Firebase config object below:
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_AUTH_DOMAIN",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_STORAGE_BUCKET",
+  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+// Also paste your EmailJS public key above (we used earlier)
+const EMAILJS_PUBLIC_KEY = "dKDZhGvgDZ2OwDlZF";
+const EMAILJS_SERVICE = "service_glkvhot";
+const EMAILJS_TEMPLATE = "template_v6qi0el";
+// ====================================
+
+emailjs.init(EMAILJS_PUBLIC_KEY);
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+document.getElementById('booking-form').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const data = {
+    name: document.getElementById('name').value.trim(),
+    phone: document.getElementById('phone').value.trim(),
+    service: document.getElementById('service').value,
+    address: document.getElementById('address').value.trim(),
+    date: document.getElementById('date').value || '',
+    status: 'new',
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  };
+  // Save to Firestore
+  db.collection('bookings').add(data).then(docRef => {
+    // send email through EmailJS - uses the form values
+    emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, data)
+      .then(function(){ document.getElementById('msg').textContent = '✔ تم إرسال الطلب! شكراً لك.'; })
+      .catch(function(err){ console.error(err); document.getElementById('msg').textContent = 'تم الحفظ لكن لم يتم إرسال الإيميل.'; });
+    // clear form
+    document.getElementById('booking-form').reset();
+  }).catch(err => {
+    console.error(err);
+    document.getElementById('msg').textContent = '❌ حدث خطأ، حاول مرة أخرى.';
+  });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>لوحة تحكم - ASH</title>
+<link rel="stylesheet" href="style.css">
+<!-- Firebase (compat) -->
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+</head>
+<body>
+<header class="site-header"><div class="logo">ASH Admin Dashboard</div><button id="logoutBtn" class="mini">خروج</button></header>
+<main class="container">
+  <h2>قائمة الحجوزات</h2>
+  <table id="bookingsTable"><thead><tr><th>الاسم</th><th>الهاتف</th><th>الخدمة</th><th>العنوان</th><th>التاريخ</th><th>الحالة</th><th>أفعال</th></tr></thead><tbody></tbody></table>
+</main>
+
+<script>
+// paste firebaseConfig
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_AUTH_DOMAIN",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_STORAGE_BUCKET",
+  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+// protect page - redirect to login if not signed in
+auth.onAuthStateChanged(user => {
+  if(!user) { window.location.href = 'login.html'; return; }
+});
+
+document.getElementById('logoutBtn').addEventListener('click', ()=> auth.signOut().then(()=> window.location.href='login.html'));
+
+// realtime listener
+db.collection('bookings').orderBy('createdAt','desc').onSnapshot(snapshot=>{
+  const tbody = document.querySelector('#bookingsTable tbody');
+  tbody.innerHTML = '';
+  snapshot.forEach(doc=>{
+    const d = doc.data();
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${d.name || ''}</td>
+      <td>${d.phone || ''}</td>
+      <td>${d.service || ''}</td>
+      <td>${d.address || ''}</td>
+      <td>${d.date || ''}</td>
+      <td><select data-id="${doc.id}" class="status">${d.status||'new'}<option value="new">new</option><option value="in_progress">in_progress</option><option value="done">done</option></select></td>
+      <td><button data-id="${doc.id}" class="del">حذف</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+  // attach listeners
+  document.querySelectorAll('.del').forEach(b=> b.onclick = ()=> db.collection('bookings').doc(b.dataset.id).delete());
+  document.querySelectorAll('.status').forEach(s=> s.onchange = ()=> db.collection('bookings').doc(s.dataset.id).update({status: s.value}));
+});
+</script>
+</body>
+</html>
