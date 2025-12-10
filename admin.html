@@ -29,7 +29,12 @@ th { background-color: #4CAF50; color: white; }
   </thead>
   <tbody id="bookings-body"></tbody>
 </table>
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 
+db.collection("test").add({ok:true})
+  .then(()=> console.log("🔥 Firebase connected"))
+  .catch((e)=> console.log("❌ Firebase error:", e));
 <script>
 // ==== Firebase ====
 const firebaseConfig = {
