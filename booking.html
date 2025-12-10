@@ -7,12 +7,7 @@
 <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
-<style>
-body { font-family: Arial, sans-serif; padding: 20px; }
-input, select, button { display: block; margin: 10px 0; padding: 8px; width: 100%; }
-button { background-color: #4CAF50; color: white; border: none; cursor: pointer; }
-#msg { margin-top: 10px; font-weight: bold; }
-</style>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
@@ -43,7 +38,7 @@ button { background-color: #4CAF50; color: white; border: none; cursor: pointer;
 <p id="msg"></p>
 
 <script>
-// ==== Firebase ====
+// Firebase Config
 const firebaseConfig = {
   apiKey: "AIzaSyAJxzFknapSh0fnPfIXwEEK3OijSKlqxco",
   authDomain: "admin-ash-f622c.firebaseapp.com",
@@ -56,13 +51,13 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-// ==== EmailJS ====
+// EmailJS Config
 const EMAILJS_PUBLIC_KEY = "dKDZhGvgDZ2OwDlZF";
 const EMAILJS_SERVICE = "service_glkvhot";
 const EMAILJS_TEMPLATE = "template_v6qi0el";
 emailjs.init(EMAILJS_PUBLIC_KEY);
 
-// ==== إرسال الطلب ====
+// Send Booking
 document.getElementById('booking-form').addEventListener('submit', function(e){
   e.preventDefault();
   const data = {
@@ -74,21 +69,14 @@ document.getElementById('booking-form').addEventListener('submit', function(e){
     status: 'new',
     createdAt: firebase.firestore.FieldValue.serverTimestamp()
   };
-
-  // حفظ في Firestore
   db.collection('bookings').add(data)
     .then(() => {
-      // إرسال عبر EmailJS
       emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, data)
         .then(() => { document.getElementById('msg').textContent = "✔ تم إرسال الطلب بنجاح!"; })
         .catch(err => { console.error(err); document.getElementById('msg').textContent = "تم الحفظ لكن لم يتم إرسال الإيميل."; });
-
       document.getElementById('booking-form').reset();
     })
-    .catch(err => {
-      console.error(err);
-      document.getElementById('msg').textContent = "❌ حدث خطأ، حاول مرة أخرى.";
-    });
+    .catch(err => { console.error(err); document.getElementById('msg').textContent = "❌ حدث خطأ، حاول مرة أخرى."; });
 });
 </script>
 
