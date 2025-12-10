@@ -32,9 +32,6 @@ th { background-color: #4CAF50; color: white; }
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-db.collection("test").add({ok:true})
-  .then(()=> console.log("🔥 Firebase connected"))
-  .catch((e)=> console.log("❌ Firebase error:", e));
 <script>
 // ==== Firebase ====
 const firebaseConfig = {
@@ -49,6 +46,9 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
+db.collection("test").add({ok:true})
+  .then(()=> console.log("🔥 Firebase connected"))
+  .catch((e)=> console.log("❌ Firebase error:", e));
 // ==== جلب الطلبات ====
 db.collection('bookings').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
   const tbody = document.getElementById('bookings-body');
