@@ -8,7 +8,7 @@
 <!-- EmailJS -->
 <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
 
-<!-- Firebase Compat SDK -->
+<!-- Firebase Compat -->
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
 
@@ -17,6 +17,7 @@
 <body>
 
 <h2>احجز خدمة</h2>
+
 <form id="booking-form">
   <label>الاسم</label>
   <input id="name" required>
@@ -43,57 +44,48 @@
 <p id="msg"></p>
 
 <script>
-// Firebase Config
+// Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyAJxzFknapSh0fnPfIXwEEK3OijSKlqxco",
   authDomain: "admin-ash-f622c.firebaseapp.com",
   projectId: "admin-ash-f622c",
-  storageBucket: "admin-ash-f622c.firebasestorage.app",
+  storageBucket: "admin-ash-f622c.appspot.com",
   messagingSenderId: "76505742154",
-  appId: "1:76505742154:web:dc4f190f9f2de80acb1fb3",
-  measurementId: "G-MNPL104YPN"
+  appId: "1:76505742154:web:dc4f190f9f2de80acb1fb3"
 };
 
-// Init Firebase
+// Init
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-// EmailJS Config
+// EmailJS init
 emailjs.init("dKDZhGvgDZ2OwDlZF");
 
-// Send Booking
-document.getElementById('booking-form').addEventListener('submit', function(e){
+// On Submit
+document.getElementById("booking-form").addEventListener("submit", function(e){
   e.preventDefault();
 
   const data = {
-    name: document.getElementById('name').value.trim(),
-    phone: document.getElementById('phone').value.trim(),
-    service: document.getElementById('service').value,
-    address: document.getElementById('address').value.trim(),
-    date: document.getElementById('date').value || '',
-    status: 'new',
-    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    name: document.getElementById("name").value,
+    phone: document.getElementById("phone").value,
+    service: document.getElementById("service").value,
+    address: document.getElementById("address").value,
+    date: document.getElementById("date").value,
+    createdAt: new Date()
   };
 
-  db.collection('bookings').add(data)
-    .then(() => {
-      // SEND EMAIL
-      emailjs.send("service_glkvhot", "template_v6qi0el", data)
-        .then(() => { 
-          document.getElementById('msg').textContent = "✔ تم إرسال الطلب بنجاح!";
-        })
-        .catch(err => { 
-          document.getElementById('msg').textContent = "❗ تم الحفظ لكن لم يتم إرسال الإيميل.";
-          console.error(err);
-        });
+  db.collection("bookings").add(data).then(() => {
 
-      document.getElementById('booking-form').reset();
-    })
-    .catch(err => {
-      console.error(err);
-      document.getElementById('msg').textContent = "❌ حدث خطأ، حاول مرة أخرى.";
-    });
+    emailjs.send("service_glkvhot", "template_v6qi0el", data)
+      .then(() => {
+        document.getElementById("msg").innerHTML = "✔ تم إرسال الطلب بنجاح!";
+        document.getElementById("booking-form").reset();
+      });
 
+  }).catch(err => {
+    console.error(err);
+    document.getElementById("msg").innerHTML = "❌ خطأ أثناء الإرسال!";
+  });
 });
 </script>
 
