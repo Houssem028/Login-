@@ -4,9 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>احجز خدمة - ASH</title>
+
+<!-- EmailJS -->
 <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+
+<!-- Firebase Compat SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -43,23 +48,23 @@ const firebaseConfig = {
   apiKey: "AIzaSyAJxzFknapSh0fnPfIXwEEK3OijSKlqxco",
   authDomain: "admin-ash-f622c.firebaseapp.com",
   projectId: "admin-ash-f622c",
-  storageBucket: "admin-ash-f622c.appspot.com",
+  storageBucket: "admin-ash-f622c.firebasestorage.app",
   messagingSenderId: "76505742154",
   appId: "1:76505742154:web:dc4f190f9f2de80acb1fb3",
   measurementId: "G-MNPL104YPN"
 };
+
+// Init Firebase
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
 // EmailJS Config
-const EMAILJS_PUBLIC_KEY = "dKDZhGvgDZ2OwDlZF";
-const EMAILJS_SERVICE = "service_glkvhot";
-const EMAILJS_TEMPLATE = "template_v6qi0el";
-emailjs.init(EMAILJS_PUBLIC_KEY);
+emailjs.init("dKDZhGvgDZ2OwDlZF");
 
 // Send Booking
 document.getElementById('booking-form').addEventListener('submit', function(e){
   e.preventDefault();
+
   const data = {
     name: document.getElementById('name').value.trim(),
     phone: document.getElementById('phone').value.trim(),
@@ -69,14 +74,26 @@ document.getElementById('booking-form').addEventListener('submit', function(e){
     status: 'new',
     createdAt: firebase.firestore.FieldValue.serverTimestamp()
   };
+
   db.collection('bookings').add(data)
     .then(() => {
-      emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, data)
-        .then(() => { document.getElementById('msg').textContent = "✔ تم إرسال الطلب بنجاح!"; })
-        .catch(err => { console.error(err); document.getElementById('msg').textContent = "تم الحفظ لكن لم يتم إرسال الإيميل."; });
+      // SEND EMAIL
+      emailjs.send("service_glkvhot", "template_v6qi0el", data)
+        .then(() => { 
+          document.getElementById('msg').textContent = "✔ تم إرسال الطلب بنجاح!";
+        })
+        .catch(err => { 
+          document.getElementById('msg').textContent = "❗ تم الحفظ لكن لم يتم إرسال الإيميل.";
+          console.error(err);
+        });
+
       document.getElementById('booking-form').reset();
     })
-    .catch(err => { console.error(err); document.getElementById('msg').textContent = "❌ حدث خطأ، حاول مرة أخرى."; });
+    .catch(err => {
+      console.error(err);
+      document.getElementById('msg').textContent = "❌ حدث خطأ، حاول مرة أخرى.";
+    });
+
 });
 </script>
 
