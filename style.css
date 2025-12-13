@@ -1,96 +1,76 @@
 /* إعدادات عامة */
+* {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
-  font-family: 'Arial', sans-serif;
+  font-family: Arial, sans-serif;
   background: linear-gradient(180deg, #f5f7fa, #e8ecf1);
   color: #333;
+  direction: rtl;
 }
 
 /* الهيدر */
-header {
+.site-header {
   background: #1f2933;
   color: white;
-  text-align: center;
-  padding: 25px 15px;
+  padding: 15px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-header img {
-  width: 90px;
+.site-header .logo {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.site-header nav a {
+  color: white;
+  text-decoration: none;
+  margin-right: 15px;
+  font-size: 15px;
+}
+
+.site-header nav a:hover {
+  text-decoration: underline;
+}
+
+/* الهيرو */
+.hero {
+  text-align: center;
+  padding: 70px 20px;
+  background: linear-gradient(180deg, #ffffff, #e8ecf1);
+}
+
+.hero h1 {
+  font-size: 28px;
   margin-bottom: 10px;
-}
-
-header h1 {
-  margin: 0;
-  font-size: 26px;
-  letter-spacing: 1px;
-}
-
-/* الحاوية */
-.container {
-  max-width: 900px;
-  margin: 20px auto;
-  padding: 15px;
-}
-
-/* الأقسام */
-.section {
-  background: white;
-  border-radius: 14px;
-  padding: 20px;
-  margin-bottom: 20px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
-}
-
-.section h2 {
-  margin-top: 0;
   color: #1f2933;
-  text-align: center;
 }
 
-/* الخدمات */
-.services {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 15px;
-}
-
-.service-card {
-  background: #f1f5f9;
-  border-radius: 12px;
-  padding: 15px;
-  text-align: center;
-  font-weight: bold;
-  transition: 0.3s;
-}
-
-.service-card:hover {
-  background: #4CAF50;
-  color: white;
-  transform: translateY(-5px);
-}
-
-/* الفورم */
-input, select, button {
-  width: 100%;
-  padding: 12px;
-  margin-top: 12px;
-  border-radius: 10px;
-  border: 1px solid #ccc;
+.hero p {
   font-size: 16px;
+  color: #555;
+  margin-bottom: 30px;
 }
 
-/* الزر */
-button {
+/* زر الحجز */
+.cta {
+  display: inline-block;
   background: #4CAF50;
   color: white;
+  padding: 14px 30px;
+  border-radius: 30px;
+  text-decoration: none;
   font-weight: bold;
-  border: none;
-  cursor: pointer;
   transition: 0.3s;
 }
 
-button:hover {
+.cta:hover {
   background: #43a047;
+  transform: scale(1.05);
 }
 
 /* الفوتر */
@@ -104,7 +84,13 @@ footer {
 
 /* موبايل */
 @media (max-width: 600px) {
-  header h1 {
+  .site-header {
+    flex-direction: column;
+    gap: 10px;
+    text-align: center;
+  }
+
+  .hero h1 {
     font-size: 22px;
   }
-    }
+}
