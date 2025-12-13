@@ -1,96 +1,13 @@
-/* إعدادات عامة */
-* {
-  box-sizing: border-box;
-}
-
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: linear-gradient(180deg, #f5f7fa, #e8ecf1);
-  color: #333;
-  direction: rtl;
-}
-
-/* الهيدر */
-.site-header {
-  background: #1f2933;
-  color: white;
-  padding: 15px 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.site-header .logo {
-  font-size: 20px;
-  font-weight: bold;
-}
-
-.site-header nav a {
-  color: white;
-  text-decoration: none;
-  margin-right: 15px;
-  font-size: 15px;
-}
-
-.site-header nav a:hover {
-  text-decoration: underline;
-}
-
-/* الهيرو */
-.hero {
-  text-align: center;
-  padding: 70px 20px;
-  background: linear-gradient(180deg, #ffffff, #e8ecf1);
-}
-
-.hero h1 {
-  font-size: 28px;
-  margin-bottom: 10px;
-  color: #1f2933;
-}
-
-.hero p {
-  font-size: 16px;
-  color: #555;
-  margin-bottom: 30px;
-}
-
-/* زر الحجز */
-.cta {
-  display: inline-block;
-  background: #4CAF50;
-  color: white;
-  padding: 14px 30px;
-  border-radius: 30px;
-  text-decoration: none;
-  font-weight: bold;
-  transition: 0.3s;
-}
-
-.cta:hover {
-  background: #43a047;
-  transform: scale(1.05);
-}
-
-/* الفوتر */
-footer {
-  background: #1f2933;
-  color: #ddd;
-  text-align: center;
-  padding: 15px;
-  font-size: 14px;
-}
-
-/* موبايل */
-@media (max-width: 600px) {
-  .site-header {
-    flex-direction: column;
-    gap: 10px;
-    text-align: center;
-  }
-
-  .hero h1 {
-    font-size: 22px;
-  }
-}
+body { font-family: Arial, sans-serif; margin:0; padding:0; background:#f5f7fa; }
+.site-header { background:#1f2933; color:white; text-align:center; padding:20px; }
+.site-header .logo { font-size:22px; font-weight:bold; }
+nav a { color:white; margin:0 10px; text-decoration:none; }
+.hero { text-align:center; padding:50px 20px; }
+.cta { background:#4CAF50; color:white; padding:12px 20px; text-decoration:none; border-radius:8px; }
+h2 { text-align:center; }
+input, select, button { width:100%; padding:10px; margin:10px 0; border-radius:8px; }
+button { background:#4CAF50; color:white; border:none; cursor:pointer; }
+button:hover { background:#43a047; }
+table { width:100%; border-collapse:collapse; margin-top:20px; }
+th, td { border:1px solid #ddd; padding:8px; text-align:center; }
+th { background:#4CAF50; color:white; }
