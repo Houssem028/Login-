@@ -54,7 +54,7 @@ const firebaseConfig = {
   appId: "1:76505742154:web:dc4f190f9f2de80acb1fb3"
 };
 
-// Init
+// Init Firebase
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
@@ -64,7 +64,6 @@ emailjs.init("dKDZhGvgDZ2OwDlZF");
 // On Submit
 document.getElementById("booking-form").addEventListener("submit", function(e){
   e.preventDefault();
-
   const data = {
     name: document.getElementById("name").value,
     phone: document.getElementById("phone").value,
@@ -75,19 +74,16 @@ document.getElementById("booking-form").addEventListener("submit", function(e){
   };
 
   db.collection("bookings").add(data).then(() => {
-
     emailjs.send("service_glkvhot", "template_v6qi0el", data)
       .then(() => {
         document.getElementById("msg").innerHTML = "✔ تم إرسال الطلب بنجاح!";
         document.getElementById("booking-form").reset();
       });
-
   }).catch(err => {
     console.error(err);
     document.getElementById("msg").innerHTML = "❌ خطأ أثناء الإرسال!";
   });
 });
 </script>
-
 </body>
 </html>
