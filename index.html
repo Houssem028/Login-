@@ -5,256 +5,98 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>ASH Window Cleaning</title>
 
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+
 <style>
-/* ===== BASE ===== */
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: #f5f7fa;
-  color: #333;
-}
+body { margin:0; font-family: Arial, sans-serif; background:#f5f7fa; color:#333; }
+header { background:#0a5cff; color:#fff; padding:20px; text-align:center; }
+header h1 { margin:0; font-size:28px; }
+header nav a { color:#fff; text-decoration:none; margin:0 10px; font-weight:bold; }
+main { padding:20px; max-width:900px; margin:auto; }
+.hero { background:#fff; border-radius:10px; padding:30px; text-align:center; box-shadow:0 4px 10px rgba(0,0,0,0.08); margin-bottom:20px; }
+.hero h2 { font-size:26px; margin-bottom:15px; }
+.hero p { font-size:16px; line-height:1.6; margin-bottom:25px; }
+.hero a.cta { background:#0a5cff; color:#fff; padding:14px 25px; border-radius:8px; text-decoration:none; font-size:16px; display:inline-block; transition:0.3s; }
+.hero a.cta:hover { background:#084dcc; }
 
-h1, h2, h3, h4 {
-  margin: 0 0 10px 0;
-}
+.info { display:grid; gap:20px; margin-bottom:20px; }
+.info div { background:#fff; padding:20px; border-radius:10px; box-shadow:0 4px 10px rgba(0,0,0,0.06); }
 
-a {
-  text-decoration: none;
-  color: inherit;
-  transition: color 0.3s;
-}
+.rating-box { max-width:400px; margin:20px auto; background:#fff; padding:20px; border-radius:12px; box-shadow:0 4px 10px rgba(0,0,0,0.08); text-align:center; }
+.rating-box h3 { margin-bottom:15px; }
+.stars span { font-size:32px; cursor:pointer; color:#555; transition:0.3s; }
+.stars span:hover, .stars span.active { color:#fbbc05; }
+#nameForm { margin-top:15px; display:none; }
+#nameForm input { padding:10px; width:70%; border-radius:8px; border:1px solid #ccc; }
+#nameForm button { padding:10px 15px; background:#0a5cff; color:white; border:none; border-radius:8px; cursor:pointer; }
+#ratingMsg { margin-top:10px; font-weight:bold; }
 
-a:hover {
-  color: #0a5cff;
-}
-
-/* ===== HEADER ===== */
-header {
-  background: #0a5cff;
-  color: white;
-  padding: 20px;
-  text-align: center;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-header h1 {
-  font-size: 28px;
-  margin: 0;
-}
-
-#langBtn {
-  background: white;
-  color: #0a5cff;
-  border: none;
-  border-radius: 8px;
-  padding: 6px 12px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: 0.3s;
-}
-
-#langBtn:hover {
-  background: #e6e6e6;
-}
-
-/* ===== HERO ===== */
-.hero {
-  background: #fff;
-  border-radius: 12px;
-  padding: 40px 20px;
-  text-align: center;
-  margin: 20px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-  opacity: 0;
-  transform: translateY(15px);
-  animation: fadeUp 0.6s ease forwards;
-}
-
-.hero h2 {
-  font-size: 26px;
-  margin-bottom: 15px;
-}
-
-.hero p {
-  font-size: 16px;
-  line-height: 1.6;
-  color: #555;
-}
-
-/* ===== RATING BOX ===== */
-.rating-box {
-  background: #fff;
-  padding: 20px;
-  border-radius: 12px;
-  text-align: center;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-  margin: 20px auto;
-  max-width: 300px;
-  opacity: 0;
-  transform: translateY(15px);
-  animation: fadeUp 0.6s 0.2s ease forwards;
-}
-
-.rating-box h3 {
-  color: #0a5cff;
-  margin-bottom: 10px;
-}
-
-.rating-box .stars {
-  font-size: 24px;
-  margin-bottom: 8px;
-}
-
-.rating-box .stars span {
-  margin: 0 2px;
-}
-
-.rating-box p {
-  font-size: 14px;
-  color: #555;
-}
-
-/* ===== INFO ===== */
-.info {
-  display: grid;
-  gap: 20px;
-  margin: 20px;
-}
-
-.info div {
-  background: #fff;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.06);
-}
-
-.info h3 {
-  margin-bottom: 10px;
-  color: #0a5cff;
-}
-
-.info a {
-  color: #0a5cff;
-}
-
-/* ===== FOOTER ===== */
-footer {
-  text-align: center;
-  padding: 15px;
-  background: #e9ecef;
-  font-size: 14px;
-  margin-top: 40px;
-}
+footer { text-align:center; padding:15px; background:#e9ecef; margin-top:40px; font-size:14px; }
 
 /* ===== BOTTOM BAR ===== */
-.bottom-bar {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: #fff;
-  display: flex;
-  justify-content: space-around;
-  border-top: 1px solid #e5e7eb;
-  padding: 8px 0;
-  z-index: 999;
-}
-
-.bottom-bar a {
-  text-decoration: none;
-  color: #555;
-  font-size: 12px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  transition: color 0.3s;
-}
-
-.bottom-bar a span {
-  margin-top: 2px;
-}
-
-.bottom-bar a.active {
-  color: #0a5cff;
-  font-weight: bold;
-}
-
-/* ===== ANIMATION ===== */
-@keyframes fadeUp {
-  from {
-    opacity: 0;
-    transform: translateY(15px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* ===== RESPONSIVE ===== */
-@media (max-width: 768px) {
-  .info {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 480px) {
-  .hero h2 {
-    font-size: 24px;
-  }
-
-  .hero p {
-    font-size: 14px;
-  }
-}
+.bottom-bar { position: fixed; bottom:0; left:0; right:0; background:#fff; display:flex; justify-content:space-around; border-top:1px solid #ccc; padding:10px 0; box-shadow:0 -1px 5px rgba(0,0,0,0.1); z-index:1000; }
+.bottom-bar a { text-decoration:none; color:#555; font-size:14px; display:flex; flex-direction:column; align-items:center; }
+.bottom-bar a.active { color:#0a5cff; font-weight:bold; }
+.bottom-bar a span { font-size:12px; margin-top:2px; }
 </style>
-
 </head>
+
 <body>
 
 <header>
-  <h1 id="logo">ASH Window Cleaning</h1>
-  <button id="langBtn">Français</button>
+  <h1>ASH Window Cleaning</h1>
+  <nav>
+    <a href="index.html" class="active">الرئيسية</a>
+    <a href="booking.html">احجز خدمة</a>
+    <a href="login.html">لوحة التحكم</a>
+  </nav>
 </header>
 
 <main>
 
   <section class="hero">
-    <h2 id="heroTitle" data-ar="نظافة الزجاج باحترافية وثقة" data-fr="Nettoyage de vitres professionnel et fiable">نظافة الزجاج باحترافية وثقة</h2>
-    <p id="heroText" data-ar="نقدم خدمات تنظيف النوافذ والواجهات للمنازل، المحلات والمكاتب باستخدام أدوات حديثة ونتائج مضمونة."
-       data-fr="Nous proposons des services de nettoyage de vitres et façades pour maisons, magasins et bureaux avec des outils modernes et des résultats garantis.">
-      نقدم خدمات تنظيف النوافذ والواجهات للمنازل، المحلات والمكاتب باستخدام أدوات حديثة ونتائج مضمونة.
+    <h2>نظافة الزجاج باحترافية وثقة</h2>
+    <p>
+      نقدم خدمات تنظيف النوافذ والواجهات للمنازل، المحلات والمكاتب  
+      باستخدام أدوات حديثة ونتائج مضمونة.
     </p>
-  </section>
-
-  <section class="rating-box">
-    <h3 id="ratingTitle" data-ar="قيّم خدمتنا" data-fr="Évaluez notre service">قيّم خدمتنا</h3>
-    <div class="stars">
-      <span>⭐</span><span>⭐</span><span>⭐</span><span>⭐</span><span>⭐</span>
-    </div>
-    <p id="ratingText" data-ar="أكثر من 120 زبون راضٍ" data-fr="Plus de 120 clients satisfaits">أكثر من 120 زبون راضٍ</p>
+    <a href="booking.html" class="cta">احجز الآن</a>
   </section>
 
   <section class="info">
     <div>
-      <h3 id="info1Title" data-ar="📍 نخدم" data-fr="📍 Nous desservons">📍 نخدم</h3>
-      <p id="info1Text" data-ar="المنازل – المحلات – المكاتب – الواجهات الزجاجية" data-fr="Maisons – Magasins – Bureaux – Façades vitrées">
-        المنازل – المحلات – المكاتب – الواجهات الزجاجية
-      </p>
+      <h3>📍 نخدم</h3>
+      <p>المنازل – المحلات – المكاتب – الواجهات الزجاجية</p>
     </div>
+
     <div>
-      <h3 id="info2Title" data-ar="📞 تواصل معنا" data-fr="📞 Contactez-nous">📞 تواصل معنا</h3>
-      <p id="info2Text">
-        هاتف: <a id="tel1" href="tel:+21624598941">+216 24 598 941</a><br>
-        هاتف: <a id="tel2" href="tel:+21651084442">+216 51 084 442</a><br>
-        واتساب: <a id="waLink" href="https://wa.me/21621477790" target="_blank">+216 21 477 790</a>
+      <h3>📞 تواصل معنا</h3>
+      <p>
+        <a href="tel:+21624598941">+216 24 598 941</a><br>
+        <a href="tel:+21651084442">+216 51 084 442</a><br>
+        <a href="https://wa.me/21621477790" target="_blank">واتساب: +216 21 477 790</a>
       </p>
     </div>
+  </section>
+
+  <section class="rating-box">
+    <h3>قيّم خدمتنا</h3>
+    <div class="stars" id="stars">
+      <span data-value="1">⭐</span>
+      <span data-value="2">⭐</span>
+      <span data-value="3">⭐</span>
+      <span data-value="4">⭐</span>
+      <span data-value="5">⭐</span>
+    </div>
+
+    <div id="nameForm">
+      <input type="text" id="userName" placeholder="أدخل اسمك">
+      <button id="submitRating">إرسال</button>
+    </div>
+
+    <p id="ratingMsg"></p>
   </section>
 
 </main>
@@ -264,28 +106,62 @@ footer {
 </footer>
 
 <nav class="bottom-bar">
-  <a href="index.html" class="active">🏠<span data-ar="الرئيسية" data-fr="Accueil">الرئيسية</span></a>
-  <a href="booking.html">📅<span data-ar="حجز" data-fr="Réservation">حجز</span></a>
-  <a href="login.html">🔒<span data-ar="الإدارة" data-fr="Admin">الإدارة</span></a>
+  <a href="index.html" class="active">🏠<span>الرئيسية</span></a>
+  <a href="booking.html">📅<span>حجز</span></a>
+  <a href="login.html">🔒<span>الإدارة</span></a>
 </nav>
 
 <script>
-// زر تغيير اللغة مع اتجاه الصفحة
-const langBtn = document.getElementById('langBtn');
-let currentLang = 'ar';
+// ===== Firebase Config =====
+const firebaseConfig = {
+  apiKey: "AIzaSyAJxzFknapSh0fnPfIXwEEK3OijSKlqxco",
+  authDomain: "admin-ash-f622c.firebaseapp.com",
+  databaseURL: "https://admin-ash-f622c-default-rtdb.firebaseio.com/",
+  projectId: "admin-ash-f622c",
+  storageBucket: "admin-ash-f622c.appspot.com",
+  messagingSenderId: "76505742154",
+  appId: "1:76505742154:web:dc4f190f9f2de80acb1fb3"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
 
-langBtn.addEventListener('click', () => {
-  currentLang = currentLang === 'ar' ? 'fr' : 'ar';
-  langBtn.textContent = currentLang === 'ar' ? 'Français' : 'العربية';
+// ===== النجوم =====
+const stars = document.querySelectorAll('#stars span');
+let selectedRating = 0;
 
-  // تغيير اتجاه الصفحة
-  document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
-  document.documentElement.lang = currentLang;
-
-  // تحديث كل العناصر
-  document.querySelectorAll('[data-ar]').forEach(el => {
-    el.textContent = el.getAttribute(`data-${currentLang}`);
+stars.forEach(star => {
+  star.addEventListener('mouseover', () => {
+    const val = parseInt(star.getAttribute('data-value'));
+    stars.forEach(s => s.style.color = s.getAttribute('data-value') <= val ? '#fbbc05' : '#555');
   });
+  star.addEventListener('click', () => {
+    selectedRating = parseInt(star.getAttribute('data-value'));
+    stars.forEach(s => s.classList.remove('active'));
+    star.classList.add('active');
+    document.getElementById('nameForm').style.display = 'block';
+    document.body.dir = 'ltr'; // لتصحيح اتجاه الأرقام
+  });
+});
+
+// ===== إرسال التقييم =====
+document.getElementById('submitRating').addEventListener('click', () => {
+  const name = document.getElementById('userName').value.trim();
+  if(name && selectedRating > 0){
+    const newRating = {
+      name: name,
+      rating: selectedRating,
+      timestamp: Date.now()
+    };
+    db.ref('ratings').push(newRating);
+    document.getElementById('ratingMsg').textContent = `شكراً ${name}! تم تسجيل تقييمك ${selectedRating} نجوم.`;
+    document.getElementById('nameForm').style.display = 'none';
+    stars.forEach(s => s.style.color = '#555');
+    document.getElementById('userName').value = '';
+    selectedRating = 0;
+    document.body.dir = 'rtl'; // إعادة اتجاه الصفحة للعربية
+  } else {
+    alert('الرجاء إدخال الاسم واختيار التقييم.');
+  }
 });
 </script>
 
