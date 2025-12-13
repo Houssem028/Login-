@@ -10,9 +10,10 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 
 <style>
-body { margin:0; font-family: Arial, sans-serif; background:#f5f7fa; color:#333; }
-header { background:#0a5cff; color:#fff; padding:20px; text-align:center; }
+body { margin:0; font-family: Arial, sans-serif; background:#f5f7fa; color:#333; transition:0.3s; }
+header { background:#0a5cff; color:#fff; padding:20px; text-align:center; position:relative; }
 header h1 { margin:0; font-size:28px; }
+.lang-btn { position:absolute; top:20px; right:20px; background:#fff; color:#0a5cff; border:none; border-radius:8px; padding:5px 10px; cursor:pointer; }
 header nav a { color:#fff; text-decoration:none; margin:0 10px; font-weight:bold; }
 main { padding:20px; max-width:900px; margin:auto; }
 .hero { background:#fff; border-radius:10px; padding:30px; text-align:center; box-shadow:0 4px 10px rgba(0,0,0,0.08); margin-bottom:20px; }
@@ -33,9 +34,8 @@ main { padding:20px; max-width:900px; margin:auto; }
 #nameForm button { padding:10px 15px; background:#0a5cff; color:white; border:none; border-radius:8px; cursor:pointer; }
 #ratingMsg { margin-top:10px; font-weight:bold; }
 
-footer { text-align:center; padding:15px; background:#e9ecef; margin-top:40px; font-size:14px; }
+footer { text-align:center; padding:15px; background:#e9ecef; margin-top:40px; font-size:14px; transition:0.3s; }
 
-/* ===== BOTTOM BAR ===== */
 .bottom-bar { position: fixed; bottom:0; left:0; right:0; background:#fff; display:flex; justify-content:space-around; border-top:1px solid #ccc; padding:10px 0; box-shadow:0 -1px 5px rgba(0,0,0,0.1); z-index:1000; }
 .bottom-bar a { text-decoration:none; color:#555; font-size:14px; display:flex; flex-direction:column; align-items:center; }
 .bottom-bar a.active { color:#0a5cff; font-weight:bold; }
@@ -46,43 +46,40 @@ footer { text-align:center; padding:15px; background:#e9ecef; margin-top:40px; f
 <body>
 
 <header>
-  <h1>ASH Window Cleaning</h1>
+  <h1 id="siteTitle">ASH Window Cleaning</h1>
+  <button class="lang-btn" id="toggleLang">FR</button>
   <nav>
-    <a href="index.html" class="active">الرئيسية</a>
-    <a href="booking.html">احجز خدمة</a>
-    <a href="login.html">لوحة التحكم</a>
+    <a href="index.html" class="active" id="navHome">الرئيسية</a>
+    <a href="booking.html" id="navBooking">احجز خدمة</a>
+    <a href="login.html" id="navAdmin">لوحة التحكم</a>
   </nav>
 </header>
 
 <main>
-
   <section class="hero">
-    <h2>نظافة الزجاج باحترافية وثقة</h2>
-    <p>
-      نقدم خدمات تنظيف النوافذ والواجهات للمنازل، المحلات والمكاتب  
-      باستخدام أدوات حديثة ونتائج مضمونة.
-    </p>
-    <a href="booking.html" class="cta">احجز الآن</a>
+    <h2 id="heroTitle">نظافة الزجاج باحترافية وثقة</h2>
+    <p id="heroText">نقدم خدمات تنظيف النوافذ والواجهات للمنازل، المحلات والمكاتب باستخدام أدوات حديثة ونتائج مضمونة.</p>
+    <a href="booking.html" class="cta" id="heroBtn">احجز الآن</a>
   </section>
 
   <section class="info">
     <div>
-      <h3>📍 نخدم</h3>
-      <p>المنازل – المحلات – المكاتب – الواجهات الزجاجية</p>
+      <h3 id="infoService">📍 نخدم</h3>
+      <p id="infoServiceText">المنازل – المحلات – المكاتب – الواجهات الزجاجية</p>
     </div>
 
     <div>
-      <h3>📞 تواصل معنا</h3>
+      <h3 id="infoContact">📞 تواصل معنا</h3>
       <p>
-        <a href="tel:+21624598941">+216 24 598 941</a><br>
-        <a href="tel:+21651084442">+216 51 084 442</a><br>
-        <a href="https://wa.me/21621477790" target="_blank">واتساب: +216 21 477 790</a>
+        <a href="tel:+21624598941" id="phone1">+216 24 598 941</a><br>
+        <a href="tel:+21651084442" id="phone2">+216 51 084 442</a><br>
+        <a href="https://wa.me/21621477790" target="_blank" id="whatsapp">واتساب: +216 21 477 790</a>
       </p>
     </div>
   </section>
 
   <section class="rating-box">
-    <h3>قيّم خدمتنا</h3>
+    <h3 id="ratingTitle">قيّم خدمتنا</h3>
     <div class="stars" id="stars">
       <span data-value="1">⭐</span>
       <span data-value="2">⭐</span>
@@ -101,14 +98,14 @@ footer { text-align:center; padding:15px; background:#e9ecef; margin-top:40px; f
 
 </main>
 
-<footer>
+<footer id="footerText">
   © 2025 ASH Window Cleaning
 </footer>
 
 <nav class="bottom-bar">
-  <a href="index.html" class="active">🏠<span>الرئيسية</span></a>
-  <a href="booking.html">📅<span>حجز</span></a>
-  <a href="login.html">🔒<span>الإدارة</span></a>
+  <a href="index.html" class="active" id="bottomHome">🏠<span>الرئيسية</span></a>
+  <a href="booking.html" id="bottomBooking">📅<span>حجز</span></a>
+  <a href="login.html" id="bottomAdmin">🔒<span>الإدارة</span></a>
 </nav>
 
 <script>
@@ -139,29 +136,87 @@ stars.forEach(star => {
     stars.forEach(s => s.classList.remove('active'));
     star.classList.add('active');
     document.getElementById('nameForm').style.display = 'block';
-    document.body.dir = 'ltr'; // لتصحيح اتجاه الأرقام
+    document.body.dir = 'ltr';
   });
 });
 
-// ===== إرسال التقييم =====
 document.getElementById('submitRating').addEventListener('click', () => {
   const name = document.getElementById('userName').value.trim();
   if(name && selectedRating > 0){
-    const newRating = {
-      name: name,
-      rating: selectedRating,
-      timestamp: Date.now()
-    };
+    const newRating = { name: name, rating: selectedRating, timestamp: Date.now() };
     db.ref('ratings').push(newRating);
     document.getElementById('ratingMsg').textContent = `شكراً ${name}! تم تسجيل تقييمك ${selectedRating} نجوم.`;
     document.getElementById('nameForm').style.display = 'none';
     stars.forEach(s => s.style.color = '#555');
     document.getElementById('userName').value = '';
     selectedRating = 0;
-    document.body.dir = 'rtl'; // إعادة اتجاه الصفحة للعربية
+    document.body.dir = 'rtl';
   } else {
     alert('الرجاء إدخال الاسم واختيار التقييم.');
   }
+});
+
+// ===== تبديل اللغة =====
+const langBtn = document.getElementById('toggleLang');
+let currentLang = 'ar';
+
+const texts = {
+  ar: {
+    siteTitle: "ASH Window Cleaning",
+    navHome: "الرئيسية",
+    navBooking: "احجز خدمة",
+    navAdmin: "لوحة التحكم",
+    heroTitle: "نظافة الزجاج باحترافية وثقة",
+    heroText: "نقدم خدمات تنظيف النوافذ والواجهات للمنازل، المحلات والمكاتب باستخدام أدوات حديثة ونتائج مضمونة.",
+    heroBtn: "احجز الآن",
+    infoService: "📍 نخدم",
+    infoServiceText: "المنازل – المحلات – المكاتب – الواجهات الزجاجية",
+    infoContact: "📞 تواصل معنا",
+    phone1: "+216 24 598 941",
+    phone2: "+216 51 084 442",
+    whatsapp: "واتساب: +216 21 477 790",
+    ratingTitle: "قيّم خدمتنا",
+    footerText: "© 2025 ASH Window Cleaning"
+  },
+  fr: {
+    siteTitle: "ASH Nettoyage de Vitres",
+    navHome: "Accueil",
+    navBooking: "Réserver",
+    navAdmin: "Admin",
+    heroTitle: "Nettoyage de vitres professionnel et fiable",
+    heroText: "Nous proposons des services de nettoyage des fenêtres et façades pour maisons, commerces et bureaux avec du matériel moderne et des résultats garantis.",
+    heroBtn: "Réservez maintenant",
+    infoService: "📍 Nous servons",
+    infoServiceText: "Maisons – Commerces – Bureaux – Façades vitrées",
+    infoContact: "📞 Contactez-nous",
+    phone1: "+216 24 598 941",
+    phone2: "+216 51 084 442",
+    whatsapp: "WhatsApp: +216 21 477 790",
+    ratingTitle: "Évaluez notre service",
+    footerText: "© 2025 ASH Window Cleaning"
+  }
+};
+
+langBtn.addEventListener('click', () => {
+  currentLang = currentLang === 'ar' ? 'fr' : 'ar';
+  const t = texts[currentLang];
+  document.body.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+  document.getElementById('siteTitle').textContent = t.siteTitle;
+  document.getElementById('navHome').textContent = t.navHome;
+  document.getElementById('navBooking').textContent = t.navBooking;
+  document.getElementById('navAdmin').textContent = t.navAdmin;
+  document.getElementById('heroTitle').textContent = t.heroTitle;
+  document.getElementById('heroText').textContent = t.heroText;
+  document.getElementById('heroBtn').textContent = t.heroBtn;
+  document.getElementById('infoService').textContent = t.infoService;
+  document.getElementById('infoServiceText').textContent = t.infoServiceText;
+  document.getElementById('infoContact').textContent = t.infoContact;
+  document.getElementById('phone1').textContent = t.phone1;
+  document.getElementById('phone2').textContent = t.phone2;
+  document.getElementById('whatsapp').textContent = t.whatsapp;
+  document.getElementById('ratingTitle').textContent = t.ratingTitle;
+  document.getElementById('footerText').textContent = t.footerText;
+  langBtn.textContent = currentLang === 'ar' ? 'FR' : 'AR';
 });
 </script>
 
