@@ -177,14 +177,14 @@ function loadRatings() {
     tbody.innerHTML = '';
     snapshot.forEach(snap => {
       const data = snap.val();
-      tbody.innerHTML += `
-        <tr>
-          <td>${data.name}</td>
-          <td>${data.email || "غير محدد"}</td>
-          <td>${data.rating} ⭐</td>
-          <td>${new Date(data.timestamp).toLocaleString()}</td>
-        </tr>
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${data.name}</td>
+        <td>${data.email || "غير محدد"}</td>
+        <td>${data.rating} ⭐</td>
+        <td>${new Date(data.timestamp).toLocaleString()}</td>
       `;
+      tbody.appendChild(row);
     });
   });
 }
