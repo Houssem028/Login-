@@ -5,24 +5,20 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>لوحة الإدارة - ASH</title>
 
+<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
 
 <style>
-body{font-family:Arial;background:#f5f7fa;margin:0;padding:20px}
-header{background:#0a5cff;color:#fff;padding:15px;text-align:center;border-radius:10px}
-h2{text-align:center;color:#0a5cff;margin-top:40px}
-.box{background:#fff;padding:15px;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,.08);overflow-x:auto}
-table{width:100%;border-collapse:collapse;min-width:900px}
-th,td{border:1px solid #ddd;padding:8px;text-align:center;font-size:14px}
+body{font-family:Arial;background:#f5f7fa;padding:20px}
+header{background:#1f2933;color:#fff;padding:15px;text-align:center;border-radius:10px}
+h2{margin-top:30px;color:#0a5cff}
+table{width:100%;border-collapse:collapse;background:#fff;border-radius:10px;overflow:hidden}
+th,td{border:1px solid #ddd;padding:10px;text-align:center}
 th{background:#0a5cff;color:#fff}
 tr:nth-child(even){background:#f9f9f9}
-.badge{padding:4px 8px;border-radius:6px;color:#fff;font-size:12px}
-.new{background:#28a745}
-.done{background:#0a5cff}
-.cancel{background:#f44336}
-select,button{padding:5px;border-radius:6px;border:1px solid #ccc;cursor:pointer}
-.btn-del{background:#f44336;color:#fff;border:none}
+.logout{margin-top:15px;background:#1f2933;color:#fff;border:none;padding:10px 20px;border-radius:6px;cursor:pointer}
 </style>
 </head>
 
@@ -30,128 +26,104 @@ select,button{padding:5px;border-radius:6px;border:1px solid #ccc;cursor:pointer
 
 <header>
   <h1>لوحة إدارة ASH</h1>
-  <p>الحجوزات و تقييمات الزبائن</p>
 </header>
 
-<!-- ===== الحجوزات ===== -->
-<h2>📅 الحجوزات</h2>
-<div class="box">
-<table>
-<thead>
-<tr>
-<th>الاسم</th>
-<th>الهاتف</th>
-<th>الخدمة</th>
-<th>العنوان</th>
-<th>اليوم</th>
-<th>التاريخ</th>
-<th>الوقت</th>
-<th>الحالة</th>
-<th>تعديل</th>
-</tr>
-</thead>
-<tbody id="bookings-body"></tbody>
-</table>
-</div>
+<button class="logout" id="logout">تسجيل خروج</button>
 
-<!-- ===== التقييمات ===== -->
-<h2>⭐ التقييمات</h2>
-<div class="box">
+<h2>📅 الحجوزات</h2>
 <table>
 <thead>
 <tr>
-<th>الاسم</th>
-<th>الإيميل</th>
-<th>التقييم</th>
-<th>التاريخ</th>
-<th>حذف</th>
+  <th>اليوم</th>
+  <th>التاريخ</th>
+  <th>الوقت</th>
+  <th>الاسم</th>
+  <th>الهاتف</th>
+  <th>الخدمة</th>
+  <th>العنوان</th>
 </tr>
 </thead>
-<tbody id="ratings-body"></tbody>
+<tbody id="bookings"></tbody>
 </table>
-</div>
+
+<h2>⭐ تقييمات الزبائن</h2>
+<table>
+<thead>
+<tr>
+  <th>الاسم</th>
+  <th>الإيميل</th>
+  <th>التقييم</th>
+  <th>التاريخ</th>
+</tr>
+</thead>
+<tbody id="ratings"></tbody>
+</table>
 
 <script>
-const firebaseConfig={
- apiKey:"AIzaSyAJxzFknapSh0fnPfIXwEEK3OijSKlqxco",
- authDomain:"admin-ash-f622c.firebaseapp.com",
- projectId:"admin-ash-f622c"
+// ===== Firebase Config =====
+const firebaseConfig = {
+  apiKey: "AIzaSyAJxzFknapSh0fnPfIXwEEK3OijSKlqxco",
+  authDomain: "admin-ash-f622c.firebaseapp.com",
+  projectId: "admin-ash-f622c",
 };
 firebase.initializeApp(firebaseConfig);
-const db=firebase.firestore();
 
-function fmt(ts){
- const d=new Date(ts||Date.now());
- return{
-  day:d.toLocaleDateString('ar-TN',{weekday:'long'}),
-  date:d.toLocaleDateString('ar-TN'),
-  time:d.toLocaleTimeString('ar-TN')
- };
-}
+const db = firebase.firestore();
+const auth = firebase.auth();
 
-// ===== الحجوزات =====
-db.collection("bookings").orderBy("createdAt","desc")
-.onSnapshot(snap=>{
- const body=document.getElementById("bookings-body");
- body.innerHTML="";
- snap.forEach(doc=>{
-  const d=doc.data();
-  const t=fmt(d.createdAt);
-  body.innerHTML+=`
-  <tr>
-   <td>${d.name}</td>
-   <td>${d.phone}</td>
-   <td>${d.service}</td>
-   <td>${d.address}</td>
-   <td>${t.day}</td>
-   <td>${t.date}</td>
-   <td>${t.time}</td>
-   <td>
-    <span class="badge ${d.status==='تم'?'done':d.status==='ملغي'?'cancel':'new'}">
-     ${d.status||'جديد'}
-    </span>
-   </td>
-   <td>
-    <select onchange="updateStatus('${doc.id}',this.value)">
-     <option>جديد</option>
-     <option>تم</option>
-     <option>ملغي</option>
-    </select>
-   </td>
-  </tr>`;
- });
+// ===== حماية الصفحة =====
+auth.onAuthStateChanged(user=>{
+  if(!user) location.href="login.html";
 });
 
-function updateStatus(id,val){
- db.collection("bookings").doc(id).update({status:val});
-}
+// ===== تسجيل خروج =====
+document.getElementById("logout").onclick=()=>{
+  auth.signOut().then(()=>location.href="login.html");
+};
 
-// ===== التقييمات =====
-db.collection("ratings").orderBy("timestamp","desc")
-.onSnapshot(snap=>{
- const body=document.getElementById("ratings-body");
- body.innerHTML="";
- snap.forEach(doc=>{
-  const d=doc.data();
-  const t=fmt(d.timestamp);
-  body.innerHTML+=`
-  <tr>
-   <td>${d.name}</td>
-   <td>${d.email||'-'}</td>
-   <td>${'⭐'.repeat(d.rating)}</td>
-   <td>${t.date} ${t.time}</td>
-   <td>
-    <button class="btn-del" onclick="delRating('${doc.id}')">حذف</button>
-   </td>
-  </tr>`;
- });
+// ===== عرض الحجوزات =====
+db.collection("bookings").orderBy("date","desc").onSnapshot(snap=>{
+  const tbody=document.getElementById("bookings");
+  tbody.innerHTML="";
+  snap.forEach(doc=>{
+    const d=doc.data();
+
+    const dayName = d.date
+      ? new Date(d.date).toLocaleDateString("ar-TN",{weekday:"long"})
+      : "-";
+
+    tbody.innerHTML+=`
+    <tr>
+      <td>${dayName}</td>
+      <td>${d.date || "-"}</td>
+      <td>${d.time || "-"}</td>
+      <td>${d.name}</td>
+      <td>${d.phone}</td>
+      <td>${d.service}</td>
+      <td>${d.address}</td>
+    </tr>`;
+  });
 });
 
-function delRating(id){
- if(confirm("حذف التقييم؟")){
-  db.collection("ratings").doc(id).delete();
- }
-}
+// ===== عرض التقييمات =====
+db.collection("ratings").orderBy("timestamp","desc").onSnapshot(snap=>{
+  const tbody=document.getElementById("ratings");
+  tbody.innerHTML="";
+  snap.forEach(doc=>{
+    const d=doc.data();
+    const date = d.timestamp
+      ? new Date(d.timestamp).toLocaleString("ar-TN")
+      : "-";
+
+    tbody.innerHTML+=`
+    <tr>
+      <td>${d.name}</td>
+      <td>${d.email || "-"}</td>
+      <td>${"⭐".repeat(d.rating)}</td>
+      <td>${date}</td>
+    </tr>`;
+  });
+});
 </script>
 
 </body>
