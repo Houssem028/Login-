@@ -2,88 +2,169 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>ASH Window Cleaning</title>
 
 <!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 
 <style>
-body { font-family: Arial,sans-serif; margin:0; padding:0; background:#f5f7fa; color:#333; }
-header { background:#0a5cff; color:white; text-align:center; padding:20px; }
-header h1 { margin:0; font-size:28px; }
-main { padding:20px; max-width:900px; margin:auto; }
-.hero { background:#fff; padding:30px; border-radius:12px; text-align:center; box-shadow:0 4px 12px rgba(0,0,0,0.08); margin-bottom:20px; }
-.hero a { display:inline-block; background:#0a5cff; color:white; padding:14px 25px; border-radius:8px; text-decoration:none; transition:0.3s; }
-.hero a:hover { background:#084dcc; }
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f5f7fa;
+  color: #333;
+  transition: all 0.3s ease;
+}
 
-.booking-box, .rating-box { background:#fff; padding:20px; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.08); max-width:500px; margin:20px auto; }
-.booking-box input, .booking-box select, .booking-box textarea { width:100%; padding:10px; margin:5px 0 15px 0; border-radius:8px; border:1px solid #ccc; }
-.booking-box button, .rating-box button { padding:12px; width:100%; border:none; border-radius:8px; background:#0a5cff; color:white; cursor:pointer; transition:0.3s; }
-.booking-box button:hover, .rating-box button:hover { background:#084dcc; }
+header {
+  background: #0a5cff;
+  color: #fff;
+  padding: 20px;
+  text-align: center;
+}
 
-.stars span { font-size:30px; cursor:pointer; transition:0.2s; }
-.stars span:hover, .stars span.active { color: gold; }
+header h1 { margin: 0; font-size: 28px; }
 
-.bottom-bar { position:fixed; bottom:0; left:0; right:0; background:white; border-top:1px solid #ccc; display:flex; justify-content:space-around; padding:8px 0; z-index:999; }
-.bottom-bar a { text-decoration:none; color:#555; font-size:12px; display:flex; flex-direction:column; align-items:center; }
-.bottom-bar a.active { color:#0a5cff; font-weight:bold; }
+.hero {
+  background: #fff;
+  border-radius: 10px;
+  padding: 30px;
+  text-align: center;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+  margin: 20px;
+}
+
+.hero h2 { font-size: 26px; margin-bottom: 15px; }
+.hero p { font-size: 16px; line-height: 1.6; margin-bottom: 25px; }
+
+.hero a.cta {
+  background: #0a5cff;
+  color: #fff;
+  padding: 14px 25px;
+  border-radius: 8px;
+  font-size: 16px;
+  display: inline-block;
+  margin: 5px;
+  text-decoration: none;
+  transition: 0.3s;
+}
+
+.hero a.cta:hover { background: #084dcc; }
+
+.info { display: grid; gap: 20px; margin: 20px; }
+.info div {
+  background: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+}
+.info h3 { margin-bottom: 10px; }
+
+.rating-box {
+  background: #fff;
+  border-radius: 10px;
+  padding: 20px;
+  text-align: center;
+  margin: 20px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+}
+.rating-box .stars span {
+  font-size: 24px;
+  cursor: pointer;
+  margin: 0 3px;
+}
+.rating-box input {
+  margin-top: 10px;
+  padding: 8px;
+  width: 80%;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+.bottom-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #fff;
+  display: flex;
+  justify-content: space-around;
+  border-top: 1px solid #e5e7eb;
+  padding: 8px 0;
+  z-index: 999;
+}
+.bottom-bar a {
+  text-decoration: none;
+  color: #555;
+  font-size: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.bottom-bar a span { margin-top: 2px; }
+.bottom-bar a.active { color: #0a5cff; font-weight: bold; }
+
+/* RTL / LTR switch */
+body[dir="ltr"] { text-align: left; }
+body[dir="ltr"] header { text-align: center; }
+body[dir="ltr"] .hero { text-align: left; }
 </style>
 </head>
 
 <body>
 
 <header>
-  <h1>ASH Window Cleaning</h1>
+  <h1 id="site-title">ASH Window Cleaning</h1>
 </header>
 
 <main>
 
-  <!-- Hero -->
-  <section class="hero">
-    <h2>نظافة الزجاج باحترافية</h2>
-    <p>نقدم خدمات تنظيف النوافذ والواجهات للمنازل، المحلات والمكاتب باستخدام أدوات حديثة ونتائج مضمونة.</p>
-  </section>
+<section class="hero">
+  <h2 id="hero-title">نظافة الزجاج باحترافية وثقة</h2>
+  <p id="hero-desc">نقدم خدمات تنظيف النوافذ والواجهات للمنازل، المحلات والمكاتب باستخدام أدوات حديثة ونتائج مضمونة.</p>
+  <a href="booking.html" class="cta" id="booking-btn">احجز الآن</a>
+  <a href="tel:+21624598941" class="cta" id="call-btn">📞 اتصال</a>
+  <a href="https://wa.me/21621477790" class="cta" id="whatsapp-btn">💬 واتساب</a>
+</section>
 
-  <!-- Booking Form -->
-  <div class="booking-box" id="booking">
-    <h3>احجز خدمة الآن</h3>
-    <input type="text" id="name" placeholder="الاسم">
-    <input type="tel" id="phone" placeholder="الهاتف">
-    <input type="email" id="email" placeholder="البريد الإلكتروني">
-    <input type="text" id="service" placeholder="الخدمة المطلوبة">
-    <input type="text" id="address" placeholder="العنوان">
-    <input type="date" id="date">
-    <input type="time" id="time">
-    <button id="submit-booking">إرسال الحجز</button>
-    <p id="booking-msg" style="color:green;"></p>
+<section class="info">
+  <div>
+    <h3 id="service-title">📍 نخدم</h3>
+    <p id="service-desc">المنازل – المحلات – المكاتب – الواجهات الزجاجية</p>
   </div>
+</section>
 
-  <!-- Rating -->
-  <div class="rating-box">
-    <h3>قيم خدمتنا</h3>
-    <div class="stars" id="stars">
-      <span data-value="1">⭐</span>
-      <span data-value="2">⭐</span>
-      <span data-value="3">⭐</span>
-      <span data-value="4">⭐</span>
-      <span data-value="5">⭐</span>
-    </div>
-    <div id="rating-form" style="display:none; margin-top:10px;">
-      <input type="text" id="user-name" placeholder="الاسم">
-      <input type="email" id="user-email" placeholder="البريد الإلكتروني">
-      <button id="submit-rating">إرسال التقييم</button>
-      <p id="rating-msg" style="color:green;"></p>
-    </div>
+<section class="rating-box">
+  <h3 id="rating-title">قيّم خدمتنا</h3>
+  <div class="stars" id="star-container">
+    <span data-value="1">⭐</span>
+    <span data-value="2">⭐</span>
+    <span data-value="3">⭐</span>
+    <span data-value="4">⭐</span>
+    <span data-value="5">⭐</span>
   </div>
+  <input type="text" id="user-name" placeholder="اكتب اسمك">
+  <input type="email" id="user-email" placeholder="اكتب بريدك الإلكتروني">
+  <button id="submit-rating" class="cta">إرسال التقييم</button>
+  <p id="rating-msg"></p>
+</section>
+
+<div style="text-align:center;margin:20px;">
+  <button id="lang-btn" class="cta">Français</button>
+</div>
 
 </main>
 
+<footer>
+  <span id="footer-text">© 2025 ASH Window Cleaning</span>
+</footer>
+
 <nav class="bottom-bar">
-  <a href="#" class="active">🏠<span>الرئيسية</span></a>
-  <a href="#booking">📅<span>حجز</span></a>
-  <a href="#contact">📞<span>تواصل</span></a>
+  <a href="index.html" class="active" id="home-bar">🏠<span>الرئيسية</span></a>
+  <a href="booking.html" id="booking-bar">📅<span>حجز</span></a>
+  <a href="login.html" id="admin-bar">🔒<span>الإدارة</span></a>
 </nav>
 
 <script>
@@ -98,71 +179,79 @@ const firebaseConfig = {
   measurementId: "G-MNPL104YPN"
 };
 firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+const rdb = firebase.database();
 
-// ===== Booking =====
-document.getElementById("submit-booking").addEventListener("click", ()=>{
-  const name = document.getElementById("name").value.trim();
-  const phone = document.getElementById("phone").value.trim();
-  const email = document.getElementById("email").value.trim();
-  const service = document.getElementById("service").value.trim();
-  const address = document.getElementById("address").value.trim();
-  const date = document.getElementById("date").value;
-  const time = document.getElementById("time").value;
-
-  if(!name || !phone || !email || !service || !address || !date){
-    alert("يرجى ملء جميع الحقول المطلوبة");
+// Rating
+let selectedRating = 0;
+document.querySelectorAll('#star-container span').forEach(star => {
+  star.addEventListener('click', () => {
+    selectedRating = parseInt(star.dataset.value);
+    document.querySelectorAll('#star-container span').forEach(s => {
+      s.style.color = s.dataset.value <= selectedRating ? '#FFD700' : '#555';
+    });
+  });
+});
+document.getElementById('submit-rating').addEventListener('click', () => {
+  const name = document.getElementById('user-name').value.trim();
+  const email = document.getElementById('user-email').value.trim();
+  if (!name || !email || selectedRating === 0) {
+    alert(lang === 'ar' ? 'الرجاء ملء الاسم، الإيميل، واختيار التقييم' : 'Veuillez remplir le nom, l\'email et la note');
     return;
   }
-
-  db.collection("bookings").add({
-    name, phone, email, service, address, date, time,
-    createdAt: Date.now()
-  }).then(()=>{
-    document.getElementById("booking-msg").textContent = "تم إرسال الحجز بنجاح ✅";
-    document.getElementById("name").value = "";
-    document.getElementById("phone").value = "";
-    document.getElementById("email").value = "";
-    document.getElementById("service").value = "";
-    document.getElementById("address").value = "";
-    document.getElementById("date").value = "";
-    document.getElementById("time").value = "";
-    setTimeout(()=>{ document.getElementById("booking-msg").textContent = ""; },3000);
-  }).catch(err=>{
-    alert("خطأ في الإرسال: "+err);
+  rdb.ref('ratings').push({ name, email, rating: selectedRating, timestamp: Date.now() }, error => {
+    if (error) document.getElementById('rating-msg').textContent = lang==='ar'? "حدث خطأ أثناء الإرسال." : "Erreur lors de l'envoi.";
+    else {
+      document.getElementById('rating-msg').textContent = lang==='ar'? "تم إرسال التقييم بنجاح!" : "Évaluation envoyée avec succès!";
+      document.getElementById('user-name').value = '';
+      document.getElementById('user-email').value = '';
+      selectedRating = 0;
+      document.querySelectorAll('#star-container span').forEach(s => s.style.color = '#555');
+    }
   });
 });
 
-// ===== Rating =====
-let selectedRating = 0;
-const stars = document.querySelectorAll("#stars span");
-stars.forEach(s=>{
-  s.addEventListener("mouseover", ()=>{ highlightStars(s.dataset.value); });
-  s.addEventListener("mouseout", ()=>{ highlightStars(selectedRating); });
-  s.addEventListener("click", ()=>{
-    selectedRating = Number(s.dataset.value);
-    highlightStars(selectedRating);
-    document.getElementById("rating-form").style.display="block";
-  });
-});
-function highlightStars(r){
-  stars.forEach(s=>s.classList.remove("active"));
-  stars.forEach(s=>{ if(s.dataset.value<=r) s.classList.add("active"); });
-}
-
-document.getElementById("submit-rating").addEventListener("click", ()=>{
-  const name = document.getElementById("user-name").value.trim();
-  const email = document.getElementById("user-email").value.trim();
-  if(!name || !email || selectedRating===0){ alert("يرجى تعبئة جميع الحقول واختيار التقييم"); return; }
-
-  db.collection("ratings").add({ name, email, rating:selectedRating, timestamp:Date.now() })
-    .then(()=>{
-      document.getElementById("rating-msg").textContent="تم إرسال تقييمك ✅";
-      document.getElementById("user-name").value="";
-      document.getElementById("user-email").value="";
-      selectedRating=0; highlightStars(0);
-      setTimeout(()=>{ document.getElementById("rating-form").style.display="none"; document.getElementById("rating-msg").textContent=""; },3000);
-    }).catch(err=>{ alert("خطأ في الإرسال: "+err); });
+// Language switch
+let lang = 'ar';
+document.getElementById('lang-btn').addEventListener('click', () => {
+  if(lang === 'ar'){
+    lang = 'fr';
+    document.body.setAttribute('dir','ltr');
+    document.getElementById('hero-title').textContent = "Nettoyage de vitres avec professionnalisme et confiance";
+    document.getElementById('hero-desc').textContent = "Nous proposons des services de nettoyage de vitres pour maisons, magasins et bureaux avec des outils modernes et des résultats garantis.";
+    document.getElementById('booking-btn').textContent = "Réservez maintenant";
+    document.getElementById('call-btn').textContent = "📞 Appeler";
+    document.getElementById('whatsapp-btn').textContent = "💬 WhatsApp";
+    document.getElementById('service-title').textContent = "📍 Nous desservons";
+    document.getElementById('service-desc').textContent = "Maisons – Magasins – Bureaux – Façades vitrées";
+    document.getElementById('rating-title').textContent = "Évaluez notre service";
+    document.getElementById('user-name').placeholder = "Entrez votre nom";
+    document.getElementById('user-email').placeholder = "Entrez votre email";
+    document.getElementById('submit-rating').textContent = "Envoyer";
+    document.getElementById('footer-text').textContent = "© 2025 ASH Window Cleaning";
+    document.getElementById('home-bar').querySelector('span').textContent = "Accueil";
+    document.getElementById('booking-bar').querySelector('span').textContent = "Réserver";
+    document.getElementById('admin-bar').querySelector('span').textContent = "Admin";
+    document.getElementById('lang-btn').textContent = "العربية";
+  } else {
+    lang = 'ar';
+    document.body.setAttribute('dir','rtl');
+    document.getElementById('hero-title').textContent = "نظافة الزجاج بااحترافية وثقة";
+    document.getElementById('hero-desc').textContent = "نقدم خدمات تنظيف النوافذ والواجهات للمنازل، المحلات والمكاتب باستخدام أدوات حديثة ونتائج مضمونة.";
+    document.getElementById('booking-btn').textContent = "احجز الآن";
+    document.getElementById('call-btn').textContent = "📞 اتصال";
+    document.getElementById('whatsapp-btn').textContent = "💬 واتساب";
+    document.getElementById('service-title').textContent = "📍 نخدم";
+    document.getElementById('service-desc').textContent = "المنازل – المحلات – المكاتب – الواجهات الزجاجية";
+    document.getElementById('rating-title').textContent = "قيّم خدمتنا";
+    document.getElementById('user-name').placeholder = "اكتب اسمك";
+    document.getElementById('user-email').placeholder = "اكتب بريدك الإلكتروني";
+    document.getElementById('submit-rating').textContent = "إرسال التقييم";
+    document.getElementById('footer-text').textContent = "© 2025 ASH Window Cleaning";
+    document.getElementById('home-bar').querySelector('span').textContent = "الرئيسية";
+    document.getElementById('booking-bar').querySelector('span').textContent = "حجز";
+    document.getElementById('admin-bar').querySelector('span').textContent = "الإدارة";
+    document.getElementById('lang-btn').textContent = "Français";
+  }
 });
 </script>
 
