@@ -8,7 +8,7 @@
 
 <!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
 
 <style>
@@ -28,9 +28,7 @@ body { font-family: Arial, sans-serif; padding: 20px; background:#f5f7fa; }
 table { width:100%; border-collapse: collapse; margin-top:30px; background:white; }
 th, td { border:1px solid #ddd; padding:8px; text-align:center; }
 th { background:#0a5cff; color:white; }
-h2 { margin-top:40px; }
-.delete-btn { background:#f44336; color:white; border:none; border-radius:4px; padding:4px 8px; cursor:pointer; }
-.delete-btn:hover { opacity:0.8; }
+h2 { margin-top:40px; text-align:center; }
 </style>
 </head>
 <body>
@@ -48,10 +46,8 @@ h2 { margin-top:40px; }
     <thead>
       <tr>
         <th>الاسم</th>
-        <th>الإيميل</th>
         <th>التقييم</th>
         <th>التاريخ</th>
-        <th>حذف</th>
       </tr>
     </thead>
     <tbody id="ratings-body"></tbody>
@@ -77,14 +73,14 @@ h2 { margin-top:40px; }
 const firebaseConfig = {
   apiKey: "AIzaSyAJxzFknapSh0fnPfIXwEEK3OijSKlqxco",
   authDomain: "admin-ash-f622c.firebaseapp.com",
-  databaseURL: "https://admin-ash-f622c-default-rtdb.firebaseio.com",
   projectId: "admin-ash-f622c",
   storageBucket: "admin-ash-f622c.appspot.com",
   messagingSenderId: "76505742154",
-  appId: "1:76505742154:web:dc4f190f9f2de80acb1fb3"
+  appId: "1:76505742154:web:dc4f190f9f2de80acb1fb3",
+  measurementId: "G-MNPL104YPN"
 };
 firebase.initializeApp(firebaseConfig);
-const rdb = firebase.database();
+const db = firebase.firestore();
 const auth = firebase.auth();
 
 // التحقق من تسجيل الدخول
@@ -127,15 +123,15 @@ function initCalendar() {
 
 // تحميل الحجوزات من Firebase وعرضها في التقويم
 function loadBookings() {
-  rdb.ref('bookings').orderByChild('date').once('value', snapshot => {
-    snapshot.forEach(snap => {
-      const data = snap.val();
+  db.collection("bookings").orderBy("date").get().then(snapshot => {
+    snapshot.forEach(doc => {
+      const data = doc.data();
       const dayCell = document.getElementById(data.date);
       if(dayCell){
         const btn = document.createElement('button');
         btn.className = 'booking-btn';
         btn.textContent = data.name;
-        btn.onclick = () => showPopup(data, snap.key);
+        btn.onclick = () => showPopup(data, doc.id);
         dayCell.appendChild(btn);
       }
     });
@@ -145,7 +141,7 @@ function loadBookings() {
 // ------------------- Popup -------------------
 const popup = document.getElementById('booking-popup');
 const overlay = document.getElementById('overlay');
-function showPopup(data, key){
+function showPopup(data, id){
   popup.style.display = 'block';
   overlay.style.display = 'block';
   document.getElementById("popup-name").textContent = "الاسم: " + data.name;
@@ -156,10 +152,10 @@ function showPopup(data, key){
   document.getElementById("popup-email").textContent = "الإيميل: " + (data.email || "غير موجود");
 
   document.getElementById('cancel-btn').onclick = () => {
-    rdb.ref('bookings/' + key).remove().then(() => {
+    db.collection("bookings").doc(id).delete().then(() => {
       alert("تم إلغاء الحجز");
       closePopup();
-      initCalendar();
+      loadBookings(); // إعادة تحميل الحجوزات
     });
   };
 }
@@ -174,30 +170,22 @@ function closePopup(){
 // ------------------- تحميل التقييمات -------------------
 function loadRatings() {
   const tbody = document.getElementById('ratings-body');
-  rdb.ref('ratings').orderByChild('timestamp').on('value', snapshot => {
+  db.collection("ratings").orderBy("timestamp", "desc").onSnapshot(snapshot => {
     tbody.innerHTML = '';
-    snapshot.forEach(snap => {
-      const data = snap.val();
-      const row = document.createElement('tr');
-      row.innerHTML = `
-        <td>${data.name}</td>
-        <td>${data.email || "غير محدد"}</td>
-        <td>${data.rating} ⭐</td>
-        <td>${new Date(data.timestamp).toLocaleString()}</td>
-        <td><button class="delete-btn" onclick="deleteRating('${snap.key}')">حذف</button></td>
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      const date = new Date(data.timestamp);
+      tbody.innerHTML += `
+        <tr>
+          <td>${data.name}</td>
+          <td>${'⭐'.repeat(data.rating)}</td>
+          <td>${date.toLocaleString()}</td>
+        </tr>
       `;
-      tbody.appendChild(row);
     });
   });
-}
-
-// حذف تقييم
-function deleteRating(key) {
-  if(confirm("هل أنت متأكد من حذف هذا التقييم؟")) {
-    rdb.ref('ratings/' + key).remove();
-  }
 }
 </script>
 
 </body>
-  </html>
+</html>
