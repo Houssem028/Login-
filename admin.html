@@ -4,21 +4,20 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>لوحة الإدارة - ASH</title>
+<style>
+body { font-family: Arial, sans-serif; padding:20px; background:#f5f7fa; }
+h2 { color:#0a5cff; margin-top:40px; text-align:center; }
+table { width:100%; border-collapse: collapse; margin-top:20px; background:#fff; border-radius:8px; overflow:hidden; box-shadow:0 4px 10px rgba(0,0,0,0.08); }
+th, td { border:1px solid #ddd; padding:10px; text-align:center; }
+th { background-color:#0a5cff; color:white; }
+tr:nth-child(even){ background:#f9f9f9; }
+</style>
 
 <!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
 
-<style>
-body { font-family: Arial, sans-serif; padding: 20px; background:#f5f7fa; }
-h2 { color: #0a5cff; margin-top:40px; text-align:center; }
-table { width: 100%; border-collapse: collapse; margin-top: 20px; background:#fff; border-radius:8px; overflow:hidden; box-shadow:0 4px 10px rgba(0,0,0,0.08); }
-th, td { border: 1px solid #ddd; padding: 10px; text-align: center; }
-th { background-color: #0a5cff; color: white; }
-tr:nth-child(even) { background: #f9f9f9; }
-</style>
 </head>
-
 <body>
 
 <h2>طلبات العملاء</h2>
@@ -41,32 +40,32 @@ tr:nth-child(even) { background: #f9f9f9; }
   <thead>
     <tr>
       <th>الاسم</th>
+      <th>الإيميل</th>
       <th>التقييم</th>
-      <th>الوقت</th>
+      <th>التاريخ</th>
     </tr>
   </thead>
   <tbody id="ratings-body"></tbody>
 </table>
 
 <script>
-// ===== Firebase Config =====
+// Firebase Config
 const firebaseConfig = {
   apiKey: "AIzaSyAJxzFknapSh0fnPfIXwEEK3OijSKlqxco",
   authDomain: "admin-ash-f622c.firebaseapp.com",
   projectId: "admin-ash-f622c",
   storageBucket: "admin-ash-f622c.appspot.com",
   messagingSenderId: "76505742154",
-  appId: "1:76505742154:web:dc4f190f9f2de80acb1fb3",
-  measurementId: "G-MNPL104YPN"
+  appId: "1:76505742154:web:dc4f190f9f2de80acb1fb3"
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-// ===== قراءة الطلبات =====
-db.collection("bookings").orderBy("createdAt", "desc").onSnapshot(snapshot => {
+// قراءة الطلبات
+db.collection("bookings").orderBy("createdAt","desc").onSnapshot(snapshot => {
   const tbody = document.getElementById("bookings-body");
   tbody.innerHTML = "";
-  snapshot.forEach(doc => {
+  snapshot.forEach(doc=>{
     const data = doc.data();
     tbody.innerHTML += `
       <tr>
@@ -81,16 +80,17 @@ db.collection("bookings").orderBy("createdAt", "desc").onSnapshot(snapshot => {
   });
 });
 
-// ===== قراءة التقييمات =====
-db.collection("ratings").orderBy("timestamp", "desc").onSnapshot(snapshot => {
+// قراءة التقييمات
+db.collection("ratings").orderBy("timestamp","desc").onSnapshot(snapshot=>{
   const tbody = document.getElementById("ratings-body");
   tbody.innerHTML = "";
-  snapshot.forEach(doc => {
+  snapshot.forEach(doc=>{
     const data = doc.data();
     const date = new Date(data.timestamp);
     tbody.innerHTML += `
       <tr>
         <td>${data.name}</td>
+        <td>${data.email}</td>
         <td>${'⭐'.repeat(data.rating)}</td>
         <td>${date.toLocaleString()}</td>
       </tr>
