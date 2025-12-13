@@ -3,51 +3,55 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>لوحة الحجوزات الشهرية - ASH Admin</title>
+<title>لوحة الحجوزات - ASH Admin</title>
 <link rel="stylesheet" href="admin.css">
-<style>
-body { font-family: Arial, sans-serif; padding: 20px; background: #f5f7fa; }
-h2 { text-align: center; }
-.calendar { width: 100%; border-collapse: collapse; margin-top: 20px; }
-.calendar th, .calendar td { border: 1px solid #ddd; width: 14.28%; vertical-align: top; padding: 8px; height: 100px; }
-.calendar th { background: #4CAF50; color: white; }
-.day-number { font-weight: bold; margin-bottom: 5px; display: block; }
-.booking { background: #43a047; color: white; font-size: 12px; padding: 2px 4px; margin-bottom: 2px; border-radius: 4px; display: block; }
-.today { background: #fdd835; }
-</style>
-</head>
-<body>
-
-<header class="site-header">
-  <div class="logo">ASH Admin - التقويم الشهري</div>
-</header>
-
-<main class="container">
-  <h2>تقويم الشهر الحالي</h2>
-  <table class="calendar">
-    <thead>
-      <tr>
-        <th>الأحد</th>
-        <th>الاثنين</th>
-        <th>الثلاثاء</th>
-        <th>الأربعاء</th>
-        <th>الخميس</th>
-        <th>الجمعة</th>
-        <th>السبت</th>
-      </tr>
-    </thead>
-    <tbody id="calendar-body"></tbody>
-  </table>
-  <button id="logout" class="btn">تسجيل خروج</button>
-</main>
 
 <!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
 
+<style>
+body { font-family: Arial, sans-serif; padding: 20px; background:#f5f7fa; }
+.site-header { background:#1f2933; color:white; padding:15px; text-align:center; margin-bottom:20px; }
+.container { max-width:1000px; margin:auto; }
+.calendar { display:grid; grid-template-columns: repeat(7, 1fr); gap:5px; }
+.day { background:white; border-radius:8px; padding:10px; min-height:80px; position:relative; }
+.day h4 { margin:0; font-size:14px; }
+.booking-btn { display:block; background:#4CAF50; color:white; border:none; margin:3px 0; padding:3px; font-size:12px; cursor:pointer; border-radius:4px; width:100%; }
+#booking-popup { display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:white; padding:20px; border-radius:10px; box-shadow:0 5px 20px rgba(0,0,0,0.3); z-index:100; max-width:400px; width:90%; }
+#booking-popup button { margin-top:10px; padding:8px; border:none; border-radius:6px; cursor:pointer; }
+#booking-popup #cancel-btn { background:#f44336; color:white; width:100%; }
+#booking-popup #close-btn { background:#ccc; color:#333; width:100%; }
+.overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.4); z-index:90; }
+</style>
+</head>
+<body>
+
+<header class="site-header">ASH Admin - الحجوزات</header>
+
+<div class="container">
+  <h2>التقويم الشهري للحجوزات</h2>
+  <div class="calendar" id="calendar"></div>
+  <button id="logout" style="margin-top:20px;padding:10px 20px;background:#1f2933;color:white;border:none;border-radius:6px;cursor:pointer;">تسجيل خروج</button>
+</div>
+
+<div class="overlay" id="overlay"></div>
+
+<div id="booking-popup">
+  <h3>تفاصيل الحجز</h3>
+  <p id="popup-name"></p>
+  <p id="popup-phone"></p>
+  <p id="popup-service"></p>
+  <p id="popup-address"></p>
+  <p id="popup-date"></p>
+  <p id="popup-email"></p>
+  <button id="cancel-btn">إلغاء الطلب</button>
+  <button id="close-btn">إغلاق</button>
+</div>
+
 <script>
-// Firebase config
+// Firebase Config
 const firebaseConfig = {
   apiKey: "AIzaSyAJxzFknapSh0fnPfIXwEEK3OijSKlqxco",
   authDomain: "admin-ash-f622c.firebaseapp.com",
@@ -66,7 +70,7 @@ auth.onAuthStateChanged(user => {
   if (!user) {
     window.location.href = 'login.html';
   } else {
-    loadCalendar();
+    initCalendar();
   }
 });
 
@@ -75,59 +79,74 @@ document.getElementById('logout').addEventListener('click', () => {
   auth.signOut().then(() => window.location.href = 'login.html');
 });
 
-// دالة إنشاء تقويم الشهر الحالي
-function loadCalendar() {
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = today.getMonth(); // 0-11
-  const firstDay = new Date(year, month, 1).getDay(); // يوم أول الشهر
-  const lastDate = new Date(year, month + 1, 0).getDate(); // آخر يوم في الشهر
+// ------------------- التقويم -------------------
+const calendarEl = document.getElementById('calendar');
+const today = new Date();
+const year = today.getFullYear();
+const month = today.getMonth();
 
-  const tbody = document.getElementById('calendar-body');
-  tbody.innerHTML = '';
+function initCalendar() {
+  const firstDay = new Date(year, month, 1);
+  const lastDay = new Date(year, month + 1, 0);
+  calendarEl.innerHTML = '';
 
-  let row = document.createElement('tr');
-  // إضافة خانات فارغة قبل اليوم الأول
-  for (let i = 0; i < firstDay; i++) {
-    const cell = document.createElement('td');
-    row.appendChild(cell);
+  for (let d = 1; d <= lastDay.getDate(); d++) {
+    const dayCell = document.createElement('div');
+    dayCell.className = 'day';
+    const dateStr = `${year}-${(month+1).toString().padStart(2,'0')}-${d.toString().padStart(2,'0')}`;
+    dayCell.id = dateStr;
+    dayCell.innerHTML = `<h4>${d}/${month+1}</h4>`;
+    calendarEl.appendChild(dayCell);
   }
 
-  for (let date = 1; date <= lastDate; date++) {
-    if (row.children.length === 7) {
-      tbody.appendChild(row);
-      row = document.createElement('tr');
-    }
+  loadBookings();
+}
 
-    const cell = document.createElement('td');
-    const daySpan = document.createElement('span');
-    daySpan.className = 'day-number';
-    daySpan.textContent = date;
-    if (date === today.getDate()) daySpan.classList.add('today');
-    cell.appendChild(daySpan);
+// تحميل الحجوزات من Firebase وعرضها في التقويم
+function loadBookings() {
+  db.collection("bookings").orderBy("date").get().then(snapshot => {
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      const dayCell = document.getElementById(data.date);
+      if(dayCell){
+        const btn = document.createElement('button');
+        btn.className = 'booking-btn';
+        btn.textContent = data.name;
+        btn.onclick = () => showPopup(data, doc.id);
+        dayCell.appendChild(btn);
+      }
+    });
+  });
+}
 
-    // إضافة الحجوزات من Firebase لهذا اليوم
-    db.collection("bookings").where("date", "==", `${year}-${(month+1).toString().padStart(2,'0')}-${date.toString().padStart(2,'0')}`)
-      .get()
-      .then(snapshot => {
-        snapshot.forEach(doc => {
-          const d = doc.data();
-          const b = document.createElement('span');
-          b.className = 'booking';
-          b.textContent = d.name + ' - ' + d.service;
-          cell.appendChild(b);
-        });
-      });
+// ------------------- Popup -------------------
+const popup = document.getElementById('booking-popup');
+const overlay = document.getElementById('overlay');
+function showPopup(data, id){
+  popup.style.display = 'block';
+  overlay.style.display = 'block';
+  document.getElementById("popup-name").textContent = "الاسم: " + data.name;
+  document.getElementById("popup-phone").textContent = "الهاتف: " + data.phone;
+  document.getElementById("popup-service").textContent = "الخدمة: " + data.service;
+  document.getElementById("popup-address").textContent = "العنوان: " + data.address;
+  document.getElementById("popup-date").textContent = "التاريخ: " + data.date + (data.time ? " - " + data.time : "");
+  document.getElementById("popup-email").textContent = "الإيميل: " + (data.email || "غير موجود");
 
-    row.appendChild(cell);
-  }
+  document.getElementById('cancel-btn').onclick = () => {
+    db.collection("bookings").doc(id).delete().then(() => {
+      alert("تم إلغاء الحجز");
+      closePopup();
+      loadBookings(); // إعادة تحميل الحجوزات
+    });
+  };
+}
 
-  // إضافة صف إذا كان هناك خلايا ناقصة
-  while (row.children.length < 7) {
-    const emptyCell = document.createElement('td');
-    row.appendChild(emptyCell);
-  }
-  tbody.appendChild(row);
+document.getElementById('close-btn').onclick = closePopup;
+overlay.onclick = closePopup;
+
+function closePopup(){
+  popup.style.display = 'none';
+  overlay.style.display = 'none';
 }
 </script>
 
