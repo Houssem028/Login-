@@ -1,7 +1,8 @@
 <!doctype html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>تسجيل دخول - Admin</title>
 <link rel="stylesheet" href="style.css">
 <!-- Firebase (compat) -->
@@ -10,6 +11,7 @@
 </head>
 <body>
 <header class="site-header"><div class="logo">ASH Admin</div></header>
+
 <main class="container">
   <h2>تسجيل دخول المدير</h2>
   <input id="email" placeholder="البريد الإلكتروني" />
@@ -20,7 +22,7 @@
 </main>
 
 <script>
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+// إعدادات Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyAJxzFknapSh0fnPfIXwEEK3OijSKlqxco",
   authDomain: "admin-ash-f622c.firebaseapp.com",
@@ -33,12 +35,19 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 
+// حدث تسجيل الدخول
 document.getElementById('loginBtn').addEventListener('click', function(){
   const email = document.getElementById('email').value.trim();
   const pass = document.getElementById('password').value.trim();
+
   auth.signInWithEmailAndPassword(email, pass)
-    .then(()=> { window.location.href = 'booking-admin.html'; })
-    .catch(err => { document.getElementById('loginMsg').textContent = 'خطأ في الدخول: ' + err.message; });
+    .then(()=> { 
+      // إعادة التوجيه إلى صفحة الطلبات الجديدة
+      window.location.href = 'bookings-admin.html'; 
+    })
+    .catch(err => { 
+      document.getElementById('loginMsg').textContent = 'خطأ في الدخول: ' + err.message; 
+    });
 });
 </script>
 </body>
