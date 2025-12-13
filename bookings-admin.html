@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>لوحة الإدارة - ASH</title>
 
-<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
@@ -19,6 +18,8 @@ th,td{border:1px solid #ddd;padding:10px;text-align:center}
 th{background:#0a5cff;color:#fff}
 tr:nth-child(even){background:#f9f9f9}
 .logout{margin-top:15px;background:#1f2933;color:#fff;border:none;padding:10px 20px;border-radius:6px;cursor:pointer}
+.delete-btn{background:#f44336;color:#fff;border:none;padding:5px 10px;border-radius:5px;cursor:pointer}
+.rating-summary{margin:10px 0;font-size:18px;font-weight:bold}
 </style>
 </head>
 
@@ -47,6 +48,8 @@ tr:nth-child(even){background:#f9f9f9}
 </table>
 
 <h2>⭐ تقييمات الزبائن</h2>
+<div class="rating-summary" id="rating-average">معدل التقييم: --</div>
+
 <table>
 <thead>
 <tr>
@@ -54,13 +57,13 @@ tr:nth-child(even){background:#f9f9f9}
   <th>الإيميل</th>
   <th>التقييم</th>
   <th>التاريخ</th>
+  <th>حذف</th>
 </tr>
 </thead>
 <tbody id="ratings"></tbody>
 </table>
 
 <script>
-// ===== Firebase Config =====
 const firebaseConfig = {
   apiKey: "AIzaSyAJxzFknapSh0fnPfIXwEEK3OijSKlqxco",
   authDomain: "admin-ash-f622c.firebaseapp.com",
@@ -71,23 +74,22 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const auth = firebase.auth();
 
-// ===== حماية الصفحة =====
+// حماية
 auth.onAuthStateChanged(user=>{
   if(!user) location.href="login.html";
 });
 
-// ===== تسجيل خروج =====
+// تسجيل خروج
 document.getElementById("logout").onclick=()=>{
   auth.signOut().then(()=>location.href="login.html");
 };
 
-// ===== عرض الحجوزات =====
+// ===== الحجوزات =====
 db.collection("bookings").orderBy("date","desc").onSnapshot(snap=>{
   const tbody=document.getElementById("bookings");
   tbody.innerHTML="";
   snap.forEach(doc=>{
     const d=doc.data();
-
     const dayName = d.date
       ? new Date(d.date).toLocaleDateString("ar-TN",{weekday:"long"})
       : "-";
@@ -105,12 +107,19 @@ db.collection("bookings").orderBy("date","desc").onSnapshot(snap=>{
   });
 });
 
-// ===== عرض التقييمات =====
+// ===== التقييمات + المعدل =====
 db.collection("ratings").orderBy("timestamp","desc").onSnapshot(snap=>{
   const tbody=document.getElementById("ratings");
+  const avgBox=document.getElementById("rating-average");
   tbody.innerHTML="";
+
+  let total=0, count=0;
+
   snap.forEach(doc=>{
     const d=doc.data();
+    total += d.rating;
+    count++;
+
     const date = d.timestamp
       ? new Date(d.timestamp).toLocaleString("ar-TN")
       : "-";
@@ -121,9 +130,25 @@ db.collection("ratings").orderBy("timestamp","desc").onSnapshot(snap=>{
       <td>${d.email || "-"}</td>
       <td>${"⭐".repeat(d.rating)}</td>
       <td>${date}</td>
+      <td>
+        <button class="delete-btn" onclick="deleteRating('${doc.id}')">❌</button>
+      </td>
     </tr>`;
   });
+
+  if(count>0){
+    avgBox.textContent = `معدل التقييم: ${(total/count).toFixed(1)} / 5 ⭐`;
+  } else {
+    avgBox.textContent = "لا توجد تقييمات بعد";
+  }
 });
+
+// حذف تقييم
+function deleteRating(id){
+  if(confirm("هل أنت متأكد من حذف التقييم؟")){
+    db.collection("ratings").doc(id).delete();
+  }
+}
 </script>
 
 </body>
