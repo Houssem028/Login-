@@ -37,11 +37,29 @@ header {
   position: sticky;
   top: 0;
   z-index: 100;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 header h1 {
   font-size: 28px;
   margin: 0;
+}
+
+#langBtn {
+  background: white;
+  color: #0a5cff;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+#langBtn:hover {
+  background: #e6e6e6;
 }
 
 /* ===== HERO ===== */
@@ -200,36 +218,38 @@ footer {
 <body>
 
 <header>
-  <h1>ASH Window Cleaning</h1>
+  <h1 id="logo">ASH Window Cleaning</h1>
+  <button id="langBtn">Français</button>
 </header>
 
 <main>
 
   <section class="hero">
-    <h2>نظافة الزجاج بااحترافية وثقة</h2>
-    <p>نقدم خدمات تنظيف النوافذ والواجهات للمنازل، المحلات والمكاتب باستخدام أدوات حديثة ونتائج مضمونة.</p>
+    <h2 id="heroTitle" data-ar="نظافة الزجاج باحترافية وثقة" data-fr="Nettoyage de vitres professionnel et fiable">نظافة الزجاج باحترافية وثقة</h2>
+    <p id="heroText" data-ar="نقدم خدمات تنظيف النوافذ والواجهات للمنازل، المحلات والمكاتب باستخدام أدوات حديثة ونتائج مضمونة."
+       data-fr="Nous proposons des services de nettoyage de vitres et façades pour maisons, magasins et bureaux avec des outils modernes et des résultats garantis.">
+      نقدم خدمات تنظيف النوافذ والواجهات للمنازل، المحلات والمكاتب باستخدام أدوات حديثة ونتائج مضمونة.
+    </p>
   </section>
 
   <section class="rating-box">
-    <h3>قيّم خدمتنا</h3>
+    <h3 id="ratingTitle" data-ar="قيّم خدمتنا" data-fr="Évaluez notre service">قيّم خدمتنا</h3>
     <div class="stars">
-      <span>⭐</span>
-      <span>⭐</span>
-      <span>⭐</span>
-      <span>⭐</span>
-      <span>⭐</span>
+      <span>⭐</span><span>⭐</span><span>⭐</span><span>⭐</span><span>⭐</span>
     </div>
-    <p>أكثر من 120 زبون راضٍ</p>
+    <p id="ratingText" data-ar="أكثر من 120 زبون راضٍ" data-fr="Plus de 120 clients satisfaits">أكثر من 120 زبون راضٍ</p>
   </section>
 
   <section class="info">
     <div>
-      <h3>📍 نخدم</h3>
-      <p>المنازل – المحلات – المكاتب – الواجهات الزجاجية</p>
+      <h3 id="info1Title" data-ar="📍 نخدم" data-fr="📍 Nous desservons">📍 نخدم</h3>
+      <p id="info1Text" data-ar="المنازل – المحلات – المكاتب – الواجهات الزجاجية" data-fr="Maisons – Magasins – Bureaux – Façades vitrées">
+        المنازل – المحلات – المكاتب – الواجهات الزجاجية
+      </p>
     </div>
     <div>
-      <h3>📞 تواصل معنا</h3>
-      <p>
+      <h3 id="info2Title" data-ar="📞 تواصل معنا" data-fr="📞 Contactez-nous">📞 تواصل معنا</h3>
+      <p id="info2Text">
         هاتف: <a href="tel:+21624598941">+216 24 598 941</a><br>
         هاتف: <a href="tel:+21651084442">+216 51 084 442</a><br>
         واتساب: <a href="https://wa.me/21621477790" target="_blank">+216 21 477 790</a>
@@ -243,12 +263,27 @@ footer {
   © 2025 ASH Window Cleaning
 </footer>
 
-<!-- Bottom Bar -->
 <nav class="bottom-bar">
-  <a href="index.html" class="active">🏠<span>الرئيسية</span></a>
-  <a href="booking.html">📅<span>حجز</span></a>
-  <a href="login.html">🔒<span>الإدارة</span></a>
+  <a href="index.html" class="active">🏠<span data-ar="الرئيسية" data-fr="Accueil">الرئيسية</span></a>
+  <a href="booking.html">📅<span data-ar="حجز" data-fr="Réservation">حجز</span></a>
+  <a href="login.html">🔒<span data-ar="الإدارة" data-fr="Admin">الإدارة</span></a>
 </nav>
+
+<script>
+// زر تغيير اللغة
+const langBtn = document.getElementById('langBtn');
+let currentLang = 'ar';
+
+langBtn.addEventListener('click', () => {
+  currentLang = currentLang === 'ar' ? 'fr' : 'ar';
+  langBtn.textContent = currentLang === 'ar' ? 'Français' : 'العربية';
+
+  // تحديث كل العناصر
+  document.querySelectorAll('[data-ar]').forEach(el => {
+    el.textContent = el.getAttribute(`data-${currentLang}`);
+  });
+});
+</script>
 
 </body>
 </html>
