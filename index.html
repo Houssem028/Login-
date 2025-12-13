@@ -10,19 +10,22 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
 
 <style>
-body { font-family: Arial, sans-serif; margin:0; padding:0; background:#f5f7fa; color:#333; }
+body { font-family: Arial,sans-serif; margin:0; padding:0; background:#f5f7fa; color:#333; }
 header { background:#0a5cff; color:white; text-align:center; padding:20px; }
 header h1 { margin:0; font-size:28px; }
 main { padding:20px; max-width:900px; margin:auto; }
 .hero { background:#fff; padding:30px; border-radius:12px; text-align:center; box-shadow:0 4px 12px rgba(0,0,0,0.08); margin-bottom:20px; }
 .hero a { display:inline-block; background:#0a5cff; color:white; padding:14px 25px; border-radius:8px; text-decoration:none; transition:0.3s; }
 .hero a:hover { background:#084dcc; }
-.rating-box { background:#fff; padding:20px; border-radius:12px; text-align:center; box-shadow:0 4px 12px rgba(0,0,0,0.08); max-width:400px; margin:20px auto; }
+
+.booking-box, .rating-box { background:#fff; padding:20px; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.08); max-width:500px; margin:20px auto; }
+.booking-box input, .booking-box select, .booking-box textarea { width:100%; padding:10px; margin:5px 0 15px 0; border-radius:8px; border:1px solid #ccc; }
+.booking-box button, .rating-box button { padding:12px; width:100%; border:none; border-radius:8px; background:#0a5cff; color:white; cursor:pointer; transition:0.3s; }
+.booking-box button:hover, .rating-box button:hover { background:#084dcc; }
+
 .stars span { font-size:30px; cursor:pointer; transition:0.2s; }
 .stars span:hover, .stars span.active { color: gold; }
-input { width:100%; padding:10px; margin-top:10px; border-radius:8px; border:1px solid #ccc; }
-button { margin-top:10px; padding:12px; width:100%; border:none; border-radius:8px; background:#0a5cff; color:white; cursor:pointer; transition:0.3s; }
-button:hover { background:#084dcc; }
+
 .bottom-bar { position:fixed; bottom:0; left:0; right:0; background:white; border-top:1px solid #ccc; display:flex; justify-content:space-around; padding:8px 0; z-index:999; }
 .bottom-bar a { text-decoration:none; color:#555; font-size:12px; display:flex; flex-direction:column; align-items:center; }
 .bottom-bar a.active { color:#0a5cff; font-weight:bold; }
@@ -37,12 +40,27 @@ button:hover { background:#084dcc; }
 
 <main>
 
+  <!-- Hero -->
   <section class="hero">
     <h2>نظافة الزجاج باحترافية</h2>
     <p>نقدم خدمات تنظيف النوافذ والواجهات للمنازل، المحلات والمكاتب باستخدام أدوات حديثة ونتائج مضمونة.</p>
-    <a href="#booking">احجز الآن</a>
   </section>
 
+  <!-- Booking Form -->
+  <div class="booking-box" id="booking">
+    <h3>احجز خدمة الآن</h3>
+    <input type="text" id="name" placeholder="الاسم">
+    <input type="tel" id="phone" placeholder="الهاتف">
+    <input type="email" id="email" placeholder="البريد الإلكتروني">
+    <input type="text" id="service" placeholder="الخدمة المطلوبة">
+    <input type="text" id="address" placeholder="العنوان">
+    <input type="date" id="date">
+    <input type="time" id="time">
+    <button id="submit-booking">إرسال الحجز</button>
+    <p id="booking-msg" style="color:green;"></p>
+  </div>
+
+  <!-- Rating -->
   <div class="rating-box">
     <h3>قيم خدمتنا</h3>
     <div class="stars" id="stars">
@@ -56,7 +74,7 @@ button:hover { background:#084dcc; }
       <input type="text" id="user-name" placeholder="الاسم">
       <input type="email" id="user-email" placeholder="البريد الإلكتروني">
       <button id="submit-rating">إرسال التقييم</button>
-      <p id="msg" style="color:green;"></p>
+      <p id="rating-msg" style="color:green;"></p>
     </div>
   </div>
 
@@ -82,43 +100,69 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-// تقييم النجوم
+// ===== Booking =====
+document.getElementById("submit-booking").addEventListener("click", ()=>{
+  const name = document.getElementById("name").value.trim();
+  const phone = document.getElementById("phone").value.trim();
+  const email = document.getElementById("email").value.trim();
+  const service = document.getElementById("service").value.trim();
+  const address = document.getElementById("address").value.trim();
+  const date = document.getElementById("date").value;
+  const time = document.getElementById("time").value;
+
+  if(!name || !phone || !email || !service || !address || !date){
+    alert("يرجى ملء جميع الحقول المطلوبة");
+    return;
+  }
+
+  db.collection("bookings").add({
+    name, phone, email, service, address, date, time,
+    createdAt: Date.now()
+  }).then(()=>{
+    document.getElementById("booking-msg").textContent = "تم إرسال الحجز بنجاح ✅";
+    document.getElementById("name").value = "";
+    document.getElementById("phone").value = "";
+    document.getElementById("email").value = "";
+    document.getElementById("service").value = "";
+    document.getElementById("address").value = "";
+    document.getElementById("date").value = "";
+    document.getElementById("time").value = "";
+    setTimeout(()=>{ document.getElementById("booking-msg").textContent = ""; },3000);
+  }).catch(err=>{
+    alert("خطأ في الإرسال: "+err);
+  });
+});
+
+// ===== Rating =====
 let selectedRating = 0;
 const stars = document.querySelectorAll("#stars span");
-stars.forEach(s => {
+stars.forEach(s=>{
   s.addEventListener("mouseover", ()=>{ highlightStars(s.dataset.value); });
   s.addEventListener("mouseout", ()=>{ highlightStars(selectedRating); });
   s.addEventListener("click", ()=>{
     selectedRating = Number(s.dataset.value);
     highlightStars(selectedRating);
-    document.getElementById("rating-form").style.display = "block";
+    document.getElementById("rating-form").style.display="block";
   });
 });
-
-function highlightStars(rating){
-  stars.forEach(s=>{
-    s.classList.remove("active");
-    if(s.dataset.value <= rating) s.classList.add("active");
-  });
+function highlightStars(r){
+  stars.forEach(s=>s.classList.remove("active"));
+  stars.forEach(s=>{ if(s.dataset.value<=r) s.classList.add("active"); });
 }
 
-// إرسال التقييم
 document.getElementById("submit-rating").addEventListener("click", ()=>{
   const name = document.getElementById("user-name").value.trim();
   const email = document.getElementById("user-email").value.trim();
-  if(!name || !email || selectedRating===0) { alert("يرجى تعبئة جميع الحقول واختيار التقييم"); return; }
+  if(!name || !email || selectedRating===0){ alert("يرجى تعبئة جميع الحقول واختيار التقييم"); return; }
 
-  db.collection("ratings").add({
-    name, email, rating: selectedRating, timestamp: Date.now()
-  }).then(()=>{
-    document.getElementById("msg").textContent = "تم إرسال تقييمك بنجاح ✅";
-    document.getElementById("rating-form").reset;
-    selectedRating = 0;
-    highlightStars(0);
-    setTimeout(()=>{ document.getElementById("rating-form").style.display="none"; document.getElementById("msg").textContent=""; },3000);
-  }).catch(err=>{
-    alert("خطأ في الإرسال: "+err);
-  });
+  db.collection("ratings").add({ name, email, rating:selectedRating, timestamp:Date.now() })
+    .then(()=>{
+      document.getElementById("rating-msg").textContent="تم إرسال تقييمك ✅";
+      document.getElementById("user-name").value="";
+      document.getElementById("user-email").value="";
+      selectedRating=0; highlightStars(0);
+      setTimeout(()=>{ document.getElementById("rating-form").style.display="none"; document.getElementById("rating-msg").textContent=""; },3000);
+    }).catch(err=>{ alert("خطأ في الإرسال: "+err); });
 });
 </script>
 
