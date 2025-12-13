@@ -2,194 +2,172 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>ASH Window Cleaning</title>
 
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+
 <style>
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: #f5f7fa;
-  color: #333;
-}
-
-header {
-  background: #0a5cff;
-  color: #fff;
-  padding: 20px;
-  text-align: center;
-}
-
-header h1 {
-  margin: 0;
-  font-size: 28px;
-}
-
-header nav a {
-  color: #fff;
-  text-decoration: none;
-  margin: 0 10px;
-  font-weight: bold;
-}
-
-main {
-  padding: 40px 20px;
-  max-width: 900px;
-  margin: auto;
-}
-
-.hero {
-  background: #fff;
-  border-radius: 10px;
-  padding: 30px;
-  text-align: center;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-}
-
-.hero h2 {
-  font-size: 26px;
-  margin-bottom: 15px;
-}
-
-.hero p {
-  font-size: 16px;
-  line-height: 1.6;
-  margin-bottom: 25px;
-}
-
-.hero a {
-  background: #0a5cff;
-  color: #fff;
-  padding: 14px 25px;
-  border-radius: 8px;
-  text-decoration: none;
-  font-size: 16px;
-}
-
-.hero a:hover {
-  background: #084dcc;
-}
-
-.info {
-  margin-top: 40px;
-  display: grid;
-  gap: 20px;
-}
-
-.info div {
-  background: #fff;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.06);
-}
-
-.info h3 {
-  margin-top: 0;
-}
-
-.info a {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  text-decoration: none;
-  color: #0a5cff;
-  font-weight: bold;
-}
-
-footer {
-  text-align: center;
-  padding: 15px;
-  background: #e9ecef;
-  margin-top: 40px;
-  font-size: 14px;
-}
-
-/* شريط التنقل السفلي */
-.bottom-bar {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  background-color: #fff;
-  border-top: 1px solid #ccc;
-  display: flex;
-  justify-content: space-around;
-  padding: 10px 0;
-  box-shadow: 0 -1px 5px rgba(0,0,0,0.1);
-  z-index: 1000;
-}
-
-.bottom-bar a {
-  text-decoration: none;
-  color: #555;
-  font-size: 14px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.bottom-bar a.active {
-  color: #0a5cff;
-}
-
-.bottom-bar a span {
-  font-size: 12px;
-  margin-top: 2px;
-}
+body { font-family: Arial, sans-serif; margin:0; padding:0; background:#f5f7fa; color:#333; }
+header { background:#0a5cff; color:#fff; padding:20px; text-align:center; }
+header h1 { margin:0; font-size:28px; }
+main { padding:40px 20px; max-width:900px; margin:auto; }
+.hero { background:#fff; border-radius:12px; padding:30px; text-align:center; box-shadow:0 4px 12px rgba(0,0,0,0.08); margin-bottom:20px; }
+.hero h2 { font-size:26px; margin-bottom:15px; }
+.hero p { font-size:16px; line-height:1.6; margin-bottom:25px; }
+.hero a.cta { background:#0a5cff; color:#fff; padding:14px 25px; border-radius:8px; text-decoration:none; font-size:16px; display:inline-block; }
+.hero a.cta:hover { background:#084dcc; }
+.info { display:grid; gap:20px; margin-bottom:30px; }
+.info div { background:#fff; padding:20px; border-radius:10px; box-shadow:0 4px 10px rgba(0,0,0,0.06); }
+.info h3 { margin-bottom:10px; }
+.rating-box { background:#fff; padding:20px; border-radius:12px; text-align:center; box-shadow:0 4px 10px rgba(0,0,0,0.06); margin-bottom:30px; }
+.stars span { font-size:30px; cursor:pointer; transition:0.2s; }
+.stars span:hover, .stars span.selected { color:#FFD700; }
+#rating-form { display:none; margin-top:15px; }
+#rating-form input, #rating-form button { width:100%; padding:10px; margin:5px 0; border-radius:8px; border:1px solid #ccc; }
+#rating-form button { background:#0a5cff; color:#fff; border:none; cursor:pointer; }
+.bottom-bar { position:fixed; bottom:0; left:0; right:0; background:#fff; display:flex; justify-content:space-around; border-top:1px solid #ccc; padding:8px 0; }
+.bottom-bar a { text-decoration:none; color:#555; font-size:12px; display:flex; flex-direction:column; align-items:center; }
+.bottom-bar a.active { color:#0a5cff; font-weight:bold; }
+.language-btn { position:absolute; top:20px; right:20px; background:#fff; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; }
 </style>
-
 </head>
 
 <body>
 
 <header>
-  <h1>ASH Window Cleaning</h1>
-  <nav>
-    <a href="index.html">الرئيسية</a>
-    <a href="booking.html">احجز خدمة</a>
-    <a href="login.html">لوحة التحكم</a>
-  </nav>
+  <h1 id="site-title">ASH Window Cleaning</h1>
+  <button class="language-btn" id="lang-btn">Français</button>
 </header>
 
 <main>
-
   <section class="hero">
-    <h2>نظافة الزجاج باحترافية وثقة</h2>
-    <p>
-      نقدم خدمات تنظيف النوافذ والواجهات للمنازل، المحلات والمكاتب  
-      باستخدام أدوات حديثة ونتائج مضمونة.
-    </p>
-    <a href="booking.html">احجز الآن</a>
+    <h2 id="hero-title">نظافة الزجاج باحترافية وثقة</h2>
+    <p id="hero-text">نقدم خدمات تنظيف النوافذ والواجهات للمنازل، المحلات والمكاتب باستخدام أدوات حديثة ونتائج مضمونة.</p>
+    <a href="booking.html" class="cta" id="book-btn">احجز الآن</a>
   </section>
 
   <section class="info">
     <div>
       <h3>📍 نخدم</h3>
-      <p>المنازل – المحلات – المكاتب – الواجهات الزجاجية</p>
+      <p id="service-text">المنازل – المحلات – المكاتب – الواجهات الزجاجية</p>
     </div>
-
     <div>
       <h3>📞 تواصل معنا</h3>
-      <p>
-        <a href="tel:+21624598941">📱 +216 24 598 941</a><br>
-        <a href="tel:+21651084442">📱 +216 51 084 442</a><br>
-        <a href="https://wa.me/21621477790" target="_blank">💬 واتساب +216 21 477 790</a>
+      <p id="contact-text">
+        الهاتف: <a href="tel:+21624598941">+216 24 598 941</a><br>
+        الهاتف: <a href="tel:+21651084442">+216 51 084 442</a><br>
+        واتساب: <a href="https://wa.me/21621477790" target="_blank">+216 21 477 790</a>
       </p>
     </div>
   </section>
 
+  <section class="rating-box">
+    <h3>قيّم خدمتنا</h3>
+    <div class="stars" id="stars">
+      <span data-value="1">⭐</span>
+      <span data-value="2">⭐</span>
+      <span data-value="3">⭐</span>
+      <span data-value="4">⭐</span>
+      <span data-value="5">⭐</span>
+    </div>
+    <form id="rating-form">
+      <input type="text" id="r-name" placeholder="اسمك" required>
+      <input type="email" id="r-email" placeholder="البريد الإلكتروني" required>
+      <button type="submit">إرسال التقييم</button>
+    </form>
+    <p id="rating-msg"></p>
+  </section>
 </main>
 
-<footer>
-  © 2025 ASH Window Cleaning
-</footer>
-
-<!-- شريط التنقل السفلي -->
 <nav class="bottom-bar">
   <a href="index.html" class="active">🏠<span>الرئيسية</span></a>
   <a href="booking.html">📅<span>حجز</span></a>
   <a href="login.html">🔒<span>الإدارة</span></a>
 </nav>
+
+<script>
+// Firebase Init
+const firebaseConfig = {
+  apiKey: "AIzaSyAJxzFknapSh0fnPfIXwEEK3OijSKlqxco",
+  authDomain: "admin-ash-f622c.firebaseapp.com",
+  projectId: "admin-ash-f622c",
+  storageBucket: "admin-ash-f622c.appspot.com",
+  messagingSenderId: "76505742154",
+  appId: "1:76505742154:web:dc4f190f9f2de80acb1fb3",
+  measurementId: "G-MNPL104YPN"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+// ===== التقييم =====
+let selectedRating = 0;
+const stars = document.querySelectorAll('#stars span');
+const ratingForm = document.getElementById('rating-form');
+const ratingMsg = document.getElementById('rating-msg');
+
+stars.forEach(s => {
+  s.addEventListener('mouseover', () => highlightStars(s.dataset.value));
+  s.addEventListener('click', () => selectStars(s.dataset.value));
+});
+function highlightStars(val){
+  stars.forEach(s => s.classList.toggle('selected', s.dataset.value <= val));
+}
+function selectStars(val){
+  selectedRating = val;
+  stars.forEach(s => s.classList.toggle('selected', s.dataset.value <= val));
+  ratingForm.style.display = 'block';
+}
+
+ratingForm.addEventListener('submit', e => {
+  e.preventDefault();
+  const name = document.getElementById('r-name').value;
+  const email = document.getElementById('r-email').value;
+  if(selectedRating === 0){ ratingMsg.textContent = "اختر تقييمًا"; return; }
+  db.collection("ratings").add({
+    name, email, rating: parseInt(selectedRating), timestamp: Date.now()
+  }).then(() => {
+    ratingMsg.textContent = "تم إرسال التقييم بنجاح!";
+    ratingForm.reset();
+    selectedRating = 0;
+    stars.forEach(s => s.classList.remove('selected'));
+    ratingForm.style.display = 'none';
+  });
+});
+
+// ===== اللغة =====
+const langBtn = document.getElementById('lang-btn');
+let lang = 'ar';
+langBtn.addEventListener('click', () => {
+  if(lang==='ar'){
+    document.documentElement.dir = 'ltr';
+    lang = 'fr';
+    langBtn.textContent = "العربية";
+    document.getElementById('site-title').textContent = "ASH Window Cleaning";
+    document.getElementById('hero-title').textContent = "Nettoyage de vitres professionnel";
+    document.getElementById('hero-text').textContent = "Nous offrons des services de nettoyage de fenêtres et façades pour maisons, magasins et bureaux avec des outils modernes et des résultats garantis.";
+    document.getElementById('book-btn').textContent = "Réservez maintenant";
+    document.getElementById('service-text').textContent = "Maisons – Magasins – Bureaux – Façades vitrées";
+    document.getElementById('contact-text').innerHTML = `Téléphone: <a href="tel:+21624598941">+216 24 598 941</a><br>
+    Téléphone: <a href="tel:+21651084442">+216 51 084 442</a><br>
+    WhatsApp: <a href="https://wa.me/21621477790" target="_blank">+216 21 477 790</a>`;
+  } else {
+    document.documentElement.dir = 'rtl';
+    lang = 'ar';
+    langBtn.textContent = "Français";
+    document.getElementById('site-title').textContent = "ASH Window Cleaning";
+    document.getElementById('hero-title').textContent = "نظافة الزجاج باحترافية وثقة";
+    document.getElementById('hero-text').textContent = "نقدم خدمات تنظيف النوافذ والواجهات للمنازل، المحلات والمكاتب باستخدام أدوات حديثة ونتائج مضمونة.";
+    document.getElementById('book-btn').textContent = "احجز الآن";
+    document.getElementById('service-text').textContent = "المنازل – المحلات – المكاتب – الواجهات الزجاجية";
+    document.getElementById('contact-text').innerHTML = `الهاتف: <a href="tel:+21624598941">+216 24 598 941</a><br>
+    الهاتف: <a href="tel:+21651084442">+216 51 084 442</a><br>
+    واتساب: <a href="https://wa.me/21621477790" target="_blank">+216 21 477 790</a>`;
+  }
+});
+</script>
 
 </body>
 </html>
