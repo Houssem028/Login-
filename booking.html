@@ -1,43 +1,81 @@
-<h2>احجز خدمة</h2>
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>احجز خدمة - ASH</title>
+<link rel="stylesheet" href="booking.css">
+<!-- Firebase Compat -->
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+<!-- EmailJS -->
+<script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+</head>
+<body>
 
-<form id="booking-form">
-  <label>الاسم</label>
-  <input id="name" required>
+<header class="site-header">
+  <div class="logo">ASH Window Cleaning</div>
+</header>
 
-  <label>رقم الهاتف</label>
-  <input id="phone" required>
+<main class="booking-container">
+  <h2>احجز خدمتك الآن</h2>
 
-  <label>الإيميل (اختياري)</label>
-  <input id="email" type="email">
+  <form id="booking-form" class="booking-form">
+    <label>الاسم *</label>
+    <input id="name" type="text" required placeholder="أدخل اسمك">
 
-  <label>الخدمة</label>
-  <select id="service">
-    <option>تنظيف النوافذ</option>
-    <option>تنظيف الواجهات</option>
-    <option>خدمات دورية</option>
-  </select>
+    <label>رقم الهاتف *</label>
+    <input id="phone" type="tel" required placeholder="مثال: 21612345678">
 
-  <label>العنوان</label>
-  <input id="address">
+    <label>البريد الإلكتروني</label>
+    <input id="email" type="email" placeholder="اختياري">
 
-  <label>التاريخ</label>
-  <input id="date" type="date">
+    <label>الخدمة *</label>
+    <select id="service" required>
+      <option disabled selected>اختر الخدمة</option>
+      <option>تنظيف النوافذ</option>
+      <option>تنظيف الواجهات</option>
+      <option>خدمات دورية</option>
+    </select>
 
-  <label>الوقت</label>
-  <input id="time" type="time">
+    <label>العنوان *</label>
+    <input id="address" type="text" required placeholder="عنوانك">
 
-  <button type="submit">إرسال الطلب</button>
-</form>
-<p id="msg"></p>
+    <label>التاريخ *</label>
+    <input id="date" type="date" required>
+
+    <label>الوقت *</label>
+    <input id="time" type="time" required>
+
+    <button type="submit">إرسال الطلب</button>
+  </form>
+
+  <p id="msg"></p>
+</main>
 
 <script>
+// Firebase config
+const firebaseConfig = {
+  apiKey: "AIzaSyAJxzFknapSh0fnPfIXwEEK3OijSKlqxco",
+  authDomain: "admin-ash-f622c.firebaseapp.com",
+  projectId: "admin-ash-f622c",
+  storageBucket: "admin-ash-f622c.appspot.com",
+  messagingSenderId: "76505742154",
+  appId: "1:76505742154:web:dc4f190f9f2de80acb1fb3"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+// EmailJS
+emailjs.init("dKDZhGvgDZ2OwDlZF");
+
 document.getElementById("booking-form").addEventListener("submit", function(e){
   e.preventDefault();
 
   const data = {
     name: document.getElementById("name").value,
     phone: document.getElementById("phone").value,
-    email: document.getElementById("email").value, // البريد اختياري
+    email: document.getElementById("email").value || "لا يوجد",
     service: document.getElementById("service").value,
     address: document.getElementById("address").value,
     date: document.getElementById("date").value,
@@ -46,16 +84,18 @@ document.getElementById("booking-form").addEventListener("submit", function(e){
   };
 
   db.collection("bookings").add(data).then(() => {
-
+    // إرسال الإيميل
     emailjs.send("service_glkvhot", "template_v6qi0el", data)
       .then(() => {
-        document.getElementById("msg").innerHTML = "✔ تم إرسال الطلب بنجاح!";
+        document.getElementById("msg").textContent = "✔ تم إرسال الطلب بنجاح!";
         document.getElementById("booking-form").reset();
       });
-
   }).catch(err => {
     console.error(err);
-    document.getElementById("msg").innerHTML = "❌ خطأ أثناء الإرسال!";
+    document.getElementById("msg").textContent = "❌ خطأ أثناء الإرسال!";
   });
 });
 </script>
+
+</body>
+</html>
