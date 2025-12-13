@@ -250,9 +250,9 @@ footer {
     <div>
       <h3 id="info2Title" data-ar="📞 تواصل معنا" data-fr="📞 Contactez-nous">📞 تواصل معنا</h3>
       <p id="info2Text">
-        هاتف: <a href="tel:+21624598941">+216 24 598 941</a><br>
-        هاتف: <a href="tel:+21651084442">+216 51 084 442</a><br>
-        واتساب: <a href="https://wa.me/21621477790" target="_blank">+216 21 477 790</a>
+        هاتف: <a id="tel1" href="tel:+21624598941">+216 24 598 941</a><br>
+        هاتف: <a id="tel2" href="tel:+21651084442">+216 51 084 442</a><br>
+        واتساب: <a id="waLink" href="https://wa.me/21621477790" target="_blank">+216 21 477 790</a>
       </p>
     </div>
   </section>
@@ -270,13 +270,17 @@ footer {
 </nav>
 
 <script>
-// زر تغيير اللغة
+// زر تغيير اللغة مع اتجاه الصفحة
 const langBtn = document.getElementById('langBtn');
 let currentLang = 'ar';
 
 langBtn.addEventListener('click', () => {
   currentLang = currentLang === 'ar' ? 'fr' : 'ar';
   langBtn.textContent = currentLang === 'ar' ? 'Français' : 'العربية';
+
+  // تغيير اتجاه الصفحة
+  document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+  document.documentElement.lang = currentLang;
 
   // تحديث كل العناصر
   document.querySelectorAll('[data-ar]').forEach(el => {
