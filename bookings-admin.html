@@ -3,41 +3,133 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>لوحة الحجوزات - ASH Admin</title>
+<title>لوحة الحجوزات الشهرية - ASH Admin</title>
 <link rel="stylesheet" href="admin.css">
+<style>
+body { font-family: Arial, sans-serif; padding: 20px; background: #f5f7fa; }
+h2 { text-align: center; }
+.calendar { width: 100%; border-collapse: collapse; margin-top: 20px; }
+.calendar th, .calendar td { border: 1px solid #ddd; width: 14.28%; vertical-align: top; padding: 8px; height: 100px; }
+.calendar th { background: #4CAF50; color: white; }
+.day-number { font-weight: bold; margin-bottom: 5px; display: block; }
+.booking { background: #43a047; color: white; font-size: 12px; padding: 2px 4px; margin-bottom: 2px; border-radius: 4px; display: block; }
+.today { background: #fdd835; }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="logo">ASH Admin - التقويم الشهري</div>
+</header>
+
+<main class="container">
+  <h2>تقويم الشهر الحالي</h2>
+  <table class="calendar">
+    <thead>
+      <tr>
+        <th>الأحد</th>
+        <th>الاثنين</th>
+        <th>الثلاثاء</th>
+        <th>الأربعاء</th>
+        <th>الخميس</th>
+        <th>الجمعة</th>
+        <th>السبت</th>
+      </tr>
+    </thead>
+    <tbody id="calendar-body"></tbody>
+  </table>
+  <button id="logout" class="btn">تسجيل خروج</button>
+</main>
 
 <!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-</head>
-<body>
 
-<header class="site-header">
-  <div class="logo">ASH Admin - الحجوزات</div>
-</header>
+<script>
+// Firebase config
+const firebaseConfig = {
+  apiKey: "AIzaSyAJxzFknapSh0fnPfIXwEEK3OijSKlqxco",
+  authDomain: "admin-ash-f622c.firebaseapp.com",
+  projectId: "admin-ash-f622c",
+  storageBucket: "admin-ash-f622c.appspot.com",
+  messagingSenderId: "76505742154",
+  appId: "1:76505742154:web:dc4f190f9f2de80acb1fb3",
+  measurementId: "G-MNPL104YPN"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const auth = firebase.auth();
 
-<main class="container">
-  <h2>طلبات العملاء</h2>
+// التحقق من تسجيل الدخول
+auth.onAuthStateChanged(user => {
+  if (!user) {
+    window.location.href = 'login.html';
+  } else {
+    loadCalendar();
+  }
+});
 
-  <table>
-    <thead>
-      <tr>
-        <th>الاسم</th>
-        <th>الهاتف</th>
-        <th>الخدمة</th>
-        <th>العنوان</th>
-        <th>التاريخ</th>
-        <th>الحالة</th>
-      </tr>
-    </thead>
-    <tbody id="bookings-body"></tbody>
-  </table>
+// تسجيل خروج
+document.getElementById('logout').addEventListener('click', () => {
+  auth.signOut().then(() => window.location.href = 'login.html');
+});
 
-  <button id="logout" class="btn">تسجيل خروج</button>
-</main>
+// دالة إنشاء تقويم الشهر الحالي
+function loadCalendar() {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = today.getMonth(); // 0-11
+  const firstDay = new Date(year, month, 1).getDay(); // يوم أول الشهر
+  const lastDate = new Date(year, month + 1, 0).getDate(); // آخر يوم في الشهر
 
-<!-- Admin JS -->
-<script src="admin.js"></script>
+  const tbody = document.getElementById('calendar-body');
+  tbody.innerHTML = '';
+
+  let row = document.createElement('tr');
+  // إضافة خانات فارغة قبل اليوم الأول
+  for (let i = 0; i < firstDay; i++) {
+    const cell = document.createElement('td');
+    row.appendChild(cell);
+  }
+
+  for (let date = 1; date <= lastDate; date++) {
+    if (row.children.length === 7) {
+      tbody.appendChild(row);
+      row = document.createElement('tr');
+    }
+
+    const cell = document.createElement('td');
+    const daySpan = document.createElement('span');
+    daySpan.className = 'day-number';
+    daySpan.textContent = date;
+    if (date === today.getDate()) daySpan.classList.add('today');
+    cell.appendChild(daySpan);
+
+    // إضافة الحجوزات من Firebase لهذا اليوم
+    db.collection("bookings").where("date", "==", `${year}-${(month+1).toString().padStart(2,'0')}-${date.toString().padStart(2,'0')}`)
+      .get()
+      .then(snapshot => {
+        snapshot.forEach(doc => {
+          const d = doc.data();
+          const b = document.createElement('span');
+          b.className = 'booking';
+          b.textContent = d.name + ' - ' + d.service;
+          cell.appendChild(b);
+        });
+      });
+
+    row.appendChild(cell);
+  }
+
+  // إضافة صف إذا كان هناك خلايا ناقصة
+  while (row.children.length < 7) {
+    const emptyCell = document.createElement('td');
+    row.appendChild(emptyCell);
+  }
+  tbody.appendChild(row);
+}
+</script>
+
 </body>
 </html>
