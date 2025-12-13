@@ -5,15 +5,21 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>لوحة الحجوزات - ASH Admin</title>
 <link rel="stylesheet" href="admin.css">
+
+<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
 </head>
 <body>
 
-<header class="site-header"><div class="logo">ASH Admin - الحجوزات</div></header>
+<header class="site-header">
+  <div class="logo">ASH Admin - الحجوزات</div>
+</header>
+
 <main class="container">
   <h2>طلبات العملاء</h2>
+
   <table>
     <thead>
       <tr>
@@ -27,9 +33,11 @@
     </thead>
     <tbody id="bookings-body"></tbody>
   </table>
+
   <button id="logout" class="btn">تسجيل خروج</button>
 </main>
 
+<!-- Admin JS -->
 <script src="admin.js"></script>
 </body>
 </html>
