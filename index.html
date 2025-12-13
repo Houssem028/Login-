@@ -2,67 +2,109 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>ASH Window Cleaning</title>
 <style>
-body { font-family: Arial, sans-serif; margin:0; padding:20px; background:#f5f7fa; color:#333; }
-h2 { text-align:center; }
-.rating-box { max-width:400px; margin:30px auto; background:#fff; padding:20px; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.1); text-align:center; }
-.stars span { font-size:30px; cursor:pointer; margin:0 3px; }
-input { width:100%; padding:10px; margin:10px 0; border-radius:8px; border:1px solid #ccc; }
-button { background:#0a5cff; color:white; padding:12px; border:none; border-radius:8px; cursor:pointer; width:100%; }
+body { font-family: Arial, sans-serif; margin:0; padding:0; background:#f5f7fa; color:#333; }
+header { background:#0a5cff; color:white; text-align:center; padding:20px; }
+header h1 { margin:0; font-size:28px; }
+main { max-width:900px; margin:20px auto; padding:20px; }
+.hero { background:white; padding:30px; border-radius:10px; text-align:center; box-shadow:0 4px 10px rgba(0,0,0,0.08); }
+.hero h2 { font-size:26px; margin-bottom:15px; }
+.hero p { font-size:16px; line-height:1.6; margin-bottom:25px; }
+.hero a { background:#0a5cff; color:white; padding:14px 25px; border-radius:8px; text-decoration:none; font-size:16px; }
+.hero a:hover { background:#084dcc; }
+.info { margin-top:40px; display:grid; gap:20px; }
+.info div { background:white; padding:20px; border-radius:10px; box-shadow:0 4px 10px rgba(0,0,0,0.06); }
+.info h3 { margin-bottom:10px; }
+#rating-section { background:white; padding:20px; border-radius:10px; margin-top:30px; box-shadow:0 4px 10px rgba(0,0,0,0.08); }
+.stars span { font-size:24px; cursor:pointer; color:#000; }
+#name-email { display:none; margin-top:15px; }
+input { width:100%; padding:10px; margin:5px 0; border-radius:6px; border:1px solid #ccc; }
+button { background:#0a5cff; color:white; padding:12px; border:none; border-radius:8px; cursor:pointer; margin-top:10px; width:100%; }
 button:hover { background:#084dcc; }
-#msg { margin-top:10px; font-weight:bold; color:green; }
+#msg { text-align:center; margin-top:10px; font-weight:bold; color:#1f2933; }
 </style>
 
 <!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+
 </head>
 <body>
 
-<h2>قيّم خدمتنا</h2>
+<header>
+<h1>ASH Window Cleaning</h1>
+</header>
 
-<div class="rating-box">
-  <div class="stars" id="star-container">
+<main>
+
+<section class="hero">
+  <h2>نظافة الزجاج باحترافية وثقة</h2>
+  <p>نقدم خدمات تنظيف النوافذ والواجهات للمنازل، المحلات والمكاتب باستخدام أدوات حديثة ونتائج مضمونة.</p>
+  <a href="booking.html">احجز الآن</a>
+</section>
+
+<section class="info">
+  <div>
+    <h3>📍 نخدم</h3>
+    <p>المنازل – المحلات – المكاتب – الواجهات الزجاجية</p>
+  </div>
+
+  <div>
+    <h3>📞 تواصل معنا</h3>
+    <p>
+      <a href="tel:+21624598941">+216 24 598 941</a><br>
+      <a href="tel:+21651084442">+216 51 084 442</a><br>
+      <a href="https://wa.me/21621477790">واتساب: +216 21 477 790</a>
+    </p>
+  </div>
+</section>
+
+<section id="rating-section">
+  <h3>قيّم خدمتنا</h3>
+  <div class="stars">
     <span data-value="1">⭐</span>
     <span data-value="2">⭐</span>
     <span data-value="3">⭐</span>
     <span data-value="4">⭐</span>
     <span data-value="5">⭐</span>
   </div>
-  <div id="name-email-container" style="display:none; margin-top:15px;">
-    <input type="text" id="user-name" placeholder="اسمك">
-    <input type="email" id="user-email" placeholder="البريد الإلكتروني">
+
+  <div id="name-email">
+    <input type="text" id="user-name" placeholder="الاسم">
+    <input type="email" id="user-email" placeholder="الإيميل">
     <button id="submit-rating">إرسال التقييم</button>
   </div>
-  <div id="msg"></div>
-</div>
+
+  <p id="msg"></p>
+</section>
+
+</main>
 
 <script>
-// Firebase config
+// Firebase Config
 const firebaseConfig = {
   apiKey: "AIzaSyAJxzFknapSh0fnPfIXwEEK3OijSKlqxco",
   authDomain: "admin-ash-f622c.firebaseapp.com",
   projectId: "admin-ash-f622c",
-  databaseURL: "https://admin-ash-f622c-default-rtdb.firebaseio.com/",
   storageBucket: "admin-ash-f622c.appspot.com",
   messagingSenderId: "76505742154",
   appId: "1:76505742154:web:dc4f190f9f2de80acb1fb3"
 };
 firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
+const db = firebase.firestore();
 
 // ===== التقييم التفاعلي =====
 let selectedRating = 0;
-const stars = document.querySelectorAll("#star-container span");
-const nameEmailContainer = document.getElementById("name-email-container");
+const stars = document.querySelectorAll('.stars span');
+const nameEmailContainer = document.getElementById('name-email');
 
 stars.forEach(star => {
-  star.addEventListener("click", () => {
-    selectedRating = star.getAttribute("data-value");
-    stars.forEach(s => s.style.color = "#ccc");
-    for(let i=0; i<selectedRating; i++) stars[i].style.color = "#FFD700";
+  star.addEventListener('click', () => {
+    selectedRating = star.dataset.value;
+    stars.forEach(s => s.style.color = "#000");
+    for(let i=0;i<selectedRating;i++){ stars[i].style.color="#FFD700"; }
     nameEmailContainer.style.display = "block";
   });
 });
@@ -79,21 +121,20 @@ document.getElementById("submit-rating").addEventListener("click", () => {
   const ratingData = {
     name,
     email,
-    rating: selectedRating,
+    rating: Number(selectedRating),
     timestamp: Date.now()
   };
 
-  db.ref("ratings").push(ratingData).then(() => {
-    document.getElementById("msg").textContent = "تم إرسال التقييم بنجاح ✅";
-    // إعادة ضبط الحقول
-    selectedRating = 0;
-    stars.forEach(s => s.style.color = "#000");
-    document.getElementById("user-name").value = "";
-    document.getElementById("user-email").value = "";
-    nameEmailContainer.style.display = "none";
-  }).catch(err => {
-    alert("حدث خطأ أثناء الإرسال: " + err);
-  });
+  db.collection("ratings").add(ratingData)
+    .then(() => {
+      document.getElementById("msg").textContent = "تم إرسال التقييم بنجاح ✅";
+      selectedRating = 0;
+      stars.forEach(s => s.style.color = "#000");
+      document.getElementById("user-name").value = "";
+      document.getElementById("user-email").value = "";
+      nameEmailContainer.style.display = "none";
+    })
+    .catch(err => alert("حدث خطأ أثناء الإرسال: " + err));
 });
 </script>
 
