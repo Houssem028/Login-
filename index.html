@@ -2,176 +2,144 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ASH Window Cleaning - الصفحة الرئيسية</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ASH Window Cleaning</title>
+
 <style>
 body {
   margin: 0;
   font-family: Arial, sans-serif;
-  background: linear-gradient(180deg, #f5f7fa, #e8ecf1);
+  background: #f5f7fa;
   color: #333;
 }
 
-/* الهيدر */
 header {
-  background: #1f2933;
-  color: white;
+  background: #0a5cff;
+  color: #fff;
+  padding: 20px;
   text-align: center;
-  padding: 25px 15px;
 }
 
-header .logo {
-  font-size: 24px;
-  font-weight: bold;
+header h1 {
+  margin: 0;
+  font-size: 28px;
 }
 
-header nav a {
-  color: white;
-  margin: 0 10px;
+nav {
+  margin-top: 10px;
+}
+
+nav a {
+  color: #fff;
   text-decoration: none;
+  margin: 0 10px;
   font-weight: bold;
 }
 
-/* البطل */
-.hero {
-  text-align: center;
-  padding: 50px 20px;
-  background: url('https://images.unsplash.com/photo-1591314302604-d0b7ff0b1f07?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1200') no-repeat center/cover;
-  color: white;
+main {
+  padding: 40px 20px;
+  max-width: 900px;
+  margin: auto;
 }
 
-.hero h1 {
-  font-size: 36px;
+.hero {
+  background: #fff;
+  border-radius: 10px;
+  padding: 30px;
+  text-align: center;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+}
+
+.hero h2 {
+  font-size: 26px;
   margin-bottom: 15px;
-  text-shadow: 1px 1px 5px rgba(0,0,0,0.5);
 }
 
 .hero p {
-  font-size: 18px;
+  font-size: 16px;
+  line-height: 1.6;
   margin-bottom: 25px;
 }
 
-.hero .cta {
-  display: inline-block;
-  background: #4CAF50;
-  color: white;
-  padding: 12px 25px;
+.hero a {
+  background: #0a5cff;
+  color: #fff;
+  padding: 14px 25px;
   border-radius: 8px;
   text-decoration: none;
-  font-weight: bold;
-  transition: 0.3s;
+  font-size: 16px;
 }
 
-.hero .cta:hover {
-  background: #43a047;
+.hero a:hover {
+  background: #084dcc;
 }
 
-/* خدمات */
-.services {
+.info {
+  margin-top: 40px;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 20px;
-  max-width: 1000px;
-  margin: 40px auto;
-  padding: 0 15px;
 }
 
-.service-card {
-  background: white;
-  border-radius: 14px;
-  padding: 15px;
-  text-align: center;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
-  transition: 0.3s;
+.info div {
+  background: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.06);
 }
 
-.service-card img {
-  width: 100%;
-  border-radius: 12px;
-  height: 140px;
-  object-fit: cover;
-  margin-bottom: 10px;
-}
-
-.service-card h3 {
-  margin: 10px 0 0 0;
-}
-
-.service-card:hover {
-  transform: translateY(-5px);
-}
-
-/* أرقام الاتصال */
-.contact {
-  background: #4CAF50;
-  color: white;
-  text-align: center;
-  padding: 25px 15px;
-}
-
-.contact h2 {
-  margin-bottom: 15px;
-}
-
-.contact p {
-  font-size: 18px;
-  margin: 5px 0;
-}
-
-/* فوتر */
 footer {
-  background: #1f2933;
-  color: #ddd;
   text-align: center;
   padding: 15px;
+  background: #e9ecef;
+  margin-top: 40px;
   font-size: 14px;
-}
-
-/* موبايل */
-@media (max-width: 600px) {
-  .hero h1 { font-size: 28px; }
-  .hero p { font-size: 16px; }
 }
 </style>
 </head>
+
 <body>
 
 <header>
-  <div class="logo">ASH Window Cleaning</div>
-  <nav><a href="booking.html">احجز خدمة</a> | <a href="login.html">لوحة التحكم</a></nav>
+  <h1>ASH Window Cleaning</h1>
+  <nav>
+    <a href="index.html">الرئيسية</a>
+    <a href="booking.html">احجز خدمة</a>
+    <a href="login.html">لوحة التحكم</a>
+  </nav>
 </header>
 
 <main>
+
   <section class="hero">
-    <h1>نظافة الزجاج — احترافية وسرعة</h1>
-    <p>نخدم المنازل، المحلات، المكاتب والواجهات الكبيرة.</p>
-    <a class="cta" href="booking.html">احجز الآن</a>
+    <h2>نظافة الزجاج باحترافية وثقة</h2>
+    <p>
+      نقدم خدمات تنظيف النوافذ والواجهات للمنازل، المحلات والمكاتب  
+      باستخدام أدوات حديثة ونتائج مضمونة.
+    </p>
+    <a href="booking.html">احجز الآن</a>
   </section>
 
-  <section class="services">
-    <div class="service-card">
-      <img src="https://images.unsplash.com/photo-1582719478146-1a3cfa4b6b6e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=400" alt="تنظيف النوافذ">
-      <h3>تنظيف النوافذ</h3>
+  <section class="info">
+    <div>
+      <h3>📍 نخدم</h3>
+      <p>المنازل – المحلات – المكاتب – الواجهات الزجاجية</p>
     </div>
-    <div class="service-card">
-      <img src="https://images.unsplash.com/photo-1601924582975-0c114b7e6fcf?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=400" alt="تنظيف الواجهات">
-      <h3>تنظيف الواجهات</h3>
-    </div>
-    <div class="service-card">
-      <img src="https://images.unsplash.com/photo-1581091215360-0d2f9cb18aa8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=400" alt="خدمات دورية">
-      <h3>خدمات دورية</h3>
+
+    <div>
+      <h3>📞 تواصل معنا</h3>
+      <p>
+        هاتف: +216 24 598 941<br>
+        هاتف: +216 51 084 442<br>
+        واتساب: +216 21 477 790
+      </p>
     </div>
   </section>
 
-  <section class="contact">
-    <h2>للتواصل معنا</h2>
-    <p>📞 الهاتف: +216 24 598 941</p>
-    <p>📞 الهاتف: +216 51 084 442</p>
-    <p>📱 واتساب: +216 21 477 790</p>
-  </section>
 </main>
 
-<footer>© 2025 ASH Window Cleaning</footer>
+<footer>
+  © 2025 ASH Window Cleaning
+</footer>
 
 </body>
 </html>
