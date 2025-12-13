@@ -9,53 +9,26 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
 
 <style>
-body{
-  font-family: Arial, sans-serif;
-  background:#f5f7fa;
-  padding:20px;
-}
-h2{
-  text-align:center;
-  color:#0a5cff;
-  margin-top:40px;
-}
+body{font-family:Arial;background:#f5f7fa;padding:20px}
+h2{text-align:center;color:#0a5cff;margin-top:40px}
 .stats{
-  background:#fff;
-  padding:15px;
-  border-radius:10px;
-  text-align:center;
-  box-shadow:0 4px 10px rgba(0,0,0,.08);
-  margin-top:20px;
-  font-size:18px;
+  background:#fff;padding:15px;border-radius:10px;
+  text-align:center;box-shadow:0 4px 10px rgba(0,0,0,.08)
 }
 table{
-  width:100%;
-  border-collapse:collapse;
-  background:#fff;
-  margin-top:20px;
-  box-shadow:0 4px 10px rgba(0,0,0,.08);
+  width:100%;border-collapse:collapse;background:#fff;margin-top:20px;
+  box-shadow:0 4px 10px rgba(0,0,0,.08)
 }
-th,td{
-  border:1px solid #ddd;
-  padding:8px;
-  text-align:center;
-  font-size:14px;
+th,td{border:1px solid #ddd;padding:8px;text-align:center;font-size:14px}
+th{background:#0a5cff;color:#fff}
+tr:nth-child(even){background:#f9f9f9}
+button.delete{
+  background:#e74c3c;color:#fff;border:none;
+  padding:6px 10px;border-radius:6px;cursor:pointer
 }
-th{
-  background:#0a5cff;
-  color:#fff;
-}
-tr:nth-child(even){
-  background:#f9f9f9;
-}
-input[type="number"]{
-  width:80px;
-}
-.total-box{
-  margin-top:15px;
-  font-size:18px;
-  font-weight:bold;
-}
+button.delete:hover{opacity:.85}
+input[type="number"]{width:80px}
+.total-box{margin-top:15px;font-size:18px;font-weight:bold}
 </style>
 </head>
 
@@ -73,8 +46,9 @@ input[type="number"]{
   <th>الهاتف</th>
   <th>الخدمة</th>
   <th>العنوان</th>
-  <th>المبلغ (DT)</th>
-  <th>تمّ العمل</th>
+  <th>المبلغ</th>
+  <th>تم العمل</th>
+  <th>حذف</th>
 </tr>
 </thead>
 <tbody id="bookings"></tbody>
@@ -100,6 +74,7 @@ input[type="number"]{
   <th>الإيميل</th>
   <th>التقييم</th>
   <th>الوقت</th>
+  <th>حذف</th>
 </tr>
 </thead>
 <tbody id="ratings"></tbody>
@@ -126,30 +101,37 @@ db.collection("bookings").orderBy("date","desc").onSnapshot(snapshot=>{
 
   snapshot.forEach(doc=>{
     const d = doc.data();
-    const dayName = d.date
+    const day = d.date
       ? new Date(d.date).toLocaleDateString("ar-TN",{weekday:"long"})
       : "-";
 
-    if(d.done && d.amount){
-      total += Number(d.amount);
-    }
+    if(d.done && d.amount) total += Number(d.amount);
 
     tbody.innerHTML += `
     <tr>
-      <td>${dayName}</td>
-      <td>${d.date || "-"}</td>
-      <td>${d.time || "-"}</td>
+      <td>${day}</td>
+      <td>${d.date||"-"}</td>
+      <td>${d.time||"-"}</td>
       <td>${d.name}</td>
       <td>${d.phone}</td>
       <td>${d.service}</td>
       <td>${d.address}</td>
       <td>
-        <input type="number" value="${d.amount || ""}"
-        onchange="db.collection('bookings').doc('${doc.id}').update({amount:Number(this.value)})">
+        <input type="number" value="${d.amount||""}"
+        onchange="db.collection('bookings').doc('${doc.id}')
+        .update({amount:Number(this.value)})">
       </td>
       <td>
-        <input type="checkbox" ${d.done ? "checked":""}
-        onchange="db.collection('bookings').doc('${doc.id}').update({done:this.checked})">
+        <input type="checkbox" ${d.done?"checked":""}
+        onchange="db.collection('bookings').doc('${doc.id}')
+        .update({done:this.checked})">
+      </td>
+      <td>
+        <button class="delete"
+        onclick="confirm('حذف الطلب؟') &&
+        db.collection('bookings').doc('${doc.id}').delete()">
+        🗑
+        </button>
       </td>
     </tr>`;
   });
@@ -157,13 +139,11 @@ db.collection("bookings").orderBy("date","desc").onSnapshot(snapshot=>{
   document.getElementById("total-amount").textContent = total + " DT";
 });
 
-// ================= التقييمات + المعدل =================
+// ================= التقييمات =================
 db.collection("ratings").orderBy("timestamp","desc").onSnapshot(snapshot=>{
   const tbody = document.getElementById("ratings");
   tbody.innerHTML = "";
-
-  let sum = 0;
-  let count = 0;
+  let sum=0,count=0;
 
   snapshot.forEach(doc=>{
     const d = doc.data();
@@ -173,14 +153,21 @@ db.collection("ratings").orderBy("timestamp","desc").onSnapshot(snapshot=>{
     tbody.innerHTML += `
     <tr>
       <td>${d.name}</td>
-      <td>${d.email || "-"}</td>
+      <td>${d.email||"-"}</td>
       <td>${"⭐".repeat(d.rating)}</td>
       <td>${new Date(d.timestamp).toLocaleString("ar-TN")}</td>
+      <td>
+        <button class="delete"
+        onclick="confirm('حذف التقييم؟') &&
+        db.collection('ratings').doc('${doc.id}').delete()">
+        🗑
+        </button>
+      </td>
     </tr>`;
   });
 
-  const avg = count ? (sum / count).toFixed(1) : 0;
-  document.getElementById("avg-rating").textContent = avg;
+  document.getElementById("avg-rating").textContent =
+    count ? (sum/count).toFixed(1) : 0;
   document.getElementById("rating-count").textContent = count;
 });
 </script>
