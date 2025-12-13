@@ -5,33 +5,60 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>لوحة الإدارة - ASH</title>
 
+<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
 
 <style>
-body{font-family:Arial;background:#f5f7fa;padding:20px}
-header{background:#1f2933;color:#fff;padding:15px;text-align:center;border-radius:10px}
-h2{margin-top:30px;color:#0a5cff}
-table{width:100%;border-collapse:collapse;background:#fff;border-radius:10px;overflow:hidden}
-th,td{border:1px solid #ddd;padding:10px;text-align:center}
-th{background:#0a5cff;color:#fff}
-tr:nth-child(even){background:#f9f9f9}
-.logout{margin-top:15px;background:#1f2933;color:#fff;border:none;padding:10px 20px;border-radius:6px;cursor:pointer}
-.delete-btn{background:#f44336;color:#fff;border:none;padding:5px 10px;border-radius:5px;cursor:pointer}
-.rating-summary{margin:10px 0;font-size:18px;font-weight:bold}
+body{
+  font-family: Arial, sans-serif;
+  background:#f5f7fa;
+  padding:20px;
+}
+h2{
+  text-align:center;
+  color:#0a5cff;
+  margin-top:40px;
+}
+table{
+  width:100%;
+  border-collapse:collapse;
+  background:#fff;
+  box-shadow:0 4px 10px rgba(0,0,0,.08);
+  border-radius:8px;
+  overflow:hidden;
+  margin-top:20px;
+}
+th,td{
+  border:1px solid #ddd;
+  padding:8px;
+  text-align:center;
+  font-size:14px;
+}
+th{
+  background:#0a5cff;
+  color:#fff;
+}
+tr:nth-child(even){
+  background:#f9f9f9;
+}
+input[type="number"]{
+  width:80px;
+  padding:4px;
+}
+.total-box{
+  margin-top:15px;
+  font-size:18px;
+  font-weight:bold;
+  color:#1f2933;
+}
 </style>
 </head>
 
 <body>
 
-<header>
-  <h1>لوحة إدارة ASH</h1>
-</header>
-
-<button class="logout" id="logout">تسجيل خروج</button>
-
 <h2>📅 الحجوزات</h2>
+
 <table>
 <thead>
 <tr>
@@ -42,13 +69,19 @@ tr:nth-child(even){background:#f9f9f9}
   <th>الهاتف</th>
   <th>الخدمة</th>
   <th>العنوان</th>
+  <th>المبلغ (DT)</th>
+  <th>تمّ العمل</th>
 </tr>
 </thead>
 <tbody id="bookings"></tbody>
 </table>
 
+<div class="total-box">
+💰 المجموع الكلي للأعمال المنجزة:
+<span id="total-amount">0 DT</span>
+</div>
+
 <h2>⭐ تقييمات الزبائن</h2>
-<div class="rating-summary" id="rating-average">معدل التقييم: --</div>
 
 <table>
 <thead>
@@ -56,45 +89,48 @@ tr:nth-child(even){background:#f9f9f9}
   <th>الاسم</th>
   <th>الإيميل</th>
   <th>التقييم</th>
-  <th>التاريخ</th>
-  <th>حذف</th>
+  <th>الوقت</th>
 </tr>
 </thead>
 <tbody id="ratings"></tbody>
 </table>
 
 <script>
+// ===== Firebase Config =====
 const firebaseConfig = {
   apiKey: "AIzaSyAJxzFknapSh0fnPfIXwEEK3OijSKlqxco",
   authDomain: "admin-ash-f622c.firebaseapp.com",
   projectId: "admin-ash-f622c",
+  storageBucket: "admin-ash-f622c.appspot.com",
+  messagingSenderId: "76505742154",
+  appId: "1:76505742154:web:dc4f190f9f2de80acb1fb3",
+  measurementId: "G-MNPL104YPN"
 };
+
 firebase.initializeApp(firebaseConfig);
-
 const db = firebase.firestore();
-const auth = firebase.auth();
 
-// حماية
-auth.onAuthStateChanged(user=>{
-  if(!user) location.href="login.html";
-});
+// ================= الحجوزات =================
+db.collection("bookings").orderBy("date","desc").onSnapshot(snapshot=>{
+  const tbody = document.getElementById("bookings");
+  tbody.innerHTML = "";
+  let total = 0;
 
-// تسجيل خروج
-document.getElementById("logout").onclick=()=>{
-  auth.signOut().then(()=>location.href="login.html");
-};
+  snapshot.forEach(doc=>{
+    const d = doc.data();
 
-// ===== الحجوزات =====
-db.collection("bookings").orderBy("date","desc").onSnapshot(snap=>{
-  const tbody=document.getElementById("bookings");
-  tbody.innerHTML="";
-  snap.forEach(doc=>{
-    const d=doc.data();
     const dayName = d.date
       ? new Date(d.date).toLocaleDateString("ar-TN",{weekday:"long"})
       : "-";
 
-    tbody.innerHTML+=`
+    const checked = d.done ? "checked" : "";
+    const amount = d.amount || "";
+
+    if(d.done && d.amount){
+      total += Number(d.amount);
+    }
+
+    tbody.innerHTML += `
     <tr>
       <td>${dayName}</td>
       <td>${d.date || "-"}</td>
@@ -103,52 +139,51 @@ db.collection("bookings").orderBy("date","desc").onSnapshot(snap=>{
       <td>${d.phone}</td>
       <td>${d.service}</td>
       <td>${d.address}</td>
-    </tr>`;
-  });
-});
-
-// ===== التقييمات + المعدل =====
-db.collection("ratings").orderBy("timestamp","desc").onSnapshot(snap=>{
-  const tbody=document.getElementById("ratings");
-  const avgBox=document.getElementById("rating-average");
-  tbody.innerHTML="";
-
-  let total=0, count=0;
-
-  snap.forEach(doc=>{
-    const d=doc.data();
-    total += d.rating;
-    count++;
-
-    const date = d.timestamp
-      ? new Date(d.timestamp).toLocaleString("ar-TN")
-      : "-";
-
-    tbody.innerHTML+=`
-    <tr>
-      <td>${d.name}</td>
-      <td>${d.email || "-"}</td>
-      <td>${"⭐".repeat(d.rating)}</td>
-      <td>${date}</td>
       <td>
-        <button class="delete-btn" onclick="deleteRating('${doc.id}')">❌</button>
+        <input type="number" min="0"
+          value="${amount}"
+          onchange="updateAmount('${doc.id}', this.value)">
+      </td>
+      <td>
+        <input type="checkbox" ${checked}
+          onchange="toggleDone('${doc.id}', this.checked)">
       </td>
     </tr>`;
   });
 
-  if(count>0){
-    avgBox.textContent = `معدل التقييم: ${(total/count).toFixed(1)} / 5 ⭐`;
-  } else {
-    avgBox.textContent = "لا توجد تقييمات بعد";
-  }
+  document.getElementById("total-amount").textContent = total + " DT";
 });
 
-// حذف تقييم
-function deleteRating(id){
-  if(confirm("هل أنت متأكد من حذف التقييم؟")){
-    db.collection("ratings").doc(id).delete();
-  }
+// تحديث تم العمل
+function toggleDone(id,val){
+  db.collection("bookings").doc(id).update({
+    done: val
+  });
 }
+
+// تحديث المبلغ
+function updateAmount(id,val){
+  db.collection("bookings").doc(id).update({
+    amount: Number(val)
+  });
+}
+
+// ================= التقييمات =================
+db.collection("ratings").orderBy("timestamp","desc").onSnapshot(snapshot=>{
+  const tbody = document.getElementById("ratings");
+  tbody.innerHTML = "";
+
+  snapshot.forEach(doc=>{
+    const d = doc.data();
+    tbody.innerHTML += `
+    <tr>
+      <td>${d.name}</td>
+      <td>${d.email || "-"}</td>
+      <td>${"⭐".repeat(d.rating)}</td>
+      <td>${new Date(d.timestamp).toLocaleString("ar-TN")}</td>
+    </tr>`;
+  });
+});
 </script>
 
 </body>
