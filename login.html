@@ -5,49 +5,37 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>تسجيل دخول - Admin</title>
 <link rel="stylesheet" href="style.css">
-<!-- Firebase (compat) -->
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
 </head>
 <body>
 <header class="site-header"><div class="logo">ASH Admin</div></header>
-
 <main class="container">
   <h2>تسجيل دخول المدير</h2>
   <input id="email" placeholder="البريد الإلكتروني" />
   <input id="password" type="password" placeholder="كلمة السر" />
   <button id="loginBtn" class="btn">دخول</button>
   <p id="loginMsg"></p>
-  <p>ملاحظة: إن لم تقم بإنشاء حساب Admin، ادخل لوحة Firebase Authentication وأنشئ مستخدم بالإيميل admin@ash.tn</p>
 </main>
 
 <script>
-// إعدادات Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyAJxzFknapSh0fnPfIXwEEK3OijSKlqxco",
   authDomain: "admin-ash-f622c.firebaseapp.com",
   projectId: "admin-ash-f622c",
-  storageBucket: "admin-ash-f622c.firebasestorage.app",
+  storageBucket: "admin-ash-f622c.appspot.com",
   messagingSenderId: "76505742154",
-  appId: "1:76505742154:web:dc4f190f9f2de80acb1fb3",
-  measurementId: "G-MNPL104YPN"
+  appId: "1:76505742154:web:dc4f190f9f2de80acb1fb3"
 };
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 
-// حدث تسجيل الدخول
 document.getElementById('loginBtn').addEventListener('click', function(){
   const email = document.getElementById('email').value.trim();
   const pass = document.getElementById('password').value.trim();
-
   auth.signInWithEmailAndPassword(email, pass)
-    .then(()=> { 
-      // إعادة التوجيه إلى صفحة الطلبات الجديدة
-      window.location.href = 'bookings-admin.html'; 
-    })
-    .catch(err => { 
-      document.getElementById('loginMsg').textContent = 'خطأ في الدخول: ' + err.message; 
-    });
+    .then(()=> window.location.href = 'bookings-admin.html')
+    .catch(err => { document.getElementById('loginMsg').textContent = 'خطأ: ' + err.message; });
 });
 </script>
 </body>
