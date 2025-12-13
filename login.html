@@ -2,41 +2,156 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>تسجيل دخول - Admin</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ASH Window Cleaning - الصفحة الرئيسية</title>
 <link rel="stylesheet" href="style.css">
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+<style>
+/* ===== إعدادات عامة ===== */
+body {
+  margin: 0;
+  font-family: 'Arial', sans-serif;
+  background: #f5f7fa;
+  color: #333;
+}
+a { text-decoration: none; color: inherit; }
+
+/* ===== الهيدر ===== */
+header.site-header {
+  background: #1f2933;
+  color: white;
+  padding: 20px 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+header .logo { font-size: 24px; font-weight: bold; }
+header nav a {
+  margin-left: 15px;
+  padding: 8px 12px;
+  background: #4CAF50;
+  color: white;
+  border-radius: 8px;
+  transition: 0.3s;
+}
+header nav a:hover { background: #43a047; }
+
+/* ===== البطل ===== */
+.hero {
+  text-align: center;
+  padding: 80px 20px;
+  background: linear-gradient(180deg, #e0f2f1, #b2dfdb);
+}
+.hero h1 { font-size: 32px; margin-bottom: 15px; }
+.hero p { font-size: 18px; margin-bottom: 25px; }
+.hero .cta {
+  display: inline-block;
+  padding: 12px 25px;
+  background: #4CAF50;
+  color: white;
+  font-weight: bold;
+  border-radius: 8px;
+  transition: 0.3s;
+}
+.hero .cta:hover { background: #43a047; }
+
+/* ===== خدماتنا ===== */
+.services {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 20px;
+  max-width: 1000px;
+  margin: 40px auto;
+}
+.service-card {
+  background: white;
+  border-radius: 12px;
+  padding: 15px;
+  text-align: center;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+  transition: 0.3s;
+}
+.service-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+.service-card img {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 12px;
+  margin-bottom: 10px;
+}
+.service-card h3 { margin: 0; }
+
+/* ===== أرقام التواصل ===== */
+.contact-numbers {
+  background: #fff;
+  max-width: 600px;
+  margin: 40px auto;
+  padding: 25px;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+}
+.contact-numbers h2 { margin-bottom: 15px; }
+.contact-numbers p { font-size: 18px; margin: 8px 0; }
+
+/* ===== الفوتر ===== */
+footer {
+  background: #1f2933;
+  color: #ddd;
+  text-align: center;
+  padding: 20px;
+  font-size: 14px;
+}
+</style>
 </head>
 <body>
-<header class="site-header"><div class="logo">ASH Admin</div></header>
-<main class="container">
-  <h2>تسجيل دخول المدير</h2>
-  <input id="email" placeholder="البريد الإلكتروني" />
-  <input id="password" type="password" placeholder="كلمة السر" />
-  <button id="loginBtn" class="btn">دخول</button>
-  <p id="loginMsg"></p>
+
+<header class="site-header">
+  <div class="logo">ASH Window Cleaning</div>
+  <nav>
+    <a href="booking.html">احجز خدمة</a>
+    <a href="login.html">لوحة التحكم</a>
+  </nav>
+</header>
+
+<main>
+  <!-- قسم البطل -->
+  <section class="hero">
+    <h1>نظافة الزجاج — احترافية وسرعة</h1>
+    <p>نخدم المنازل، المحلات، المكاتب والواجهات الكبيرة.</p>
+    <a class="cta" href="booking.html">احجز الآن</a>
+  </section>
+
+  <!-- قسم الخدمات -->
+  <section class="services">
+    <div class="service-card">
+      <img src="images/window-cleaning.jpg" alt="تنظيف النوافذ">
+      <h3>تنظيف النوافذ</h3>
+    </div>
+    <div class="service-card">
+      <img src="images/facade-cleaning.jpg" alt="تنظيف الواجهات">
+      <h3>تنظيف الواجهات</h3>
+    </div>
+    <div class="service-card">
+      <img src="images/periodic-services.jpg" alt="خدمات دورية">
+      <h3>خدمات دورية</h3>
+    </div>
+  </section>
+
+  <!-- قسم أرقام التواصل -->
+  <section class="contact-numbers">
+    <h2>تواصل معنا</h2>
+    <p>الهاتف 1: +216 24 598 941</p>
+    <p>الهاتف 2: +216 51 084 442</p>
+    <p>واتساب: +216 21 477 790</p>
+  </section>
 </main>
 
-<script>
-const firebaseConfig = {
-  apiKey: "AIzaSyAJxzFknapSh0fnPfIXwEEK3OijSKlqxco",
-  authDomain: "admin-ash-f622c.firebaseapp.com",
-  projectId: "admin-ash-f622c",
-  storageBucket: "admin-ash-f622c.appspot.com",
-  messagingSenderId: "76505742154",
-  appId: "1:76505742154:web:dc4f190f9f2de80acb1fb3"
-};
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
+<footer>
+  © 2025 ASH Window Cleaning
+</footer>
 
-document.getElementById('loginBtn').addEventListener('click', function(){
-  const email = document.getElementById('email').value.trim();
-  const pass = document.getElementById('password').value.trim();
-  auth.signInWithEmailAndPassword(email, pass)
-    .then(()=> window.location.href = 'bookings-admin.html')
-    .catch(err => { document.getElementById('loginMsg').textContent = 'خطأ: ' + err.message; });
-});
-</script>
 </body>
-</html>
+    </html>
