@@ -3,102 +3,200 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>لوحة الإدارة - ASH</title>
+<title>لوحة الحجوزات - ASH Admin</title>
+<link rel="stylesheet" href="admin.css">
 
 <!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
 
 <style>
 body { font-family: Arial, sans-serif; padding: 20px; background:#f5f7fa; }
-h2 { color: #0a5cff; margin-top:40px; text-align:center; }
-table { width: 100%; border-collapse: collapse; margin-top: 20px; background:#fff; border-radius:8px; overflow:hidden; box-shadow:0 4px 10px rgba(0,0,0,0.08); }
-th, td { border: 1px solid #ddd; padding: 10px; text-align: center; }
-th { background-color: #0a5cff; color: white; }
-tr:nth-child(even) { background: #f9f9f9; }
+.site-header { background:#1f2933; color:white; padding:15px; text-align:center; margin-bottom:20px; }
+.container { max-width:1000px; margin:auto; }
+.calendar { display:grid; grid-template-columns: repeat(7, 1fr); gap:5px; }
+.day { background:white; border-radius:8px; padding:10px; min-height:80px; position:relative; }
+.day h4 { margin:0; font-size:14px; }
+.booking-btn { display:block; background:#4CAF50; color:white; border:none; margin:3px 0; padding:3px; font-size:12px; cursor:pointer; border-radius:4px; width:100%; }
+#booking-popup { display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:white; padding:20px; border-radius:10px; box-shadow:0 5px 20px rgba(0,0,0,0.3); z-index:100; max-width:400px; width:90%; }
+#booking-popup button { margin-top:10px; padding:8px; border:none; border-radius:6px; cursor:pointer; }
+#booking-popup #cancel-btn { background:#f44336; color:white; width:100%; }
+#booking-popup #close-btn { background:#ccc; color:#333; width:100%; }
+.overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.4); z-index:90; }
+
+table { width:100%; border-collapse: collapse; margin-top:30px; background:white; }
+th, td { border:1px solid #ddd; padding:8px; text-align:center; }
+th { background:#0a5cff; color:white; }
+h2 { margin-top:40px; }
+.delete-btn { background:#f44336; color:white; border:none; border-radius:4px; padding:4px 8px; cursor:pointer; }
+.delete-btn:hover { opacity:0.8; }
 </style>
 </head>
-
 <body>
 
-<h2>طلبات العملاء</h2>
-<table>
-  <thead>
-    <tr>
-      <th>الاسم</th>
-      <th>الهاتف</th>
-      <th>الخدمة</th>
-      <th>العنوان</th>
-      <th>التاريخ</th>
-      <th>الحالة</th>
-    </tr>
-  </thead>
-  <tbody id="bookings-body"></tbody>
-</table>
+<header class="site-header">ASH Admin - الحجوزات والتقييمات</header>
 
-<h2>تقييمات العملاء</h2>
-<table>
-  <thead>
-    <tr>
-      <th>الاسم</th>
-      <th>الإيميل</th>
-      <th>التقييم</th>
-      <th>التاريخ</th>
-    </tr>
-  </thead>
-  <tbody id="ratings-body"></tbody>
-</table>
+<div class="container">
+  <h2>التقويم الشهري للحجوزات</h2>
+  <div class="calendar" id="calendar"></div>
+  <button id="logout" style="margin-top:20px;padding:10px 20px;background:#1f2933;color:white;border:none;border-radius:6px;cursor:pointer;">تسجيل خروج</button>
+
+  <!-- جدول التقييمات -->
+  <h2>تقييمات العملاء</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>الاسم</th>
+        <th>الإيميل</th>
+        <th>التقييم</th>
+        <th>التاريخ</th>
+        <th>حذف</th>
+      </tr>
+    </thead>
+    <tbody id="ratings-body"></tbody>
+  </table>
+</div>
+
+<div class="overlay" id="overlay"></div>
+
+<div id="booking-popup">
+  <h3>تفاصيل الحجز</h3>
+  <p id="popup-name"></p>
+  <p id="popup-phone"></p>
+  <p id="popup-service"></p>
+  <p id="popup-address"></p>
+  <p id="popup-date"></p>
+  <p id="popup-email"></p>
+  <button id="cancel-btn">إلغاء الطلب</button>
+  <button id="close-btn">إغلاق</button>
+</div>
 
 <script>
 // Firebase Config
 const firebaseConfig = {
   apiKey: "AIzaSyAJxzFknapSh0fnPfIXwEEK3OijSKlqxco",
   authDomain: "admin-ash-f622c.firebaseapp.com",
+  databaseURL: "https://admin-ash-f622c-default-rtdb.firebaseio.com",
   projectId: "admin-ash-f622c",
   storageBucket: "admin-ash-f622c.appspot.com",
   messagingSenderId: "76505742154",
-  appId: "1:76505742154:web:dc4f190f9f2de80acb1fb3",
-  measurementId: "G-MNPL104YPN"
+  appId: "1:76505742154:web:dc4f190f9f2de80acb1fb3"
 };
 firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+const rdb = firebase.database();
+const auth = firebase.auth();
 
-// ===== قراءة الحجوزات =====
-db.collection("bookings").orderBy("createdAt", "desc").onSnapshot(snapshot => {
-  const tbody = document.getElementById("bookings-body");
-  tbody.innerHTML = "";
-  snapshot.forEach(doc => {
-    const data = doc.data();
-    tbody.innerHTML += `
-      <tr>
-        <td>${data.name}</td>
-        <td>${data.phone}</td>
-        <td>${data.service}</td>
-        <td>${data.address}</td>
-        <td>${data.date}</td>
-        <td>${data.status || "جديد"}</td>
-      </tr>
-    `;
-  });
+// التحقق من تسجيل الدخول
+auth.onAuthStateChanged(user => {
+  if (!user) {
+    window.location.href = 'login.html';
+  } else {
+    initCalendar();
+    loadRatings();
+  }
 });
 
-// ===== قراءة التقييمات من Firestore =====
-db.collection("ratings").orderBy("timestamp", "desc").onSnapshot(snapshot => {
-  const tbody = document.getElementById("ratings-body");
-  tbody.innerHTML = "";
-  snapshot.forEach(doc => {
-    const data = doc.data();
-    const date = new Date(data.timestamp);
-    tbody.innerHTML += `
-      <tr>
-        <td>${data.name}</td>
-        <td>${data.email}</td>
-        <td>${'⭐'.repeat(data.rating)}</td>
-        <td>${date.toLocaleString()}</td>
-      </tr>
-    `;
-  });
+// تسجيل خروج
+document.getElementById('logout').addEventListener('click', () => {
+  auth.signOut().then(() => window.location.href = 'login.html');
 });
+
+// ------------------- التقويم -------------------
+const calendarEl = document.getElementById('calendar');
+const today = new Date();
+const year = today.getFullYear();
+const month = today.getMonth();
+
+function initCalendar() {
+  const firstDay = new Date(year, month, 1);
+  const lastDay = new Date(year, month + 1, 0);
+  calendarEl.innerHTML = '';
+
+  for (let d = 1; d <= lastDay.getDate(); d++) {
+    const dayCell = document.createElement('div');
+    dayCell.className = 'day';
+    const dateStr = `${year}-${(month+1).toString().padStart(2,'0')}-${d.toString().padStart(2,'0')}`;
+    dayCell.id = dateStr;
+    dayCell.innerHTML = `<h4>${d}/${month+1}</h4>`;
+    calendarEl.appendChild(dayCell);
+  }
+
+  loadBookings();
+}
+
+// تحميل الحجوزات من Firebase وعرضها في التقويم
+function loadBookings() {
+  rdb.ref('bookings').orderByChild('date').once('value', snapshot => {
+    snapshot.forEach(snap => {
+      const data = snap.val();
+      const dayCell = document.getElementById(data.date);
+      if(dayCell){
+        const btn = document.createElement('button');
+        btn.className = 'booking-btn';
+        btn.textContent = data.name;
+        btn.onclick = () => showPopup(data, snap.key);
+        dayCell.appendChild(btn);
+      }
+    });
+  });
+}
+
+// ------------------- Popup -------------------
+const popup = document.getElementById('booking-popup');
+const overlay = document.getElementById('overlay');
+function showPopup(data, key){
+  popup.style.display = 'block';
+  overlay.style.display = 'block';
+  document.getElementById("popup-name").textContent = "الاسم: " + data.name;
+  document.getElementById("popup-phone").textContent = "الهاتف: " + data.phone;
+  document.getElementById("popup-service").textContent = "الخدمة: " + data.service;
+  document.getElementById("popup-address").textContent = "العنوان: " + data.address;
+  document.getElementById("popup-date").textContent = "التاريخ: " + data.date + (data.time ? " - " + data.time : "");
+  document.getElementById("popup-email").textContent = "الإيميل: " + (data.email || "غير موجود");
+
+  document.getElementById('cancel-btn').onclick = () => {
+    rdb.ref('bookings/' + key).remove().then(() => {
+      alert("تم إلغاء الحجز");
+      closePopup();
+      initCalendar();
+    });
+  };
+}
+
+document.getElementById('close-btn').onclick = closePopup;
+overlay.onclick = closePopup;
+function closePopup(){
+  popup.style.display = 'none';
+  overlay.style.display = 'none';
+}
+
+// ------------------- تحميل التقييمات -------------------
+function loadRatings() {
+  const tbody = document.getElementById('ratings-body');
+  rdb.ref('ratings').orderByChild('timestamp').on('value', snapshot => {
+    tbody.innerHTML = '';
+    snapshot.forEach(snap => {
+      const data = snap.val();
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${data.name}</td>
+        <td>${data.email || "غير محدد"}</td>
+        <td>${data.rating} ⭐</td>
+        <td>${new Date(data.timestamp).toLocaleString()}</td>
+        <td><button class="delete-btn" onclick="deleteRating('${snap.key}')">حذف</button></td>
+      `;
+      tbody.appendChild(row);
+    });
+  });
+}
+
+// حذف تقييم
+function deleteRating(key) {
+  if(confirm("هل أنت متأكد من حذف هذا التقييم؟")) {
+    rdb.ref('ratings/' + key).remove();
+  }
+}
 </script>
 
 </body>
