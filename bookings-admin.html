@@ -10,6 +10,7 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 
 <style>
 body { font-family: Arial, sans-serif; padding: 20px; background:#f5f7fa; }
@@ -24,16 +25,35 @@ body { font-family: Arial, sans-serif; padding: 20px; background:#f5f7fa; }
 #booking-popup #cancel-btn { background:#f44336; color:white; width:100%; }
 #booking-popup #close-btn { background:#ccc; color:#333; width:100%; }
 .overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.4); z-index:90; }
+
+table { width:100%; border-collapse: collapse; margin-top:30px; background:white; }
+th, td { border:1px solid #ddd; padding:8px; text-align:center; }
+th { background:#0a5cff; color:white; }
+h2 { margin-top:40px; }
 </style>
 </head>
 <body>
 
-<header class="site-header">ASH Admin - الحجوزات</header>
+<header class="site-header">ASH Admin - الحجوزات والتقييمات</header>
 
 <div class="container">
   <h2>التقويم الشهري للحجوزات</h2>
   <div class="calendar" id="calendar"></div>
   <button id="logout" style="margin-top:20px;padding:10px 20px;background:#1f2933;color:white;border:none;border-radius:6px;cursor:pointer;">تسجيل خروج</button>
+
+  <!-- جدول التقييمات -->
+  <h2>تقييمات العملاء</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>الاسم</th>
+        <th>الإيميل</th>
+        <th>التقييم</th>
+        <th>التاريخ</th>
+      </tr>
+    </thead>
+    <tbody id="ratings-body"></tbody>
+  </table>
 </div>
 
 <div class="overlay" id="overlay"></div>
@@ -63,6 +83,7 @@ const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
+const rdb = firebase.database();
 const auth = firebase.auth();
 
 // التحقق من تسجيل الدخول
@@ -71,6 +92,7 @@ auth.onAuthStateChanged(user => {
     window.location.href = 'login.html';
   } else {
     initCalendar();
+    loadRatings();
   }
 });
 
@@ -143,10 +165,28 @@ function showPopup(data, id){
 
 document.getElementById('close-btn').onclick = closePopup;
 overlay.onclick = closePopup;
-
 function closePopup(){
   popup.style.display = 'none';
   overlay.style.display = 'none';
+}
+
+// ------------------- تحميل التقييمات -------------------
+function loadRatings() {
+  const tbody = document.getElementById('ratings-body');
+  rdb.ref('ratings').orderByChild('timestamp').on('value', snapshot => {
+    tbody.innerHTML = '';
+    snapshot.forEach(snap => {
+      const data = snap.val();
+      tbody.innerHTML += `
+        <tr>
+          <td>${data.name}</td>
+          <td>${data.email || "غير محدد"}</td>
+          <td>${data.rating} ⭐</td>
+          <td>${new Date(data.timestamp).toLocaleString()}</td>
+        </tr>
+      `;
+    });
+  });
 }
 </script>
 
