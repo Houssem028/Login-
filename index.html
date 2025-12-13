@@ -6,11 +6,6 @@
 <title>ASH Window Cleaning</title>
 
 <style>
-  <nav class="bottom-bar">
-  <a href="index.html" class="active">🏠<span>الرئيسية</span></a>
-  <a href="booking.html">📅<span>حجز</span></a>
-  <a href="login.html">🔒<span>الإدارة</span></a>
-</nav>
 body {
   margin: 0;
   font-family: Arial, sans-serif;
@@ -30,11 +25,7 @@ header h1 {
   font-size: 28px;
 }
 
-nav {
-  margin-top: 10px;
-}
-
-nav a {
+header nav a {
   color: #fff;
   text-decoration: none;
   margin: 0 10px;
@@ -99,7 +90,41 @@ footer {
   margin-top: 40px;
   font-size: 14px;
 }
+
+/* شريط التنقل السفلي */
+.bottom-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: #fff;
+  border-top: 1px solid #ccc;
+  display: flex;
+  justify-content: space-around;
+  padding: 10px 0;
+  box-shadow: 0 -1px 5px rgba(0,0,0,0.1);
+  z-index: 1000;
+}
+
+.bottom-bar a {
+  text-decoration: none;
+  color: #555;
+  font-size: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.bottom-bar a.active {
+  color: #0a5cff;
+}
+
+.bottom-bar a span {
+  font-size: 12px;
+  margin-top: 2px;
+}
 </style>
+
 </head>
 
 <body>
@@ -145,6 +170,13 @@ footer {
 <footer>
   © 2025 ASH Window Cleaning
 </footer>
+
+<!-- شريط التنقل السفلي -->
+<nav class="bottom-bar">
+  <a href="index.html" class="active">🏠<span>الرئيسية</span></a>
+  <a href="booking.html">📅<span>حجز</span></a>
+  <a href="login.html">🔒<span>الإدارة</span></a>
+</nav>
 
 </body>
 </html>
