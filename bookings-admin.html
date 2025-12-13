@@ -3,14 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>لوحة الحجوزات - ASH Admin</title>
-<link rel="stylesheet" href="admin.css">
+<title>لوحة الحجوزات والتقييمات - ASH Admin</title>
 
 <!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 
 <style>
 body { font-family: Arial, sans-serif; padding: 20px; background:#f5f7fa; }
@@ -26,10 +24,10 @@ body { font-family: Arial, sans-serif; padding: 20px; background:#f5f7fa; }
 #booking-popup #close-btn { background:#ccc; color:#333; width:100%; }
 .overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.4); z-index:90; }
 
-table { width:100%; border-collapse: collapse; margin-top:30px; background:white; }
+table { width:100%; border-collapse: collapse; margin-top:30px; background:white; border-radius:8px; overflow:hidden; box-shadow:0 4px 10px rgba(0,0,0,0.08); }
 th, td { border:1px solid #ddd; padding:8px; text-align:center; }
 th { background:#0a5cff; color:white; }
-h2 { margin-top:40px; }
+h2 { margin-top:40px; text-align:center; }
 </style>
 </head>
 <body>
@@ -41,7 +39,6 @@ h2 { margin-top:40px; }
   <div class="calendar" id="calendar"></div>
   <button id="logout" style="margin-top:20px;padding:10px 20px;background:#1f2933;color:white;border:none;border-radius:6px;cursor:pointer;">تسجيل خروج</button>
 
-  <!-- جدول التقييمات -->
   <h2>تقييمات العملاء</h2>
   <table>
     <thead>
@@ -83,7 +80,6 @@ const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
-const rdb = firebase.database();
 const auth = firebase.auth();
 
 // التحقق من تسجيل الدخول
@@ -124,7 +120,7 @@ function initCalendar() {
   loadBookings();
 }
 
-// تحميل الحجوزات من Firebase وعرضها في التقويم
+// تحميل الحجوزات وعرضها
 function loadBookings() {
   db.collection("bookings").orderBy("date").get().then(snapshot => {
     snapshot.forEach(doc => {
@@ -158,7 +154,7 @@ function showPopup(data, id){
     db.collection("bookings").doc(id).delete().then(() => {
       alert("تم إلغاء الحجز");
       closePopup();
-      loadBookings(); // إعادة تحميل الحجوزات
+      loadBookings();
     });
   };
 }
@@ -170,21 +166,22 @@ function closePopup(){
   overlay.style.display = 'none';
 }
 
-// ------------------- تحميل التقييمات -------------------
+// ------------------- تحميل التقييمات من Firestore -------------------
 function loadRatings() {
   const tbody = document.getElementById('ratings-body');
-  rdb.ref('ratings').orderByChild('timestamp').on('value', snapshot => {
+  db.collection("ratings").orderBy("timestamp", "desc").onSnapshot(snapshot => {
     tbody.innerHTML = '';
-    snapshot.forEach(snap => {
-      const data = snap.val();
-      const row = document.createElement('tr');
-      row.innerHTML = `
-        <td>${data.name}</td>
-        <td>${data.email || "غير محدد"}</td>
-        <td>${data.rating} ⭐</td>
-        <td>${new Date(data.timestamp).toLocaleString()}</td>
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      const date = new Date(data.timestamp);
+      tbody.innerHTML += `
+        <tr>
+          <td>${data.name}</td>
+          <td>${data.email || "غير محدد"}</td>
+          <td>${'⭐'.repeat(data.rating)}</td>
+          <td>${date.toLocaleString()}</td>
+        </tr>
       `;
-      tbody.appendChild(row);
     });
   });
 }
