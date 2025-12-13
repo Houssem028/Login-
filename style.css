@@ -1,82 +1,110 @@
-/* عام */
+/* إعدادات عامة */
 body {
-  font-family: Arial, sans-serif;
-  padding: 15px;
   margin: 0;
-  background-color: #f5f7fa;
+  font-family: 'Arial', sans-serif;
+  background: linear-gradient(180deg, #f5f7fa, #e8ecf1);
   color: #333;
+}
+
+/* الهيدر */
+header {
+  background: #1f2933;
+  color: white;
+  text-align: center;
+  padding: 25px 15px;
+}
+
+header img {
+  width: 90px;
+  margin-bottom: 10px;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 26px;
+  letter-spacing: 1px;
 }
 
 /* الحاوية */
 .container {
   max-width: 900px;
-  margin: auto;
-  background: #ffffff;
+  margin: 20px auto;
+  padding: 15px;
+}
+
+/* الأقسام */
+.section {
+  background: white;
+  border-radius: 14px;
   padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+  margin-bottom: 20px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
 }
 
-/* العناوين */
-h1, h2 {
+.section h2 {
+  margin-top: 0;
+  color: #1f2933;
   text-align: center;
-  color: #2c3e50;
 }
 
-/* الحقول */
-input, select, button {
-  display: block;
-  margin: 12px 0;
-  padding: 12px;
-  width: 100%;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  font-size: 16px;
+/* الخدمات */
+.services {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 15px;
 }
 
-/* زر */
-button {
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-  cursor: pointer;
+.service-card {
+  background: #f1f5f9;
+  border-radius: 12px;
+  padding: 15px;
+  text-align: center;
   font-weight: bold;
   transition: 0.3s;
 }
 
-button:hover {
-  background-color: #43a047;
-}
-
-/* الجدول */
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 20px;
-  background: #fff;
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-th, td {
-  border-bottom: 1px solid #eee;
-  padding: 10px;
-  text-align: center;
-}
-
-th {
-  background-color: #4CAF50;
+.service-card:hover {
+  background: #4CAF50;
   color: white;
+  transform: translateY(-5px);
+}
+
+/* الفورم */
+input, select, button {
+  width: 100%;
+  padding: 12px;
+  margin-top: 12px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+}
+
+/* الزر */
+button {
+  background: #4CAF50;
+  color: white;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+button:hover {
+  background: #43a047;
+}
+
+/* الفوتر */
+footer {
+  background: #1f2933;
+  color: #ddd;
+  text-align: center;
+  padding: 15px;
+  font-size: 14px;
 }
 
 /* موبايل */
 @media (max-width: 600px) {
-  body {
-    padding: 10px;
+  header h1 {
+    font-size: 22px;
   }
-
-  th, td {
-    font-size: 14px;
-    padding: 8px;
-  }
-}
+    }
