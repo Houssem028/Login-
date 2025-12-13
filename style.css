@@ -89,3 +89,34 @@ th { background:#4CAF50; color:white; }
     margin: 20px;
   }
 }
+/* ===== BOTTOM BAR ===== */
+.bottom-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #ffffff;
+  display: flex;
+  justify-content: space-around;
+  border-top: 1px solid #e5e7eb;
+  padding: 8px 0;
+  z-index: 999;
+}
+
+.bottom-bar a {
+  text-decoration: none;
+  color: #555;
+  font-size: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.bottom-bar a span {
+  margin-top: 2px;
+}
+
+.bottom-bar a.active {
+  color: #00c853;
+  font-weight: bold;
+}
