@@ -10,21 +10,19 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
 
 <style>
-/* ===== Reset ===== */
 * { margin:0; padding:0; box-sizing:border-box; }
 
-/* ===== Body ===== */
 body {
   font-family: 'Segoe UI', Arial, sans-serif;
-  background: url('https://images.unsplash.com/photo-1581091870622-f46e08c5b9ee?auto=format&fit=crop&w=1470&q=80') no-repeat center center fixed;
+  /* الخلفية بالصورة المحلية Pic1.jpg */
+  background: url('Pic1.jpg') no-repeat center center fixed;
   background-size: cover;
   display:flex; justify-content:center; align-items:center;
   height:100vh;
 }
 
-/* ===== Container ===== */
 .container {
-  background: rgba(255,255,255,0.85); /* شفافية الخلفية */
+  background: rgba(255,255,255,0.85); /* شفافية النموذج */
   width:400px;
   max-width:90%;
   padding:40px 30px;
@@ -35,7 +33,6 @@ body {
   overflow:hidden;
 }
 
-/* ===== Header ===== */
 .container h2 {
   color:#0a5cff;
   font-size:28px;
@@ -43,7 +40,6 @@ body {
   font-weight:bold;
 }
 
-/* ===== Inputs ===== */
 .container input {
   width:100%;
   padding:14px 18px;
@@ -59,7 +55,6 @@ body {
   outline:none;
 }
 
-/* ===== Buttons ===== */
 .btn {
   width:100%;
   padding:16px;
@@ -78,7 +73,6 @@ body {
   transform:translateY(-3px);
 }
 
-/* ===== Show password & Remember me ===== */
 .options {
   display:flex;
   justify-content:space-between;
@@ -87,14 +81,12 @@ body {
 }
 .options label { cursor:pointer; display:flex; align-items:center; gap:5px; }
 
-/* ===== Error message ===== */
 #error-msg {
   margin-top:12px;
   font-weight:bold;
   color:red;
 }
 
-/* ===== Responsive ===== */
 @media(max-width:480px){
   .container { padding:30px 20px; }
   .container h2 { font-size:22px; }
