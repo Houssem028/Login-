@@ -70,19 +70,21 @@ main { padding:40px 20px; max-width:900px; margin:auto; }
 }
 .hero a.cta:hover { background:#084dcc; transform:translateY(-2px); }
 
-/* ===== SOCIAL BUTTON ===== */
+/* ===== SOCIAL BUTTON (فايسبوك فقط شعار) ===== */
 .social-btn {
-  background:#1877f2;
-  color:#fff;
-  padding:16px 28px;
-  border-radius:10px;
-  font-size:16px;
   display:inline-block;
-  margin:15px auto;
-  text-align:center;
+  width:50px;
+  height:50px;
+  background-image: url('https://upload.wikimedia.org/wikipedia/commons/0/05/Facebook_Logo_%282019%29.png');
+  background-size:cover;
+  background-position:center;
+  border-radius:10px;
   transition:0.3s, transform 0.2s;
+  margin:20px auto;
 }
-.social-btn:hover { background:#0f5bc2; transform:translateY(-2px); }
+.social-btn:hover {
+  transform:translateY(-3px) scale(1.1);
+}
 
 /* ===== INFO ===== */
 .info {
@@ -163,7 +165,8 @@ main { padding:40px 20px; max-width:900px; margin:auto; }
 @media(max-width:480px){
   .hero h2 { font-size:24px; }
   .hero p { font-size:14px; }
-  .hero a.cta, .social-btn { padding:12px 20px; font-size:15px; }
+  .hero a.cta, .social-btn { padding:12px; font-size:15px; }
+  .social-btn { width:40px; height:40px; }
 }
 </style>
 </head>
@@ -195,11 +198,9 @@ main { padding:40px 20px; max-width:900px; margin:auto; }
     </div>
   </section>
 
-  <!-- زر فيسبوك -->
-  <section class="social-share" style="text-align:center; margin-bottom:30px;">
-    <a href="https://www.facebook.com/share/1GbswL49R8/" target="_blank" class="social-btn">
-      تابعنا على فيسبوك
-    </a>
+  <!-- زر فيسبوك شعار فقط -->
+  <section class="social-share" style="text-align:center;">
+    <a href="https://www.facebook.com/share/1GbswL49R8/" target="_blank" class="social-btn"></a>
   </section>
 
   <section class="rating-box">
