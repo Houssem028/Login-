@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="ar" dir="rtl">
+<html lang="fr" dir="ltr">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>تسجيل دخول - لوحة الإدارة</title>
+<title>Connexion - Admin</title>
 
 <!-- Firebase (compat) -->
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
@@ -16,14 +16,15 @@
 /* ===== Body ===== */
 body {
   font-family: 'Segoe UI', Arial, sans-serif;
-  background: linear-gradient(135deg, #0a5cff, #84c1ff);
+  background: url('https://images.unsplash.com/photo-1581091870622-f46e08c5b9ee?auto=format&fit=crop&w=1470&q=80') no-repeat center center fixed;
+  background-size: cover;
   display:flex; justify-content:center; align-items:center;
   height:100vh;
 }
 
 /* ===== Container ===== */
 .container {
-  background:#fff;
+  background: rgba(255,255,255,0.85); /* شفافية الخلفية */
   width:400px;
   max-width:90%;
   padding:40px 30px;
@@ -93,14 +94,6 @@ body {
   color:red;
 }
 
-/* ===== Note ===== */
-.note {
-  font-size:13px;
-  color:#555;
-  margin-top:15px;
-  line-height:1.5;
-}
-
 /* ===== Responsive ===== */
 @media(max-width:480px){
   .container { padding:30px 20px; }
@@ -112,23 +105,19 @@ body {
 
 <body>
 <div class="container">
-  <h2>تسجيل دخول المدير</h2>
+  <h2>Connexion Admin</h2>
   
-  <input id="email" type="email" placeholder="البريد الإلكتروني" />
-  <input id="password" type="password" placeholder="كلمة السر" />
+  <input id="email" type="email" placeholder="Email" />
+  <input id="password" type="password" placeholder="Mot de passe" />
   
   <div class="options">
-    <label><input type="checkbox" id="togglePass"/> عرض كلمة السر</label>
-    <label><input type="checkbox" id="rememberMe"/> تذكرني</label>
+    <label><input type="checkbox" id="togglePass"/> Afficher le mot de passe</label>
+    <label><input type="checkbox" id="rememberMe"/> Se souvenir de moi</label>
   </div>
   
-  <button id="loginBtn" class="btn">دخول</button>
+  <button id="loginBtn" class="btn">Se connecter</button>
   
   <p id="error-msg"></p>
-  
-  <p class="note">
-    ملاحظة: إذا لم تقم بإنشاء حساب Admin، ادخل لوحة Firebase Authentication وأنشئ مستخدم بالإيميل admin@ash.tn
-  </p>
 </div>
 
 <script>
@@ -157,12 +146,11 @@ document.getElementById('loginBtn').addEventListener('click', function(){
   const password = document.getElementById('password').value.trim();
   const remember = document.getElementById('rememberMe').checked;
   
-  // Set persistence
   auth.setPersistence(remember ? firebase.auth.Auth.Persistence.LOCAL : firebase.auth.Auth.Persistence.SESSION)
     .then(()=> auth.signInWithEmailAndPassword(email, password))
     .then(()=> { window.location.href = 'bookings-admin.html'; })
     .catch(err => {
-      document.getElementById('error-msg').textContent = 'خطأ في الدخول: ' + err.message;
+      document.getElementById('error-msg').textContent = 'Erreur : ' + err.message;
     });
 });
 </script>
