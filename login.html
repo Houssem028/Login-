@@ -3,28 +3,136 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>تسجيل دخول - Admin</title>
-<link rel="stylesheet" href="style.css">
+<title>تسجيل دخول - لوحة الإدارة</title>
+
 <!-- Firebase (compat) -->
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-</head>
-<body>
-<header class="site-header">
-  <div class="logo">ASH Admin</div>
-</header>
 
-<main class="container">
+<style>
+/* ===== Reset ===== */
+* { margin:0; padding:0; box-sizing:border-box; }
+
+/* ===== Body ===== */
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: linear-gradient(135deg, #0a5cff, #84c1ff);
+  display:flex; justify-content:center; align-items:center;
+  height:100vh;
+}
+
+/* ===== Container ===== */
+.container {
+  background:#fff;
+  width:400px;
+  max-width:90%;
+  padding:40px 30px;
+  border-radius:20px;
+  box-shadow:0 15px 40px rgba(0,0,0,0.25);
+  text-align:center;
+  position:relative;
+  overflow:hidden;
+}
+
+/* ===== Header ===== */
+.container h2 {
+  color:#0a5cff;
+  font-size:28px;
+  margin-bottom:30px;
+  font-weight:bold;
+}
+
+/* ===== Inputs ===== */
+.container input {
+  width:100%;
+  padding:14px 18px;
+  margin:12px 0;
+  border-radius:10px;
+  border:1px solid #ccc;
+  font-size:16px;
+  transition:0.3s;
+}
+.container input:focus {
+  border-color:#0a5cff;
+  box-shadow:0 0 8px rgba(10,92,255,0.3);
+  outline:none;
+}
+
+/* ===== Buttons ===== */
+.btn {
+  width:100%;
+  padding:16px;
+  margin-top:20px;
+  background:#0a5cff;
+  color:#fff;
+  font-size:18px;
+  font-weight:bold;
+  border:none;
+  border-radius:12px;
+  cursor:pointer;
+  transition:0.3s, transform 0.2s;
+}
+.btn:hover {
+  background:#084dcc;
+  transform:translateY(-3px);
+}
+
+/* ===== Show password & Remember me ===== */
+.options {
+  display:flex;
+  justify-content:space-between;
+  margin:10px 0;
+  font-size:14px;
+}
+.options label { cursor:pointer; display:flex; align-items:center; gap:5px; }
+
+/* ===== Error message ===== */
+#error-msg {
+  margin-top:12px;
+  font-weight:bold;
+  color:red;
+}
+
+/* ===== Note ===== */
+.note {
+  font-size:13px;
+  color:#555;
+  margin-top:15px;
+  line-height:1.5;
+}
+
+/* ===== Responsive ===== */
+@media(max-width:480px){
+  .container { padding:30px 20px; }
+  .container h2 { font-size:22px; }
+  .btn { font-size:16px; padding:14px; }
+}
+</style>
+</head>
+
+<body>
+<div class="container">
   <h2>تسجيل دخول المدير</h2>
-  <input id="email" placeholder="البريد الإلكتروني" />
+  
+  <input id="email" type="email" placeholder="البريد الإلكتروني" />
   <input id="password" type="password" placeholder="كلمة السر" />
+  
+  <div class="options">
+    <label><input type="checkbox" id="togglePass"/> عرض كلمة السر</label>
+    <label><input type="checkbox" id="rememberMe"/> تذكرني</label>
+  </div>
+  
   <button id="loginBtn" class="btn">دخول</button>
-  <p id="loginMsg"></p>
-  <p>ملاحظة: إن لم تقم بإنشاء حساب Admin، ادخل لوحة Firebase Authentication وأنشئ مستخدم بالإيميل admin@ash.tn</p>
-</main>
+  
+  <p id="error-msg"></p>
+  
+  <p class="note">
+    ملاحظة: إذا لم تقم بإنشاء حساب Admin، ادخل لوحة Firebase Authentication وأنشئ مستخدم بالإيميل admin@ash.tn
+  </p>
+</div>
 
 <script>
-// إعدادات Firebase
+// ===== Firebase Config =====
 const firebaseConfig = {
   apiKey: "AIzaSyAJxzFknapSh0fnPfIXwEEK3OijSKlqxco",
   authDomain: "admin-ash-f622c.firebaseapp.com",
@@ -37,18 +145,24 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 
-// حدث تسجيل الدخول
+// ===== Show/Hide Password =====
+document.getElementById('togglePass').addEventListener('change', function(){
+  const pass = document.getElementById('password');
+  pass.type = this.checked ? 'text' : 'password';
+});
+
+// ===== Login =====
 document.getElementById('loginBtn').addEventListener('click', function(){
   const email = document.getElementById('email').value.trim();
-  const pass = document.getElementById('password').value.trim();
-
-  auth.signInWithEmailAndPassword(email, pass)
-    .then(()=> { 
-      // إعادة التوجيه إلى صفحة الطلبات
-      window.location.href = 'bookings-admin.html'; 
-    })
-    .catch(err => { 
-      document.getElementById('loginMsg').textContent = 'خطأ في الدخول: ' + err.message; 
+  const password = document.getElementById('password').value.trim();
+  const remember = document.getElementById('rememberMe').checked;
+  
+  // Set persistence
+  auth.setPersistence(remember ? firebase.auth.Auth.Persistence.LOCAL : firebase.auth.Auth.Persistence.SESSION)
+    .then(()=> auth.signInWithEmailAndPassword(email, password))
+    .then(()=> { window.location.href = 'bookings-admin.html'; })
+    .catch(err => {
+      document.getElementById('error-msg').textContent = 'خطأ في الدخول: ' + err.message;
     });
 });
 </script>
