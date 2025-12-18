@@ -2,37 +2,35 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ASH – Administration</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Admin – ASH Window Cleaning</title>
 
 <!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
 
 <style>
-*{box-sizing:border-box}
 body{
+  font-family:Poppins,Arial,sans-serif;
+  background:#f5f7fa;
   margin:0;
-  font-family:'Segoe UI',Arial,sans-serif;
-  background:#f4f7fb;
-  color:#1f2933;
 }
 header{
   background:linear-gradient(90deg,#0a3cff,#00c897);
   color:#fff;
   padding:25px;
   text-align:center;
-  box-shadow:0 6px 20px rgba(0,0,0,.2);
+  font-size:26px;
+  font-weight:700;
 }
-header h1{margin:0;font-size:28px}
-
 .container{
   max-width:1200px;
   margin:30px auto;
-  padding:0 15px;
+  background:#fff;
+  border-radius:16px;
+  padding:25px;
+  box-shadow:0 10px 30px rgba(0,0,0,.1);
 }
-
-/* ===== STATS ===== */
 .stats{
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
@@ -40,22 +38,46 @@ header h1{margin:0;font-size:28px}
   margin-bottom:30px;
 }
 .stat{
-  background:#fff;
+  background:#f9fbff;
   padding:20px;
   border-radius:14px;
-  box-shadow:0 8px 20px rgba(0,0,0,.08);
+  text-align:center;
+  box-shadow:0 4px 12px rgba(0,0,0,.06);
+}
+.stat h3{margin:0;color:#555}
+.stat p{font-size:28px;margin:10px 0;color:#0a3cff;font-weight:700}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:15px;
+}
+th,td{
+  border:1px solid #ddd;
+  padding:10px;
   text-align:center;
 }
-.stat h3{margin:0;color:#0a3cff;font-size:16px}
-.stat p{font-size:26px;font-weight:bold;margin:10px 0 0}
+th{
+  background:#0a3cff;
+  color:white;
+}
+input,select{
+  padding:6px;
+  border-radius:6px;
+  border:1px solid #ccc;
+}
+button.action{
+  background:#ff4d4f;
+  border:none;
+  color:white;
+  padding:6px 10px;
+  border-radius:6px;
+  cursor:pointer;
+}
+button.action:hover{background:#d9363e}
 
-/* ===== CALENDAR ===== */
 .calendar{
-  background:#fff;
-  border-radius:14px;
-  padding:20px;
-  box-shadow:0 8px 20px rgba(0,0,0,.08);
-  margin-bottom:30px;
+  margin-top:40px;
 }
 .calendar-header{
   display:flex;
@@ -63,129 +85,89 @@ header h1{margin:0;font-size:28px}
   align-items:center;
   margin-bottom:15px;
 }
-.calendar-header button{
-  background:#0a3cff;
-  color:#fff;
-  border:none;
-  padding:6px 14px;
-  border-radius:6px;
-  cursor:pointer;
-}
 .calendar-grid{
   display:grid;
   grid-template-columns:repeat(7,1fr);
-  gap:6px;
+  gap:10px;
 }
 .day{
-  background:#f1f5f9;
+  background:#f9fbff;
+  border-radius:10px;
   padding:10px;
-  border-radius:8px;
-  min-height:70px;
-  font-size:13px;
+  min-height:80px;
+  box-shadow:0 2px 8px rgba(0,0,0,.08);
 }
-.day strong{display:block}
-
-/* ===== TABLE ===== */
-.section{
-  background:#fff;
-  border-radius:14px;
-  padding:20px;
-  box-shadow:0 8px 20px rgba(0,0,0,.08);
-  margin-bottom:30px;
+.day strong{color:#0a3cff}
+.day span{
+  display:block;
+  margin-top:5px;
+  font-size:12px;
 }
-.section h2{
-  margin-top:0;
-  color:#0a3cff;
+.reviews{
+  margin-top:40px;
 }
-table{
-  width:100%;
-  border-collapse:collapse;
-  font-size:14px;
+.review{
+  background:#f9fbff;
+  padding:15px;
+  border-radius:12px;
+  margin:10px 0;
+  box-shadow:0 4px 10px rgba(0,0,0,.06);
 }
-th,td{
-  border-bottom:1px solid #ddd;
-  padding:8px;
-  text-align:center;
-}
-th{
-  background:#0a3cff;
-  color:#fff;
-}
-input,select{
-  padding:5px;
-  border-radius:6px;
-  border:1px solid #ccc;
-}
-button.action{
-  background:#e53935;
-  color:#fff;
-  border:none;
-  padding:6px 10px;
-  border-radius:6px;
-  cursor:pointer;
-}
-button.save{
-  background:#00c897;
-  color:#fff;
-  border:none;
-  padding:6px 10px;
-  border-radius:6px;
-  cursor:pointer;
-}
-.rating-stars{color:gold;font-size:16px}
 </style>
 </head>
 
 <body>
 
-<header>
-  <h1>ASH Window Cleaning – Administration</h1>
-</header>
+<header>ASH Window Cleaning – Administration</header>
 
 <div class="container">
 
-<!-- ===== STATS ===== -->
+<!-- STATS -->
 <div class="stats">
-  <div class="stat"><h3>Réservations</h3><p id="stat-bookings">0</p></div>
-  <div class="stat"><h3>Revenus (DT)</h3><p id="stat-revenue">0</p></div>
-  <div class="stat"><h3>Terminées</h3><p id="stat-done">0</p></div>
-  <div class="stat"><h3>⭐ Moyenne</h3><p id="stat-rating">0</p></div>
+  <div class="stat">
+    <h3>Réservations</h3>
+    <p id="stat-bookings">0</p>
+  </div>
+  <div class="stat">
+    <h3>Travaux terminés</h3>
+    <p id="stat-done">0</p>
+  </div>
+  <div class="stat">
+    <h3>Revenus (DT)</h3>
+    <p id="stat-revenue">0</p>
+  </div>
+  <div class="stat">
+    <h3>Note moyenne</h3>
+    <p id="avg-rating">⭐ 0</p>
+  </div>
 </div>
 
-<!-- ===== CALENDAR ===== -->
+<!-- BOOKINGS TABLE -->
+<h2>📅 Réservations</h2>
+<table>
+<thead>
+<tr>
+<th>Date</th><th>Nom</th><th>Téléphone</th><th>Service</th>
+<th>Adresse</th><th>Montant</th><th>Statut</th><th>Action</th>
+</tr>
+</thead>
+<tbody id="bookings"></tbody>
+</table>
+
+<!-- CALENDAR -->
 <div class="calendar">
   <div class="calendar-header">
     <button onclick="changeMonth(-1)">◀</button>
-    <h3 id="calendar-title"></h3>
+    <h3 id="month-title"></h3>
     <button onclick="changeMonth(1)">▶</button>
   </div>
   <div class="calendar-grid" id="calendar"></div>
 </div>
 
-<!-- ===== BOOKINGS ===== -->
-<div class="section">
-<h2>📅 Réservations</h2>
-<table>
-<thead>
-<tr>
-<th>Date</th><th>Nom</th><th>Téléphone</th>
-<th>Service</th><th>Adresse</th>
-<th>Montant</th><th>Statut</th><th>Actions</th>
-</tr>
-</thead>
-<tbody id="bookings"></tbody>
-</table>
-</div>
-
-<!-- ===== RATINGS ===== -->
-<div class="section">
+<!-- REVIEWS -->
+<div class="reviews">
 <h2>⭐ Avis clients</h2>
-<table>
-<thead>
-<tr><th>Nom</th><th>Email</th><th>Note</th><th>Action</th></tr>
-</thead>
-<tbody id="ratings"></tbody>
-</table>
+<div id="reviews"></div>
 </div>
 
 </div>
@@ -193,22 +175,27 @@ button.save{
 <script>
 // Firebase
 firebase.initializeApp({
-  apiKey:"AIzaSyAJxzFknapSh0fnPfIXwEEK3OijSKlqxco",
-  authDomain:"admin-ash-f622c.firebaseapp.com",
-  projectId:"admin-ash-f622c"
+ apiKey:"AIzaSyAJxzFknapSh0fnPfIXwEEK3OijSKlqxco",
+ authDomain:"admin-ash-f622c.firebaseapp.com",
+ projectId:"admin-ash-f622c"
 });
-const db = firebase.firestore();
+const db=firebase.firestore();
 
-/* ===== BOOKINGS ===== */
 let allBookings=[];
-db.collection("bookings").onSnapshot(s=>{
+let currentMonth=new Date().getMonth();
+let currentYear=new Date().getFullYear();
+
+// BOOKINGS
+db.collection("bookings").onSnapshot(snap=>{
   allBookings=[];
-  let revenue=0,done=0;
+  let done=0,revenue=0;
   const tbody=document.getElementById("bookings");
   tbody.innerHTML="";
-  s.forEach(doc=>{
+
+  snap.forEach(doc=>{
     const d=doc.data(); allBookings.push(d);
     if(d.done){done++; revenue+=Number(d.amount||0);}
+
     tbody.innerHTML+=`
 <tr>
 <td>${d.date||""}</td>
@@ -226,57 +213,55 @@ db.collection("bookings").onSnapshot(s=>{
 <td><button class="action" onclick="del('${doc.id}','bookings')">Supprimer</button></td>
 </tr>`;
   });
-  document.getElementById("stat-bookings").textContent=s.size;
+
+  document.getElementById("stat-bookings").textContent=snap.size;
   document.getElementById("stat-done").textContent=done;
   document.getElementById("stat-revenue").textContent=revenue;
+
+  renderCalendar();
 });
 
-/* ===== RATINGS ===== */
-let total=0,count=0;
-db.collection("ratings").onSnapshot(s=>{
-  total=0;count=0;
-  const tb=document.getElementById("ratings");
-  tb.innerHTML="";
-  s.forEach(doc=>{
-    const d=doc.data();
-    total+=d.rating; count++;
-    tb.innerHTML+=`
-<tr>
-<td>${d.name}</td>
-<td>${d.email||""}</td>
-<td class="rating-stars">${"⭐".repeat(d.rating)}</td>
-<td><button class="action" onclick="del('${doc.id}','ratings')">Supprimer</button></td>
-</tr>`;
-  });
-  document.getElementById("stat-rating").textContent=
-    count? (total/count).toFixed(1):"0";
-});
-
-/* ===== UTILS ===== */
-function update(id,f,v){ db.collection("bookings").doc(id).update({[f]:v}); }
-function del(id,col){
-  if(confirm("Supprimer ?")) db.collection(col).doc(id).delete();
-}
-
-/* ===== CALENDAR ===== */
-let current=new Date();
+// CALENDAR
 function renderCalendar(){
   const cal=document.getElementById("calendar");
   cal.innerHTML="";
-  const y=current.getFullYear(), m=current.getMonth();
-  document.getElementById("calendar-title").textContent=
-    current.toLocaleDateString("fr-FR",{month:"long",year:"numeric"});
-  const first=new Date(y,m,1).getDay();
-  const days=new Date(y,m+1,0).getDate();
-  for(let i=0;i<first;i++) cal.innerHTML+=`<div></div>`;
-  for(let d=1;d<=days;d++){
-    const date=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-    const count=allBookings.filter(b=>b.date===date).length;
-    cal.innerHTML+=`<div class="day"><strong>${d}</strong>${count?count+" réserv.":""}</div>`;
+  const monthName=new Date(currentYear,currentMonth).toLocaleString("fr",{month:"long",year:"numeric"});
+  document.getElementById("month-title").textContent=monthName;
+
+  const daysInMonth=new Date(currentYear,currentMonth+1,0).getDate();
+
+  for(let d=1; d<=daysInMonth; d++){
+    const dateStr=`${currentYear}-${String(currentMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const count=allBookings.filter(b=>b.date===dateStr).length;
+    cal.innerHTML+=`
+<div class="day">
+<strong>${d}</strong>
+<span>${count} réservation(s)</span>
+</div>`;
   }
 }
-function changeMonth(v){ current.setMonth(current.getMonth()+v); renderCalendar(); }
-renderCalendar();
+function changeMonth(v){
+  currentMonth+=v;
+  if(currentMonth<0){currentMonth=11;currentYear--}
+  if(currentMonth>11){currentMonth=0;currentYear++}
+  renderCalendar();
+}
+
+// REVIEWS
+db.collection("ratings").onSnapshot(snap=>{
+ let total=0;
+ document.getElementById("reviews").innerHTML="";
+ snap.forEach(doc=>{
+  const d=doc.data(); total+=d.rating;
+  document.getElementById("reviews").innerHTML+=`
+<div class="review">⭐ ${d.rating} – ${d.name}</div>`;
+ });
+ document.getElementById("avg-rating").textContent="⭐ "+(snap.size? (total/snap.size).toFixed(1):0);
+});
+
+// HELPERS
+function update(id,f,v){db.collection("bookings").doc(id).update({[f]:v})}
+function del(id,c){if(confirm("Supprimer ?")) db.collection(c).doc(id).delete()}
 </script>
 
 </body>
