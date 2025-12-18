@@ -119,6 +119,7 @@ db.collection("bookings").orderBy("date","desc").onSnapshot(snapshot=>{
   snapshot.forEach(doc=>{
     const d = doc.data();
 
+    // التأكد من وجود التاريخ
     const dayName = d.date
       ? new Date(d.date).toLocaleDateString("ar-TN",{weekday:"long"})
       : "-";
@@ -135,10 +136,10 @@ db.collection("bookings").orderBy("date","desc").onSnapshot(snapshot=>{
       <td>${dayName}</td>
       <td>${d.date || "-"}</td>
       <td>${d.time || "-"}</td>
-      <td>${d.name}</td>
-      <td>${d.phone}</td>
-      <td>${d.service}</td>
-      <td>${d.address}</td>
+      <td>${d.name || "-"}</td>
+      <td>${d.phone || "-"}</td>
+      <td>${d.service || "-"}</td>
+      <td>${d.address || "-"}</td>
       <td>
         <input type="number" min="0"
           value="${amount}"
@@ -169,18 +170,19 @@ function updateAmount(id,val){
 }
 
 // ================= التقييمات =================
-db.collection("ratings").orderBy("timestamp","desc").onSnapshot(snapshot=>{
+db.collection("ratings").orderBy("createdAt","desc").onSnapshot(snapshot=>{
   const tbody = document.getElementById("ratings");
   tbody.innerHTML = "";
 
   snapshot.forEach(doc=>{
     const d = doc.data();
+    const date = d.createdAt ? d.createdAt.toDate() : new Date();
     tbody.innerHTML += `
     <tr>
-      <td>${d.name}</td>
+      <td>${d.name || "-"}</td>
       <td>${d.email || "-"}</td>
-      <td>${"⭐".repeat(d.rating)}</td>
-      <td>${new Date(d.timestamp).toLocaleString("ar-TN")}</td>
+      <td>${"⭐".repeat(d.rating || 0)}</td>
+      <td>${date.toLocaleString("ar-TN")}</td>
     </tr>`;
   });
 });
