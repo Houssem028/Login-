@@ -1,15 +1,23 @@
 <!doctype html>
-<html lang="ar" dir="rtl">
+<html lang="fr" dir="rtl">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>احجز خدمة - ASH</title>
-<link rel="stylesheet" href="booking.css">
-<!-- Firebase Compat -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<style>
+body { font-family: Arial, sans-serif; margin:0; padding:20px; background:#f5f7fa; }
+.site-header { background:#0a3cff; color:white; text-align:center; padding:20px; }
+.booking-container { max-width:600px; margin:20px auto; background:white; padding:20px; border-radius:12px; box-shadow:0 8px 20px rgba(0,0,0,0.1);}
+.booking-container input, .booking-container select, .booking-container button { width:100%; padding:10px; margin:8px 0; border-radius:6px; border:1px solid #ccc; }
+button { background:#0a3cff; color:white; border:none; cursor:pointer; }
+button:hover { background:#084dcc; }
+#map { height:300px; margin:10px 0; border-radius:8px; }
+</style>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
-<!-- EmailJS -->
 <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 </head>
 <body>
 
@@ -20,7 +28,7 @@
 <main class="booking-container">
   <h2>احجز خدمتك الآن</h2>
 
-  <form id="booking-form" class="booking-form">
+  <form id="booking-form">
     <label>الاسم *</label>
     <input id="name" type="text" required placeholder="أدخل اسمك">
 
@@ -47,14 +55,18 @@
     <label>الوقت *</label>
     <input id="time" type="time" required>
 
+    <label>حدد موقعك على الخريطة *</label>
+    <div id="map"></div>
+    <input type="hidden" id="lat" required>
+    <input type="hidden" id="lng" required>
+
     <button type="submit">إرسال الطلب</button>
   </form>
-
   <p id="msg"></p>
 </main>
 
 <script>
-// Firebase config
+// Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyAJxzFknapSh0fnPfIXwEEK3OijSKlqxco",
   authDomain: "admin-ash-f622c.firebaseapp.com",
@@ -69,9 +81,21 @@ const db = firebase.firestore();
 // EmailJS
 emailjs.init("dKDZhGvgDZ2OwDlZF");
 
+// Map
+const map = L.map('map').setView([36.8,10.18], 12);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+let marker;
+map.on('click', e => {
+  const {lat,lng} = e.latlng;
+  if(marker) map.removeLayer(marker);
+  marker = L.marker([lat,lng]).addTo(map);
+  document.getElementById('lat').value = lat;
+  document.getElementById('lng').value = lng;
+});
+
+// Form submit
 document.getElementById("booking-form").addEventListener("submit", function(e){
   e.preventDefault();
-
   const data = {
     name: document.getElementById("name").value,
     phone: document.getElementById("phone").value,
@@ -80,22 +104,15 @@ document.getElementById("booking-form").addEventListener("submit", function(e){
     address: document.getElementById("address").value,
     date: document.getElementById("date").value,
     time: document.getElementById("time").value,
+    lat: parseFloat(document.getElementById("lat").value),
+    lng: parseFloat(document.getElementById("lng").value),
     createdAt: new Date()
   };
-
-  db.collection("bookings").add(data).then(() => {
-    // إرسال الإيميل
+  db.collection("bookings").add(data).then(()=>{
     emailjs.send("service_glkvhot", "template_v6qi0el", data)
-      .then(() => {
-        document.getElementById("msg").textContent = "✔ تم إرسال الطلب بنجاح!";
-        document.getElementById("booking-form").reset();
-      });
-  }).catch(err => {
-    console.error(err);
-    document.getElementById("msg").textContent = "❌ خطأ أثناء الإرسال!";
-  });
+      .then(()=>{ document.getElementById("msg").textContent="✔ تم إرسال الطلب بنجاح!"; document.getElementById("booking-form").reset(); marker && map.removeLayer(marker); });
+  }).catch(err => { console.error(err); document.getElementById("msg").textContent="❌ خطأ أثناء الإرسال!"; });
 });
 </script>
-
 </body>
 </html>
