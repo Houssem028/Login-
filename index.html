@@ -1,4 +1,4 @@
-Maisonssype html>
+<!DOCTYPE html>
 <html lang="fr" dir="ltr">
 <head>
 <meta charset="utf-8">
@@ -17,14 +17,12 @@ body { background: linear-gradient(135deg,#eef3ff,#f9fbff); color:#333; line-hei
 /* ===== Navbar ===== */
 .navbar {
   position: fixed; top:0; left:0; right:0; z-index:999;
-  display:flex; align-items:center; justify-content:space-between;
+  display:flex; align-items:center;
   padding:10px 18px; background: linear-gradient(90deg,#0a3cff,#00c897);
   box-shadow:0 6px 20px rgba(0,0,0,0.18);
 }
 .navbar img { width:60px; padding:5px; border-radius:50%; }
 .navbar h1 { font-size:22px; font-weight:700; color:#fff; margin-left:15px; }
-.nav-links a { color:#fff; font-weight:700; margin:0 12px; }
-.nav-cta { background:#fff; color:#0a3cff; padding:8px 14px; border-radius:6px; font-size:14px; font-weight:700; }
 
 /* ===== Hamburger Sidebar ===== */
 #sidebar-toggle {
@@ -98,18 +96,20 @@ const db = firebase.firestore();
 </head>
 <body>
 
+<!-- Navbar -->
 <header class="navbar">
   <img src="Pic5.jpg" alt="ASH Logo">
   <h1>ASH Window Cleaning</h1>
-  <div class="nav-links">
-    </header>
+</header>
 
 <!-- Hamburger Sidebar -->
 <div id="sidebar-toggle">☰</div>
 <nav id="sidebar-menu">
   <h2>ASH Window Cleaning</h2>
   <a href="#hero">Accueil</a>
-  <a href="login.html">login</a>
+  <a href="login.html">Login</a>
+  <a href="#services">Services</a>
+  <a href="#reviews">Avis</a>
   <a href="#contact">Contact</a>
   <a href="booking.html">Réservation</a>
 </nav>
