@@ -1,72 +1,116 @@
 <!doctype html>
-<html lang="fr" dir="rtl">
+<html lang="fr" dir="ltr">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>احجز خدمة - ASH</title>
+<title>Réserver un service - ASH</title>
+
+<!-- Leaflet CSS -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-<style>
-body { font-family: Arial, sans-serif; margin:0; padding:20px; background:#f5f7fa; }
-.site-header { background:#0a3cff; color:white; text-align:center; padding:20px; }
-.booking-container { max-width:600px; margin:20px auto; background:white; padding:20px; border-radius:12px; box-shadow:0 8px 20px rgba(0,0,0,0.1);}
-.booking-container input, .booking-container select, .booking-container button { width:100%; padding:10px; margin:8px 0; border-radius:6px; border:1px solid #ccc; }
-button { background:#0a3cff; color:white; border:none; cursor:pointer; }
-button:hover { background:#084dcc; }
-#map { height:300px; margin:10px 0; border-radius:8px; }
-</style>
+<!-- Firebase Compat -->
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+<!-- EmailJS -->
 <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  margin:0; padding:0;
+  background:#f5f7fa;
+  color:#333;
+}
+header {
+  background:#0a3cff;
+  color:white;
+  text-align:center;
+  padding:20px;
+  font-size:20px;
+  font-weight:bold;
+}
+main {
+  max-width:600px;
+  margin:30px auto;
+  background:white;
+  padding:25px;
+  border-radius:12px;
+  box-shadow:0 8px 20px rgba(0,0,0,0.1);
+}
+label {
+  display:block;
+  margin-top:15px;
+  font-weight:bold;
+}
+input, select, button {
+  width:100%;
+  padding:10px;
+  margin-top:5px;
+  border-radius:6px;
+  border:1px solid #ccc;
+  box-sizing:border-box;
+}
+button {
+  background:#0a3cff;
+  color:white;
+  border:none;
+  font-weight:bold;
+  cursor:pointer;
+  margin-top:20px;
+}
+button:hover { background:#084dcc; }
+#booking-map { height:300px; border:1px solid #ddd; border-radius:10px; margin-top:10px; }
+#msg, #map-msg { margin-top:15px; font-weight:bold; }
+</style>
 </head>
+
 <body>
 
-<header class="site-header">
-  <div class="logo">ASH Window Cleaning</div>
-</header>
+<header>ASH Window Cleaning - Réservation</header>
 
-<main class="booking-container">
-  <h2>احجز خدمتك الآن</h2>
+<main>
+  <h2>Réservez votre service maintenant</h2>
 
   <form id="booking-form">
-    <label>الاسم *</label>
-    <input id="name" type="text" required placeholder="أدخل اسمك">
+    <label>Nom *</label>
+    <input type="text" id="name" required placeholder="Votre nom">
 
-    <label>رقم الهاتف *</label>
-    <input id="phone" type="tel" required placeholder="مثال: 21612345678">
+    <label>Téléphone *</label>
+    <input type="tel" id="phone" required placeholder="Ex: 21612345678">
 
-    <label>البريد الإلكتروني</label>
-    <input id="email" type="email" placeholder="اختياري">
+    <label>Email</label>
+    <input type="email" id="email" placeholder="Optionnel">
 
-    <label>الخدمة *</label>
+    <label>Service *</label>
     <select id="service" required>
-      <option disabled selected>اختر الخدمة</option>
-      <option>تنظيف النوافذ</option>
-      <option>تنظيف الواجهات</option>
-      <option>خدمات دورية</option>
+      <option disabled selected>Choisir un service</option>
+      <option>Nettoyage des vitres</option>
+      <option>Nettoyage des façades</option>
+      <option>Services réguliers</option>
     </select>
 
-    <label>العنوان *</label>
-    <input id="address" type="text" required placeholder="عنوانك">
+    <label>Adresse *</label>
+    <input type="text" id="address" required placeholder="Votre adresse">
 
-    <label>التاريخ *</label>
-    <input id="date" type="date" required>
+    <label>Date *</label>
+    <input type="date" id="date" required>
 
-    <label>الوقت *</label>
-    <input id="time" type="time" required>
+    <label>Heure *</label>
+    <input type="time" id="time" required>
 
-    <label>حدد موقعك على الخريطة *</label>
-    <div id="map"></div>
-    <input type="hidden" id="lat" required>
-    <input type="hidden" id="lng" required>
+    <label>Votre position actuelle</label>
+    <div id="booking-map"></div>
+    <p id="map-msg">Détection de votre position...</p>
 
-    <button type="submit">إرسال الطلب</button>
+    <button type="submit">Envoyer la réservation</button>
   </form>
+
   <p id="msg"></p>
 </main>
 
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script>
-// Firebase
+// ===== Firebase Config =====
 const firebaseConfig = {
   apiKey: "AIzaSyAJxzFknapSh0fnPfIXwEEK3OijSKlqxco",
   authDomain: "admin-ash-f622c.firebaseapp.com",
@@ -78,41 +122,63 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-// EmailJS
+// EmailJS Init
 emailjs.init("dKDZhGvgDZ2OwDlZF");
 
-// Map
-const map = L.map('map').setView([36.8,10.18], 12);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-let marker;
-map.on('click', e => {
-  const {lat,lng} = e.latlng;
-  if(marker) map.removeLayer(marker);
-  marker = L.marker([lat,lng]).addTo(map);
-  document.getElementById('lat').value = lat;
-  document.getElementById('lng').value = lng;
-});
+// ===== Leaflet Map =====
+let lat = null, lng = null;
+const bookingMap = L.map('booking-map').setView([36.8, 10.18], 12); // Tunis par défaut
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(bookingMap);
 
-// Form submit
+if(navigator.geolocation){
+  navigator.geolocation.getCurrentPosition(
+    position => {
+      lat = position.coords.latitude;
+      lng = position.coords.longitude;
+      bookingMap.setView([lat, lng], 15);
+      L.marker([lat, lng]).addTo(bookingMap).bindPopup("Votre position actuelle").openPopup();
+      document.getElementById("map-msg").textContent = "✔ Position détectée automatiquement";
+    },
+    err => {
+      console.warn(err.message);
+      document.getElementById("map-msg").textContent = "❌ Impossible de détecter votre position";
+    }
+  );
+} else {
+  document.getElementById("map-msg").textContent = "❌ Votre appareil ne supporte pas la géolocalisation";
+}
+
+// ===== Form Submit =====
 document.getElementById("booking-form").addEventListener("submit", function(e){
   e.preventDefault();
+
+  if(lat === null || lng === null){
+    document.getElementById("map-msg").textContent = "❌ Position non détectée, essayez à nouveau";
+    return;
+  }
+
   const data = {
     name: document.getElementById("name").value,
     phone: document.getElementById("phone").value,
-    email: document.getElementById("email").value || "لا يوجد",
+    email: document.getElementById("email").value || "Non fourni",
     service: document.getElementById("service").value,
     address: document.getElementById("address").value,
     date: document.getElementById("date").value,
     time: document.getElementById("time").value,
-    lat: parseFloat(document.getElementById("lat").value),
-    lng: parseFloat(document.getElementById("lng").value),
+    lat: lat,
+    lng: lng,
     createdAt: new Date()
   };
-  db.collection("bookings").add(data).then(()=>{
-    emailjs.send("service_glkvhot", "template_v6qi0el", data)
-      .then(()=>{ document.getElementById("msg").textContent="✔ تم إرسال الطلب بنجاح!"; document.getElementById("booking-form").reset(); marker && map.removeLayer(marker); });
-  }).catch(err => { console.error(err); document.getElementById("msg").textContent="❌ خطأ أثناء الإرسال!"; });
+
+  db.collection("bookings").add(data).then(() => {
+    document.getElementById("msg").textContent = "✔ Réservation envoyée avec succès!";
+    document.getElementById("booking-form").reset();
+  }).catch(err => {
+    console.error(err);
+    document.getElementById("msg").textContent = "❌ Erreur lors de l'envoi!";
+  });
 });
 </script>
+
 </body>
 </html>
