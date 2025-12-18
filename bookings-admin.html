@@ -8,73 +8,29 @@
 <!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+<!-- Leaflet pour carte -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
 <style>
-body {
-  font-family: 'Poppins', Arial, sans-serif;
-  background: #f5f7fa;
-  margin:0; padding:0;
-}
-header {
-  background: linear-gradient(90deg,#0a3cff,#00c897);
-  color:#fff;
-  text-align:center;
-  padding:25px 0;
-  font-size:22px;
-  font-weight:700;
-  box-shadow:0 6px 20px rgba(0,0,0,0.18);
-}
-.container {
-  max-width:1200px;
-  margin:30px auto;
-  padding:20px;
-}
+body { font-family:'Poppins', Arial, sans-serif; margin:0; padding:0; background:#f5f7fa; }
+header { background: linear-gradient(90deg,#0a3cff,#00c897); color:#fff; text-align:center; padding:25px 0; font-size:22px; font-weight:700; box-shadow:0 6px 20px rgba(0,0,0,0.18);}
+.container { max-width:1200px; margin:30px auto; padding:20px; }
 h2 { color:#0a3cff; margin-bottom:15px; text-align:center; }
-
-table {
-  width:100%;
-  border-collapse:collapse;
-  background:#fff;
-  border-radius:10px;
-  overflow:hidden;
-  box-shadow:0 8px 25px rgba(0,0,0,0.1);
-  margin-bottom:40px;
-}
-th, td {
-  border:1px solid #ddd;
-  padding:10px;
-  text-align:center;
-  font-size:14px;
-}
+table { width:100%; border-collapse:collapse; background:#fff; border-radius:10px; overflow:hidden; box-shadow:0 8px 25px rgba(0,0,0,0.1); margin-bottom:40px; }
+th, td { border:1px solid #ddd; padding:10px; text-align:center; font-size:14px; }
 th { background:#0a3cff; color:white; }
-input[type="text"], input[type="number"], input[type="email"], input[type="date"], input[type="time"], select {
-  width:100%;
-  padding:6px;
-  box-sizing:border-box;
-  border-radius:6px;
-  border:1px solid #ccc;
-}
+input[type="text"], input[type="number"], input[type="email"], input[type="date"], input[type="time"], select { width:100%; padding:6px; border-radius:6px; border:1px solid #ccc; box-sizing:border-box; }
 input[type="checkbox"] { transform:scale(1.3); cursor:pointer; }
-button { 
-  background: linear-gradient(90deg,#0a3cff,#00c897); 
-  color:#fff; 
-  border:none; 
-  padding:8px 14px; 
-  border-radius:6px; 
-  cursor:pointer; 
-  font-weight:700; 
-  transition:0.2s;
-}
+button { background: linear-gradient(90deg,#0a3cff,#00c897); color:#fff; border:none; padding:8px 14px; border-radius:6px; cursor:pointer; font-weight:700; transition:0.2s; }
 button:hover { transform:translateY(-2px); box-shadow:0 6px 15px rgba(0,0,0,0.2);}
-.total-box{
-  font-size:18px; font-weight:700; color:#1f2933; text-align:right; margin-bottom:40px;
-}
+.total-box{ font-size:18px; font-weight:700; color:#1f2933; text-align:right; margin-bottom:40px; }
+#map { height:300px; width:100%; margin-bottom:40px; border-radius:10px; }
 </style>
 </head>
 
 <body>
 <header>ASH Window Cleaning - Tableau de bord</header>
-
 <div class="container">
 
 <h2>📅 Réservations</h2>
@@ -99,6 +55,9 @@ button:hover { transform:translateY(-2px); box-shadow:0 6px 15px rgba(0,0,0,0.2)
 💰 Total des travaux effectués: <span id="total-amount">0 DT</span>
 </div>
 
+<h2>🌍 Carte des clients</h2>
+<div id="map"></div>
+
 <h2>⭐ Avis clients</h2>
 <table>
 <thead>
@@ -115,7 +74,7 @@ button:hover { transform:translateY(-2px); box-shadow:0 6px 15px rgba(0,0,0,0.2)
 </div>
 
 <script>
-// Config Firebase
+// Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyAJxzFknapSh0fnPfIXwEEK3OijSKlqxco",
   authDomain: "admin-ash-f622c.firebaseapp.com",
@@ -127,17 +86,27 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
+// Carte Leaflet
+const map = L.map('map').setView([36.8,10.2], 6);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+  attribution:'&copy; OpenStreetMap contributors'
+}).addTo(map);
+let markers = [];
+
 // =================== RÉSERVATIONS ===================
 db.collection("bookings").orderBy("date","desc").onSnapshot(snapshot=>{
   const tbody = document.getElementById("bookings");
   tbody.innerHTML = "";
   let total = 0;
 
+  // Supprimer anciens marqueurs
+  markers.forEach(m => map.removeLayer(m));
+  markers = [];
+
   snapshot.forEach(doc=>{
     const d = doc.data();
     const done = d.done ? "checked" : "";
     const amount = d.amount || "";
-
     if(d.done && d.amount) total += Number(d.amount);
 
     tbody.innerHTML += `
@@ -158,8 +127,14 @@ db.collection("bookings").orderBy("date","desc").onSnapshot(snapshot=>{
         <td><input type="number" value="${amount}" onblur="updateBooking('${doc.id}','amount',this.value)"></td>
         <td><input type="checkbox" ${done} onchange="toggleDone('${doc.id}',this.checked)"></td>
       </tr>`;
-  });
 
+    // Ajouter marqueur si GPS disponible
+    if(d.gps && d.gps.lat && d.gps.lng){
+      const m = L.marker([d.gps.lat,d.gps.lng]).addTo(map)
+        .bindPopup(`<b>${d.name}</b><br>${d.service}<br>${d.address}`);
+      markers.push(m);
+    }
+  });
   document.getElementById("total-amount").textContent = total + " DT";
 });
 
@@ -168,8 +143,7 @@ function updateBooking(id, field, value){
     .then(()=> console.log("Mise à jour réussie"))
     .catch(err => console.error(err));
 }
-
-function toggleDone(id, val){
+function toggleDone(id,val){
   db.collection("bookings").doc(id).update({ done: val });
 }
 
@@ -177,7 +151,6 @@ function toggleDone(id, val){
 db.collection("ratings").orderBy("timestamp","desc").onSnapshot(snapshot=>{
   const tbody = document.getElementById("ratings");
   tbody.innerHTML = "";
-
   snapshot.forEach(doc=>{
     const d = doc.data();
     tbody.innerHTML += `
