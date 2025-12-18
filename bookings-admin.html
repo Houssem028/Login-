@@ -2,98 +2,137 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Admin – ASH Window Cleaning</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ASH – Administration</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-
+<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
 
 <style>
-*{box-sizing:border-box;font-family:Poppins,Arial}
-body{margin:0;background:#eef3ff;color:#333}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:'Segoe UI',Arial,sans-serif;
+  background:#f4f7fb;
+  color:#1f2933;
+}
 header{
   background:linear-gradient(90deg,#0a3cff,#00c897);
   color:#fff;
-  padding:20px;
-  text-align:center
+  padding:25px;
+  text-align:center;
+  box-shadow:0 6px 20px rgba(0,0,0,.2);
 }
+header h1{margin:0;font-size:28px}
+
 .container{
   max-width:1200px;
   margin:30px auto;
-  background:#fff;
-  border-radius:16px;
-  padding:25px;
-  box-shadow:0 12px 30px rgba(0,0,0,.1)
+  padding:0 15px;
 }
-h2{color:#0a3cff;margin-top:40px}
+
+/* ===== STATS ===== */
 .stats{
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
-  gap:15px;
-  margin-top:20px
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:20px;
+  margin-bottom:30px;
 }
 .stat{
-  background:#f4f7ff;
-  border-radius:12px;
-  padding:15px;
+  background:#fff;
+  padding:20px;
+  border-radius:14px;
+  box-shadow:0 8px 20px rgba(0,0,0,.08);
   text-align:center;
-  font-weight:600
+}
+.stat h3{margin:0;color:#0a3cff;font-size:16px}
+.stat p{font-size:26px;font-weight:bold;margin:10px 0 0}
+
+/* ===== CALENDAR ===== */
+.calendar{
+  background:#fff;
+  border-radius:14px;
+  padding:20px;
+  box-shadow:0 8px 20px rgba(0,0,0,.08);
+  margin-bottom:30px;
+}
+.calendar-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:15px;
+}
+.calendar-header button{
+  background:#0a3cff;
+  color:#fff;
+  border:none;
+  padding:6px 14px;
+  border-radius:6px;
+  cursor:pointer;
+}
+.calendar-grid{
+  display:grid;
+  grid-template-columns:repeat(7,1fr);
+  gap:6px;
+}
+.day{
+  background:#f1f5f9;
+  padding:10px;
+  border-radius:8px;
+  min-height:70px;
+  font-size:13px;
+}
+.day strong{display:block}
+
+/* ===== TABLE ===== */
+.section{
+  background:#fff;
+  border-radius:14px;
+  padding:20px;
+  box-shadow:0 8px 20px rgba(0,0,0,.08);
+  margin-bottom:30px;
+}
+.section h2{
+  margin-top:0;
+  color:#0a3cff;
 }
 table{
   width:100%;
   border-collapse:collapse;
-  margin-top:15px
+  font-size:14px;
 }
 th,td{
+  border-bottom:1px solid #ddd;
   padding:8px;
-  border-bottom:1px solid #eee;
   text-align:center;
-  font-size:13px
 }
-th{background:#0a3cff;color:#fff}
+th{
+  background:#0a3cff;
+  color:#fff;
+}
 input,select{
-  width:100%;
-  padding:6px;
+  padding:5px;
   border-radius:6px;
   border:1px solid #ccc;
-  font-size:13px
 }
-button{
-  padding:7px 10px;
+button.action{
+  background:#e53935;
+  color:#fff;
   border:none;
+  padding:6px 10px;
   border-radius:6px;
   cursor:pointer;
-  font-weight:600
 }
-.btn-del{background:#ff4d4f;color:#fff}
-.calendar-nav{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin-top:20px
+button.save{
+  background:#00c897;
+  color:#fff;
+  border:none;
+  padding:6px 10px;
+  border-radius:6px;
+  cursor:pointer;
 }
-#calendar{
-  display:grid;
-  grid-template-columns:repeat(7,1fr);
-  gap:10px;
-  margin-top:15px
-}
-.day{
-  background:#f1f5ff;
-  padding:10px;
-  border-radius:10px;
-  font-weight:600;
-  cursor:pointer
-}
-.day.booked{background:#0a3cff;color:#fff}
-#day-details{
-  margin-top:15px;
-  background:#f9fbff;
-  padding:15px;
-  border-radius:10px
-}
+.rating-stars{color:gold;font-size:16px}
 </style>
 </head>
 
@@ -105,154 +144,139 @@ button{
 
 <div class="container">
 
-<h2>📊 Statistiques mensuelles</h2>
+<!-- ===== STATS ===== -->
 <div class="stats">
-  <div class="stat">📅 Réservations<br><span id="stBookings">0</span></div>
-  <div class="stat">✅ Travaux faits<br><span id="stDone">0</span></div>
-  <div class="stat">💰 Revenus<br><span id="stMoney">0 DT</span></div>
-  <div class="stat">⭐ Note moyenne<br><span id="avgRating">0</span></div>
+  <div class="stat"><h3>Réservations</h3><p id="stat-bookings">0</p></div>
+  <div class="stat"><h3>Revenus (DT)</h3><p id="stat-revenue">0</p></div>
+  <div class="stat"><h3>Terminées</h3><p id="stat-done">0</p></div>
+  <div class="stat"><h3>⭐ Moyenne</h3><p id="stat-rating">0</p></div>
 </div>
 
+<!-- ===== CALENDAR ===== -->
+<div class="calendar">
+  <div class="calendar-header">
+    <button onclick="changeMonth(-1)">◀</button>
+    <h3 id="calendar-title"></h3>
+    <button onclick="changeMonth(1)">▶</button>
+  </div>
+  <div class="calendar-grid" id="calendar"></div>
+</div>
+
+<!-- ===== BOOKINGS ===== -->
+<div class="section">
 <h2>📅 Réservations</h2>
 <table>
 <thead>
 <tr>
-<th>Date</th><th>Heure</th><th>Nom</th><th>Téléphone</th>
-<th>Service</th><th>Adresse</th><th>Montant</th><th>Fait</th><th>🗑</th>
+<th>Date</th><th>Nom</th><th>Téléphone</th>
+<th>Service</th><th>Adresse</th>
+<th>Montant</th><th>Statut</th><th>Actions</th>
 </tr>
 </thead>
 <tbody id="bookings"></tbody>
 </table>
+</div>
 
+<!-- ===== RATINGS ===== -->
+<div class="section">
 <h2>⭐ Avis clients</h2>
 <table>
 <thead>
-<tr><th>Nom</th><th>Email</th><th>Note</th><th>Date</th></tr>
+<tr><th>Nom</th><th>Email</th><th>Note</th><th>Action</th></tr>
 </thead>
 <tbody id="ratings"></tbody>
 </table>
-
-<h2>📆 Calendrier des réservations</h2>
-<div class="calendar-nav">
-  <button onclick="changeMonth(-1)">⬅️</button>
-  <strong id="monthLabel"></strong>
-  <button onclick="changeMonth(1)">➡️</button>
 </div>
-<div id="calendar"></div>
-<div id="day-details"></div>
 
 </div>
 
 <script>
-// ===== Firebase =====
-const firebaseConfig = {
-  apiKey: "AIzaSyAJxzFknapSh0fnPfIXwEEK3OijSKlqxco",
-  authDomain: "admin-ash-f622c.firebaseapp.com",
-  projectId: "admin-ash-f622c"
-};
-firebase.initializeApp(firebaseConfig);
-const db=firebase.firestore();
+// Firebase
+firebase.initializeApp({
+  apiKey:"AIzaSyAJxzFknapSh0fnPfIXwEEK3OijSKlqxco",
+  authDomain:"admin-ash-f622c.firebaseapp.com",
+  projectId:"admin-ash-f622c"
+});
+const db = firebase.firestore();
 
-// ===== Globals =====
-let bookingsByDate={},current=new Date();
-let ratingSum=0,ratingCount=0;
-
-// ===== BOOKINGS =====
+/* ===== BOOKINGS ===== */
+let allBookings=[];
 db.collection("bookings").onSnapshot(s=>{
-  const tb=document.getElementById("bookings");
-  tb.innerHTML="";
-  bookingsByDate={};
-
-  let total=0,done=0;
-
+  allBookings=[];
+  let revenue=0,done=0;
+  const tbody=document.getElementById("bookings");
+  tbody.innerHTML="";
   s.forEach(doc=>{
-    const d=doc.data();
-    const m=d.date?.substring(0,7);
-    const cm=current.toISOString().substring(0,7);
-    if(m!==cm) return;
-
-    bookingsByDate[d.date]??=[];
-    bookingsByDate[d.date].push(d);
-
-    if(d.done){done++; total+=Number(d.amount||0);}
-
-    tb.innerHTML+=`
-    <tr>
-      <td>${d.date}</td>
-      <td>${d.time}</td>
-      <td><input value="${d.name}" onchange="upd('${doc.id}','name',this.value)"></td>
-      <td><input value="${d.phone}" onchange="upd('${doc.id}','phone',this.value)"></td>
-      <td><input value="${d.service}" onchange="upd('${doc.id}','service',this.value)"></td>
-      <td><input value="${d.address}" onchange="upd('${doc.id}','address',this.value)"></td>
-      <td><input type="number" value="${d.amount||''}" onchange="upd('${doc.id}','amount',Number(this.value))"></td>
-      <td><input type="checkbox" ${d.done?'checked':''} onchange="upd('${doc.id}','done',this.checked)"></td>
-      <td><button class="btn-del" onclick="db.collection('bookings').doc('${doc.id}').delete()">X</button></td>
-    </tr>`;
+    const d=doc.data(); allBookings.push(d);
+    if(d.done){done++; revenue+=Number(d.amount||0);}
+    tbody.innerHTML+=`
+<tr>
+<td>${d.date||""}</td>
+<td><input value="${d.name||""}" onchange="update('${doc.id}','name',this.value)"></td>
+<td><input value="${d.phone||""}" onchange="update('${doc.id}','phone',this.value)"></td>
+<td>${d.service||""}</td>
+<td><input value="${d.address||""}" onchange="update('${doc.id}','address',this.value)"></td>
+<td><input type="number" value="${d.amount||0}" onchange="update('${doc.id}','amount',this.value)"></td>
+<td>
+<select onchange="update('${doc.id}','done',this.value==='true')">
+<option value="false">En attente</option>
+<option value="true" ${d.done?"selected":""}>Terminé</option>
+</select>
+</td>
+<td><button class="action" onclick="del('${doc.id}','bookings')">Supprimer</button></td>
+</tr>`;
   });
-
-  document.getElementById("stBookings").textContent=tb.rows.length;
-  document.getElementById("stDone").textContent=done;
-  document.getElementById("stMoney").textContent=total+" DT";
-
-  drawCalendar();
+  document.getElementById("stat-bookings").textContent=s.size;
+  document.getElementById("stat-done").textContent=done;
+  document.getElementById("stat-revenue").textContent=revenue;
 });
 
-function upd(id,f,v){
-  db.collection("bookings").doc(id).update({[f]:v});
-}
-
-// ===== RATINGS =====
+/* ===== RATINGS ===== */
+let total=0,count=0;
 db.collection("ratings").onSnapshot(s=>{
+  total=0;count=0;
   const tb=document.getElementById("ratings");
   tb.innerHTML="";
-  ratingSum=0;ratingCount=0;
-
   s.forEach(doc=>{
     const d=doc.data();
-    ratingSum+=d.rating;
-    ratingCount++;
+    total+=d.rating; count++;
     tb.innerHTML+=`
-    <tr>
-      <td>${d.name}</td>
-      <td>${d.email||"-"}</td>
-      <td>${"⭐".repeat(d.rating)}</td>
-      <td>${new Date(d.timestamp).toLocaleDateString("fr-FR")}</td>
-    </tr>`;
+<tr>
+<td>${d.name}</td>
+<td>${d.email||""}</td>
+<td class="rating-stars">${"⭐".repeat(d.rating)}</td>
+<td><button class="action" onclick="del('${doc.id}','ratings')">Supprimer</button></td>
+</tr>`;
   });
-
-  document.getElementById("avgRating").textContent=
-    ratingCount?(ratingSum/ratingCount).toFixed(1):0;
+  document.getElementById("stat-rating").textContent=
+    count? (total/count).toFixed(1):"0";
 });
 
-// ===== CALENDAR =====
-function drawCalendar(){
+/* ===== UTILS ===== */
+function update(id,f,v){ db.collection("bookings").doc(id).update({[f]:v}); }
+function del(id,col){
+  if(confirm("Supprimer ?")) db.collection(col).doc(id).delete();
+}
+
+/* ===== CALENDAR ===== */
+let current=new Date();
+function renderCalendar(){
   const cal=document.getElementById("calendar");
   cal.innerHTML="";
-  const y=current.getFullYear(),m=current.getMonth();
-  document.getElementById("monthLabel").textContent=
-    current.toLocaleDateString("fr-FR",{month:'long',year:'numeric'});
-
+  const y=current.getFullYear(), m=current.getMonth();
+  document.getElementById("calendar-title").textContent=
+    current.toLocaleDateString("fr-FR",{month:"long",year:"numeric"});
+  const first=new Date(y,m,1).getDay();
   const days=new Date(y,m+1,0).getDate();
+  for(let i=0;i<first;i++) cal.innerHTML+=`<div></div>`;
   for(let d=1;d<=days;d++){
-    const ds=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-    const div=document.createElement("div");
-    div.className="day";
-    div.textContent=d;
-    if(bookingsByDate[ds]){
-      div.classList.add("booked");
-      div.onclick=()=>showDay(ds);
-    }
-    cal.appendChild(div);
+    const date=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const count=allBookings.filter(b=>b.date===date).length;
+    cal.innerHTML+=`<div class="day"><strong>${d}</strong>${count?count+" réserv.":""}</div>`;
   }
 }
-function changeMonth(n){current.setMonth(current.getMonth()+n);drawCalendar();}
-function showDay(d){
-  const box=document.getElementById("day-details");
-  box.innerHTML=`<h3>${d}</h3>`;
-  bookingsByDate[d].forEach(b=>{
-    box.innerHTML+=`<p>${b.time} – ${b.name} – ${b.phone}</p>`;
-  });
-}
+function changeMonth(v){ current.setMonth(current.getMonth()+v); renderCalendar(); }
+renderCalendar();
 </script>
 
 </body>
