@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="fr" dir="ltr">
+<html lang="fr">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -7,22 +7,20 @@
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 
-<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
 
 <style>
-*{box-sizing:border-box;font-family:'Poppins',Arial,sans-serif}
+*{box-sizing:border-box;font-family:Poppins,Arial}
 body{margin:0;background:#eef3ff;color:#333}
 header{
   background:linear-gradient(90deg,#0a3cff,#00c897);
   color:#fff;
   padding:20px;
-  text-align:center;
-  box-shadow:0 6px 20px rgba(0,0,0,.2)
+  text-align:center
 }
 .container{
-  max-width:1100px;
+  max-width:1200px;
   margin:30px auto;
   background:#fff;
   border-radius:16px;
@@ -30,65 +28,68 @@ header{
   box-shadow:0 12px 30px rgba(0,0,0,.1)
 }
 h2{color:#0a3cff;margin-top:40px}
+.stats{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  gap:15px;
+  margin-top:20px
+}
+.stat{
+  background:#f4f7ff;
+  border-radius:12px;
+  padding:15px;
+  text-align:center;
+  font-weight:600
+}
 table{
   width:100%;
   border-collapse:collapse;
   margin-top:15px
 }
 th,td{
-  padding:10px;
+  padding:8px;
   border-bottom:1px solid #eee;
   text-align:center;
-  font-size:14px
+  font-size:13px
 }
-th{
-  background:#0a3cff;
-  color:#fff
-}
-tr:hover{background:#f5f8ff}
-input[type="number"]{
-  width:80px;
+th{background:#0a3cff;color:#fff}
+input,select{
+  width:100%;
   padding:6px;
   border-radius:6px;
-  border:1px solid #ccc
+  border:1px solid #ccc;
+  font-size:13px
 }
 button{
+  padding:7px 10px;
   border:none;
-  padding:8px 12px;
   border-radius:6px;
   cursor:pointer;
   font-weight:600
 }
-.btn-delete{background:#ff4d4f;color:#fff}
-.btn-delete:hover{background:#e04142}
-.total{
-  margin-top:15px;
-  font-weight:700;
-  font-size:18px
+.btn-del{background:#ff4d4f;color:#fff}
+.calendar-nav{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-top:20px
 }
-
-/* Calendar */
 #calendar{
   display:grid;
   grid-template-columns:repeat(7,1fr);
   gap:10px;
-  margin-top:20px
+  margin-top:15px
 }
 .day{
   background:#f1f5ff;
-  padding:12px;
+  padding:10px;
   border-radius:10px;
-  text-align:center;
-  cursor:pointer;
-  font-weight:600
+  font-weight:600;
+  cursor:pointer
 }
-.day.booked{
-  background:#0a3cff;
-  color:#fff
-}
-.day:hover{transform:scale(1.05)}
+.day.booked{background:#0a3cff;color:#fff}
 #day-details{
-  margin-top:20px;
+  margin-top:15px;
   background:#f9fbff;
   padding:15px;
   border-radius:10px
@@ -104,45 +105,39 @@ button{
 
 <div class="container">
 
-<h2>📅 Réservations</h2>
+<h2>📊 Statistiques mensuelles</h2>
+<div class="stats">
+  <div class="stat">📅 Réservations<br><span id="stBookings">0</span></div>
+  <div class="stat">✅ Travaux faits<br><span id="stDone">0</span></div>
+  <div class="stat">💰 Revenus<br><span id="stMoney">0 DT</span></div>
+  <div class="stat">⭐ Note moyenne<br><span id="avgRating">0</span></div>
+</div>
 
+<h2>📅 Réservations</h2>
 <table>
 <thead>
 <tr>
-<th>Date</th>
-<th>Heure</th>
-<th>Nom</th>
-<th>Téléphone</th>
-<th>Service</th>
-<th>Adresse</th>
-<th>Montant (DT)</th>
-<th>Fait</th>
-<th>Supprimer</th>
+<th>Date</th><th>Heure</th><th>Nom</th><th>Téléphone</th>
+<th>Service</th><th>Adresse</th><th>Montant</th><th>Fait</th><th>🗑</th>
 </tr>
 </thead>
 <tbody id="bookings"></tbody>
 </table>
 
-<div class="total">
-💰 Total des travaux effectués :
-<span id="total">0 DT</span>
-</div>
-
 <h2>⭐ Avis clients</h2>
-
 <table>
 <thead>
-<tr>
-<th>Nom</th>
-<th>Email</th>
-<th>Note</th>
-<th>Date</th>
-</tr>
+<tr><th>Nom</th><th>Email</th><th>Note</th><th>Date</th></tr>
 </thead>
 <tbody id="ratings"></tbody>
 </table>
 
 <h2>📆 Calendrier des réservations</h2>
+<div class="calendar-nav">
+  <button onclick="changeMonth(-1)">⬅️</button>
+  <strong id="monthLabel"></strong>
+  <button onclick="changeMonth(1)">➡️</button>
+</div>
 <div id="calendar"></div>
 <div id="day-details"></div>
 
@@ -153,89 +148,96 @@ button{
 const firebaseConfig = {
   apiKey: "AIzaSyAJxzFknapSh0fnPfIXwEEK3OijSKlqxco",
   authDomain: "admin-ash-f622c.firebaseapp.com",
-  projectId: "admin-ash-f622c",
-  storageBucket: "admin-ash-f622c.appspot.com",
-  messagingSenderId: "76505742154",
-  appId: "1:76505742154:web:dc4f190f9f2de80acb1fb3"
+  projectId: "admin-ash-f622c"
 };
 firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+const db=firebase.firestore();
+
+// ===== Globals =====
+let bookingsByDate={},current=new Date();
+let ratingSum=0,ratingCount=0;
 
 // ===== BOOKINGS =====
-let bookingsByDate = {};
-
-db.collection("bookings").onSnapshot(snapshot=>{
-  const tbody=document.getElementById("bookings");
-  tbody.innerHTML="";
+db.collection("bookings").onSnapshot(s=>{
+  const tb=document.getElementById("bookings");
+  tb.innerHTML="";
   bookingsByDate={};
-  let total=0;
 
-  snapshot.forEach(doc=>{
+  let total=0,done=0;
+
+  s.forEach(doc=>{
     const d=doc.data();
+    const m=d.date?.substring(0,7);
+    const cm=current.toISOString().substring(0,7);
+    if(m!==cm) return;
 
-    if(!bookingsByDate[d.date]) bookingsByDate[d.date]=[];
+    bookingsByDate[d.date]??=[];
     bookingsByDate[d.date].push(d);
 
-    if(d.done && d.amount) total+=Number(d.amount);
+    if(d.done){done++; total+=Number(d.amount||0);}
 
-    tbody.innerHTML+=`
+    tb.innerHTML+=`
     <tr>
       <td>${d.date}</td>
       <td>${d.time}</td>
-      <td>${d.name}</td>
-      <td>${d.phone}</td>
-      <td>${d.service}</td>
-      <td>${d.address}</td>
-      <td>
-        <input type="number" value="${d.amount||""}"
-        onchange="db.collection('bookings').doc('${doc.id}').update({amount:Number(this.value)})">
-      </td>
-      <td>
-        <input type="checkbox" ${d.done?"checked":""}
-        onchange="db.collection('bookings').doc('${doc.id}').update({done:this.checked})">
-      </td>
-      <td>
-        <button class="btn-delete"
-        onclick="db.collection('bookings').doc('${doc.id}').delete()">🗑</button>
-      </td>
+      <td><input value="${d.name}" onchange="upd('${doc.id}','name',this.value)"></td>
+      <td><input value="${d.phone}" onchange="upd('${doc.id}','phone',this.value)"></td>
+      <td><input value="${d.service}" onchange="upd('${doc.id}','service',this.value)"></td>
+      <td><input value="${d.address}" onchange="upd('${doc.id}','address',this.value)"></td>
+      <td><input type="number" value="${d.amount||''}" onchange="upd('${doc.id}','amount',Number(this.value))"></td>
+      <td><input type="checkbox" ${d.done?'checked':''} onchange="upd('${doc.id}','done',this.checked)"></td>
+      <td><button class="btn-del" onclick="db.collection('bookings').doc('${doc.id}').delete()">X</button></td>
     </tr>`;
   });
 
-  document.getElementById("total").textContent=total+" DT";
-  generateCalendar();
+  document.getElementById("stBookings").textContent=tb.rows.length;
+  document.getElementById("stDone").textContent=done;
+  document.getElementById("stMoney").textContent=total+" DT";
+
+  drawCalendar();
 });
 
+function upd(id,f,v){
+  db.collection("bookings").doc(id).update({[f]:v});
+}
+
 // ===== RATINGS =====
-db.collection("ratings").orderBy("timestamp","desc").onSnapshot(snapshot=>{
-  const tbody=document.getElementById("ratings");
-  tbody.innerHTML="";
-  snapshot.forEach(doc=>{
+db.collection("ratings").onSnapshot(s=>{
+  const tb=document.getElementById("ratings");
+  tb.innerHTML="";
+  ratingSum=0;ratingCount=0;
+
+  s.forEach(doc=>{
     const d=doc.data();
-    tbody.innerHTML+=`
+    ratingSum+=d.rating;
+    ratingCount++;
+    tb.innerHTML+=`
     <tr>
       <td>${d.name}</td>
       <td>${d.email||"-"}</td>
       <td>${"⭐".repeat(d.rating)}</td>
-      <td>${new Date(d.timestamp).toLocaleString("fr-FR")}</td>
+      <td>${new Date(d.timestamp).toLocaleDateString("fr-FR")}</td>
     </tr>`;
   });
+
+  document.getElementById("avgRating").textContent=
+    ratingCount?(ratingSum/ratingCount).toFixed(1):0;
 });
 
 // ===== CALENDAR =====
-function generateCalendar(){
+function drawCalendar(){
   const cal=document.getElementById("calendar");
   cal.innerHTML="";
-  const now=new Date();
-  const y=now.getFullYear();
-  const m=now.getMonth();
-  const days=new Date(y,m+1,0).getDate();
+  const y=current.getFullYear(),m=current.getMonth();
+  document.getElementById("monthLabel").textContent=
+    current.toLocaleDateString("fr-FR",{month:'long',year:'numeric'});
 
+  const days=new Date(y,m+1,0).getDate();
   for(let d=1;d<=days;d++){
     const ds=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
     const div=document.createElement("div");
     div.className="day";
     div.textContent=d;
-
     if(bookingsByDate[ds]){
       div.classList.add("booked");
       div.onclick=()=>showDay(ds);
@@ -243,12 +245,12 @@ function generateCalendar(){
     cal.appendChild(div);
   }
 }
-
-function showDay(date){
+function changeMonth(n){current.setMonth(current.getMonth()+n);drawCalendar();}
+function showDay(d){
   const box=document.getElementById("day-details");
-  box.innerHTML=`<h3>${date}</h3>`;
-  bookingsByDate[date].forEach(b=>{
-    box.innerHTML+=`<p>⏰ ${b.time} – 👤 ${b.name} – 📞 ${b.phone}</p>`;
+  box.innerHTML=`<h3>${d}</h3>`;
+  bookingsByDate[d].forEach(b=>{
+    box.innerHTML+=`<p>${b.time} – ${b.name} – ${b.phone}</p>`;
   });
 }
 </script>
