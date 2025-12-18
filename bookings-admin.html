@@ -3,82 +3,95 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ASH Window Cleaning - Admin</title>
+<title>Admin – ASH Window Cleaning</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 
+<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
 
 <style>
-body{
-  font-family:'Poppins',Arial,sans-serif;
-  margin:0;
-  background:#f4f7fb;
-}
+*{box-sizing:border-box;font-family:'Poppins',Arial,sans-serif}
+body{margin:0;background:#eef3ff;color:#333}
 header{
   background:linear-gradient(90deg,#0a3cff,#00c897);
   color:#fff;
   padding:20px;
   text-align:center;
+  box-shadow:0 6px 20px rgba(0,0,0,.2)
 }
 .container{
-  max-width:1200px;
-  margin:25px auto;
+  max-width:1100px;
+  margin:30px auto;
   background:#fff;
+  border-radius:16px;
   padding:25px;
-  border-radius:14px;
-  box-shadow:0 10px 30px rgba(0,0,0,.08);
+  box-shadow:0 12px 30px rgba(0,0,0,.1)
 }
-h2{
-  color:#0a3cff;
-  margin:30px 0 15px;
-}
+h2{color:#0a3cff;margin-top:40px}
 table{
   width:100%;
-  border-collapse:separate;
-  border-spacing:0 8px;
+  border-collapse:collapse;
+  margin-top:15px
+}
+th,td{
+  padding:10px;
+  border-bottom:1px solid #eee;
+  text-align:center;
+  font-size:14px
 }
 th{
   background:#0a3cff;
-  color:#fff;
-  padding:12px;
+  color:#fff
 }
-td{
-  background:#fff;
-  padding:12px;
-  text-align:center;
-  border-bottom:1px solid #eee;
-}
-tr{
-  box-shadow:0 4px 12px rgba(0,0,0,.05);
-}
+tr:hover{background:#f5f8ff}
 input[type="number"]{
-  width:90px;
+  width:80px;
   padding:6px;
   border-radius:6px;
-  border:1px solid #ddd;
+  border:1px solid #ccc
 }
-input[type="checkbox"]{
-  transform:scale(1.2);
-}
-.btn{
-  padding:6px 10px;
+button{
   border:none;
+  padding:8px 12px;
   border-radius:6px;
   cursor:pointer;
-  font-weight:600;
+  font-weight:600
 }
-.btn-delete{
-  background:#e53935;
-  color:#fff;
-}
-.btn-delete:hover{ background:#c62828; }
-
-.total-box{
-  text-align:right;
+.btn-delete{background:#ff4d4f;color:#fff}
+.btn-delete:hover{background:#e04142}
+.total{
+  margin-top:15px;
   font-weight:700;
-  margin-top:10px;
+  font-size:18px
+}
+
+/* Calendar */
+#calendar{
+  display:grid;
+  grid-template-columns:repeat(7,1fr);
+  gap:10px;
+  margin-top:20px
+}
+.day{
+  background:#f1f5ff;
+  padding:12px;
+  border-radius:10px;
+  text-align:center;
+  cursor:pointer;
+  font-weight:600
+}
+.day.booked{
+  background:#0a3cff;
+  color:#fff
+}
+.day:hover{transform:scale(1.05)}
+#day-details{
+  margin-top:20px;
+  background:#f9fbff;
+  padding:15px;
+  border-radius:10px
 }
 </style>
 </head>
@@ -92,41 +105,46 @@ input[type="checkbox"]{
 <div class="container">
 
 <h2>📅 Réservations</h2>
+
 <table>
 <thead>
 <tr>
-  <th>Jour</th>
-  <th>Date</th>
-  <th>Heure</th>
-  <th>Nom</th>
-  <th>Téléphone</th>
-  <th>Service</th>
-  <th>Adresse</th>
-  <th>Montant (DT)</th>
-  <th>Terminé</th>
-  <th>Action</th>
+<th>Date</th>
+<th>Heure</th>
+<th>Nom</th>
+<th>Téléphone</th>
+<th>Service</th>
+<th>Adresse</th>
+<th>Montant (DT)</th>
+<th>Fait</th>
+<th>Supprimer</th>
 </tr>
 </thead>
 <tbody id="bookings"></tbody>
 </table>
 
-<div class="total-box">
-💰 Total réalisé : <span id="total-amount">0 DT</span>
+<div class="total">
+💰 Total des travaux effectués :
+<span id="total">0 DT</span>
 </div>
 
-<h2>⭐ Évaluations clients</h2>
+<h2>⭐ Avis clients</h2>
+
 <table>
 <thead>
 <tr>
-  <th>Nom</th>
-  <th>Email</th>
-  <th>Note</th>
-  <th>Date</th>
-  <th>Action</th>
+<th>Nom</th>
+<th>Email</th>
+<th>Note</th>
+<th>Date</th>
 </tr>
 </thead>
 <tbody id="ratings"></tbody>
 </table>
+
+<h2>📆 Calendrier des réservations</h2>
+<div id="calendar"></div>
+<div id="day-details"></div>
 
 </div>
 
@@ -136,64 +154,61 @@ const firebaseConfig = {
   apiKey: "AIzaSyAJxzFknapSh0fnPfIXwEEK3OijSKlqxco",
   authDomain: "admin-ash-f622c.firebaseapp.com",
   projectId: "admin-ash-f622c",
+  storageBucket: "admin-ash-f622c.appspot.com",
+  messagingSenderId: "76505742154",
+  appId: "1:76505742154:web:dc4f190f9f2de80acb1fb3"
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
 // ===== BOOKINGS =====
-db.collection("bookings").orderBy("date","desc").onSnapshot(snapshot=>{
+let bookingsByDate = {};
+
+db.collection("bookings").onSnapshot(snapshot=>{
   const tbody=document.getElementById("bookings");
   tbody.innerHTML="";
+  bookingsByDate={};
   let total=0;
 
   snapshot.forEach(doc=>{
     const d=doc.data();
+
+    if(!bookingsByDate[d.date]) bookingsByDate[d.date]=[];
+    bookingsByDate[d.date].push(d);
+
     if(d.done && d.amount) total+=Number(d.amount);
 
     tbody.innerHTML+=`
     <tr>
-      <td>${d.date ? new Date(d.date).toLocaleDateString("fr-FR",{weekday:"long"}) : "-"}</td>
-      <td>${d.date||"-"}</td>
-      <td>${d.time||"-"}</td>
+      <td>${d.date}</td>
+      <td>${d.time}</td>
       <td>${d.name}</td>
       <td>${d.phone}</td>
       <td>${d.service}</td>
       <td>${d.address}</td>
       <td>
-        <input type="number" value="${d.amount||0}"
-        onchange="updateAmount('${doc.id}',this.value)">
+        <input type="number" value="${d.amount||""}"
+        onchange="db.collection('bookings').doc('${doc.id}').update({amount:Number(this.value)})">
       </td>
       <td>
         <input type="checkbox" ${d.done?"checked":""}
-        onchange="toggleDone('${doc.id}',this.checked)">
+        onchange="db.collection('bookings').doc('${doc.id}').update({done:this.checked})">
       </td>
       <td>
-        <button class="btn btn-delete"
-        onclick="deleteBooking('${doc.id}')">Supprimer</button>
+        <button class="btn-delete"
+        onclick="db.collection('bookings').doc('${doc.id}').delete()">🗑</button>
       </td>
     </tr>`;
   });
 
-  document.getElementById("total-amount").textContent=total+" DT";
+  document.getElementById("total").textContent=total+" DT";
+  generateCalendar();
 });
-
-function toggleDone(id,val){
-  db.collection("bookings").doc(id).update({done:val});
-}
-function updateAmount(id,val){
-  db.collection("bookings").doc(id).update({amount:Number(val)});
-}
-function deleteBooking(id){
-  if(confirm("Supprimer cette réservation ?")){
-    db.collection("bookings").doc(id).delete();
-  }
-}
 
 // ===== RATINGS =====
 db.collection("ratings").orderBy("timestamp","desc").onSnapshot(snapshot=>{
   const tbody=document.getElementById("ratings");
   tbody.innerHTML="";
-
   snapshot.forEach(doc=>{
     const d=doc.data();
     tbody.innerHTML+=`
@@ -202,18 +217,39 @@ db.collection("ratings").orderBy("timestamp","desc").onSnapshot(snapshot=>{
       <td>${d.email||"-"}</td>
       <td>${"⭐".repeat(d.rating)}</td>
       <td>${new Date(d.timestamp).toLocaleString("fr-FR")}</td>
-      <td>
-        <button class="btn btn-delete"
-        onclick="deleteRating('${doc.id}')">Supprimer</button>
-      </td>
     </tr>`;
   });
 });
 
-function deleteRating(id){
-  if(confirm("Supprimer ce commentaire ?")){
-    db.collection("ratings").doc(id).delete();
+// ===== CALENDAR =====
+function generateCalendar(){
+  const cal=document.getElementById("calendar");
+  cal.innerHTML="";
+  const now=new Date();
+  const y=now.getFullYear();
+  const m=now.getMonth();
+  const days=new Date(y,m+1,0).getDate();
+
+  for(let d=1;d<=days;d++){
+    const ds=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const div=document.createElement("div");
+    div.className="day";
+    div.textContent=d;
+
+    if(bookingsByDate[ds]){
+      div.classList.add("booked");
+      div.onclick=()=>showDay(ds);
+    }
+    cal.appendChild(div);
   }
+}
+
+function showDay(date){
+  const box=document.getElementById("day-details");
+  box.innerHTML=`<h3>${date}</h3>`;
+  bookingsByDate[date].forEach(b=>{
+    box.innerHTML+=`<p>⏰ ${b.time} – 👤 ${b.name} – 📞 ${b.phone}</p>`;
+  });
 }
 </script>
 
