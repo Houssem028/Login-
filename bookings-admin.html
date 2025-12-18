@@ -3,30 +3,77 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Admin - ASH Window Cleaning</title>
+<title>Tableau de bord - ASH</title>
 
 <!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
 
-<!-- Leaflet pour cartes -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-
 <style>
-body { font-family:'Poppins',sans-serif; background:#eef3ff; margin:0; padding:20px; }
-h2 { text-align:center; color:#0a3cff; margin-top:20px; }
-.container { max-width:1200px; margin:auto; }
-table { width:100%; border-collapse:collapse; margin-top:20px; background:white; border-radius:12px; overflow:hidden; }
-th,td { border:1px solid #ddd; padding:10px; text-align:center; }
+body {
+  font-family: 'Poppins', Arial, sans-serif;
+  background: #f5f7fa;
+  margin:0; padding:0;
+}
+header {
+  background: linear-gradient(90deg,#0a3cff,#00c897);
+  color:#fff;
+  text-align:center;
+  padding:25px 0;
+  font-size:22px;
+  font-weight:700;
+  box-shadow:0 6px 20px rgba(0,0,0,0.18);
+}
+.container {
+  max-width:1200px;
+  margin:30px auto;
+  padding:20px;
+}
+h2 { color:#0a3cff; margin-bottom:15px; text-align:center; }
+
+table {
+  width:100%;
+  border-collapse:collapse;
+  background:#fff;
+  border-radius:10px;
+  overflow:hidden;
+  box-shadow:0 8px 25px rgba(0,0,0,0.1);
+  margin-bottom:40px;
+}
+th, td {
+  border:1px solid #ddd;
+  padding:10px;
+  text-align:center;
+  font-size:14px;
+}
 th { background:#0a3cff; color:white; }
-button { padding:6px 10px; border:none; background:#0a3cff; color:white; border-radius:6px; cursor:pointer; }
-button:hover { background:#084dcc; }
-#admin-map { height:400px; margin-top:20px; border-radius:12px; }
-#calendar { max-width:100%; margin-top:20px; background:white; border-radius:12px; padding:10px; }
+input[type="text"], input[type="number"], input[type="email"], input[type="date"], input[type="time"], select {
+  width:100%;
+  padding:6px;
+  box-sizing:border-box;
+  border-radius:6px;
+  border:1px solid #ccc;
+}
+input[type="checkbox"] { transform:scale(1.3); cursor:pointer; }
+button { 
+  background: linear-gradient(90deg,#0a3cff,#00c897); 
+  color:#fff; 
+  border:none; 
+  padding:8px 14px; 
+  border-radius:6px; 
+  cursor:pointer; 
+  font-weight:700; 
+  transition:0.2s;
+}
+button:hover { transform:translateY(-2px); box-shadow:0 6px 15px rgba(0,0,0,0.2);}
+.total-box{
+  font-size:18px; font-weight:700; color:#1f2933; text-align:right; margin-bottom:40px;
+}
 </style>
 </head>
+
 <body>
+<header>ASH Window Cleaning - Tableau de bord</header>
 
 <div class="container">
 
@@ -34,34 +81,41 @@ button:hover { background:#084dcc; }
 <table>
 <thead>
 <tr>
-<th>Nom</th><th>Téléphone</th><th>Email</th><th>Service</th><th>Adresse</th><th>Date</th><th>Heure</th><th>Montant</th><th>Fait</th><th>Actions</th>
+  <th>Nom</th>
+  <th>Téléphone</th>
+  <th>Email</th>
+  <th>Service</th>
+  <th>Adresse</th>
+  <th>Date</th>
+  <th>Heure</th>
+  <th>Montant (DT)</th>
+  <th>Travail effectué</th>
 </tr>
 </thead>
 <tbody id="bookings"></tbody>
 </table>
 
 <div class="total-box">
-💰 Total des services effectués : <span id="total-amount">0 DT</span>
+💰 Total des travaux effectués: <span id="total-amount">0 DT</span>
 </div>
 
-<h2>⭐ Avis des clients</h2>
+<h2>⭐ Avis clients</h2>
 <table>
 <thead>
-<tr><th>Nom</th><th>Email</th><th>Évaluation</th><th>Date</th><th>Actions</th></tr>
+<tr>
+  <th>Nom</th>
+  <th>Email</th>
+  <th>Note</th>
+  <th>Date</th>
+</tr>
 </thead>
 <tbody id="ratings"></tbody>
 </table>
 
-<h2>🌍 Carte des réservations</h2>
-<div id="admin-map"></div>
-
-<h2>🗓️ Calendrier des réservations</h2>
-<div id="calendar"></div>
-
 </div>
 
 <script>
-// Firebase
+// Config Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyAJxzFknapSh0fnPfIXwEEK3OijSKlqxco",
   authDomain: "admin-ash-f622c.firebaseapp.com",
@@ -73,108 +127,68 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-// ====== Réservations ======
-const tbodyBookings = document.getElementById("bookings");
-const totalAmountEl = document.getElementById("total-amount");
+// =================== RÉSERVATIONS ===================
 db.collection("bookings").orderBy("date","desc").onSnapshot(snapshot=>{
-  tbodyBookings.innerHTML="";
+  const tbody = document.getElementById("bookings");
+  tbody.innerHTML = "";
   let total = 0;
+
   snapshot.forEach(doc=>{
     const d = doc.data();
-    const checked = d.done ? "checked" : "";
+    const done = d.done ? "checked" : "";
     const amount = d.amount || "";
+
     if(d.done && d.amount) total += Number(d.amount);
 
-    tbodyBookings.innerHTML += `<tr>
-      <td>${d.name}</td>
-      <td>${d.phone}</td>
-      <td>${d.email || "-"}</td>
-      <td>${d.service}</td>
-      <td>${d.address}</td>
-      <td>${d.date}</td>
-      <td>${d.time}</td>
-      <td><input type="number" min="0" value="${amount}" onchange="updateAmount('${doc.id}',this.value)"></td>
-      <td><input type="checkbox" ${checked} onchange="toggleDone('${doc.id}',this.checked)"></td>
-      <td><button onclick="deleteBooking('${doc.id}')">Supprimer</button></td>
-    </tr>`;
+    tbody.innerHTML += `
+      <tr>
+        <td><input type="text" value="${d.name}" onblur="updateBooking('${doc.id}','name',this.value)"></td>
+        <td><input type="text" value="${d.phone}" onblur="updateBooking('${doc.id}','phone',this.value)"></td>
+        <td><input type="email" value="${d.email || ''}" onblur="updateBooking('${doc.id}','email',this.value)"></td>
+        <td>
+          <select onchange="updateBooking('${doc.id}','service',this.value)">
+            <option ${d.service==='Nettoyage des vitres'?'selected':''}>Nettoyage des vitres</option>
+            <option ${d.service==='Nettoyage des façades'?'selected':''}>Nettoyage des façades</option>
+            <option ${d.service==='Services réguliers'?'selected':''}>Services réguliers</option>
+          </select>
+        </td>
+        <td><input type="text" value="${d.address}" onblur="updateBooking('${doc.id}','address',this.value)"></td>
+        <td><input type="date" value="${d.date}" onblur="updateBooking('${doc.id}','date',this.value)"></td>
+        <td><input type="time" value="${d.time}" onblur="updateBooking('${doc.id}','time',this.value)"></td>
+        <td><input type="number" value="${amount}" onblur="updateBooking('${doc.id}','amount',this.value)"></td>
+        <td><input type="checkbox" ${done} onchange="toggleDone('${doc.id}',this.checked)"></td>
+      </tr>`;
   });
-  totalAmountEl.textContent = total + " DT";
+
+  document.getElementById("total-amount").textContent = total + " DT";
 });
 
-// Toggle fait
-function toggleDone(id,val){ db.collection("bookings").doc(id).update({done:val}); }
-// Update montant
-function updateAmount(id,val){ db.collection("bookings").doc(id).update({amount:Number(val)}); }
-// Delete
-function deleteBooking(id){ db.collection("bookings").doc(id).delete(); }
-
-// ====== Avis ======
-const tbodyRatings = document.getElementById("ratings");
-db.collection("ratings").orderBy("timestamp","desc").onSnapshot(snapshot=>{
-  tbodyRatings.innerHTML="";
-  snapshot.forEach(doc=>{
-    const d = doc.data();
-    tbodyRatings.innerHTML+=`<tr>
-      <td>${d.name}</td>
-      <td>${d.email || "-"}</td>
-      <td>${"⭐".repeat(d.rating)}</td>
-      <td>${new Date(d.timestamp).toLocaleString("fr-FR")}</td>
-      <td><button onclick="deleteRating('${doc.id}')">Supprimer</button></td>
-    </tr>`;
-  });
-});
-function deleteRating(id){ db.collection("ratings").doc(id).delete(); }
-
-// ====== Carte ======
-const adminMap = L.map('admin-map').setView([36.8,10.18],12);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(adminMap);
-db.collection("bookings").onSnapshot(snapshot=>{
-  adminMap.eachLayer(layer=>{ if(layer instanceof L.Marker) adminMap.removeLayer(layer); });
-  snapshot.forEach(doc=>{
-    const d = doc.data();
-    if(d.lat && d.lng){
-      L.marker([d.lat,d.lng]).addTo(adminMap)
-        .bindPopup(`<b>${d.name}</b><br>${d.address}<br>${d.service}<br>${d.date} ${d.time}`);
-    }
-  });
-});
-
-// ====== Calendrier simple ======
-const calendarEl = document.getElementById("calendar");
-function renderCalendar(monthOffset=0){
-  calendarEl.innerHTML="";
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = now.getMonth()+monthOffset;
-  const firstDay = new Date(year,month,1).getDay();
-  const lastDate = new Date(year,month+1,0).getDate();
-
-  const table = document.createElement("table");
-  table.style.width="100%";
-  table.style.borderCollapse="collapse";
-  const header = table.insertRow();
-  ["Dim","Lun","Mar","Mer","Jeu","Ven","Sam"].forEach(d=>{ const th= document.createElement("th"); th.textContent=d; th.style.border="1px solid #ddd"; th.style.padding="6px"; th.style.background="#0a3cff"; th.style.color="#fff"; header.appendChild(th); });
-
-  let row = table.insertRow();
-  for(let i=0;i<firstDay;i++) row.insertCell();
-  for(let d=1;d<=lastDate;d++){
-    if(row.cells.length===7) row=table.insertRow();
-    const cell = row.insertCell();
-    cell.textContent=d;
-    cell.style.border="1px solid #ddd"; cell.style.padding="6px"; cell.style.textAlign="center";
-
-    // Colorer les jours avec réservation
-    snapshot.forEach(doc=>{
-      const date = new Date(doc.data().date);
-      if(date.getDate()===d && date.getMonth()===month){
-        cell.style.background="#00c897"; cell.style.color="white";
-      }
-    });
-  }
-  calendarEl.appendChild(table);
+function updateBooking(id, field, value){
+  db.collection("bookings").doc(id).update({ [field]: value })
+    .then(()=> console.log("Mise à jour réussie"))
+    .catch(err => console.error(err));
 }
-renderCalendar();
-</script>
 
+function toggleDone(id, val){
+  db.collection("bookings").doc(id).update({ done: val });
+}
+
+// =================== AVIS ===================
+db.collection("ratings").orderBy("timestamp","desc").onSnapshot(snapshot=>{
+  const tbody = document.getElementById("ratings");
+  tbody.innerHTML = "";
+
+  snapshot.forEach(doc=>{
+    const d = doc.data();
+    tbody.innerHTML += `
+      <tr>
+        <td>${d.name}</td>
+        <td>${d.email || '-'}</td>
+        <td>${"⭐".repeat(d.rating)}</td>
+        <td>${new Date(d.timestamp).toLocaleString('fr-FR')}</td>
+      </tr>`;
+  });
+});
+</script>
 </body>
 </html>
