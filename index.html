@@ -7,7 +7,7 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cairo&display=swap" rel="stylesheet">
 
 <style>
 /* ===== Reset ===== */
@@ -15,13 +15,15 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  font-family: 'Poppins', Arial, sans-serif;
+  font-family: "Cairo", system-ui, Arial, sans-serif;
 }
 
 body {
   background: linear-gradient(135deg, #eef3ff, #f9fbff);
   color: #333;
   line-height: 1.6;
+  opacity: 0;
+  animation: pageFade 0.9s ease forwards;
 }
 
 /* ===== Navbar ===== */
@@ -29,16 +31,12 @@ body {
   position: fixed;
   top: 0; left: 0; right: 0;
   z-index: 999;
-
   display: flex;
   align-items: center;
   gap: 14px;
-
   padding: 12px 22px;
-
   background: linear-gradient(135deg, #0b1f33, #102f4f);
   border-bottom: 1px solid rgba(0, 200, 255, 0.25);
-
   box-shadow: 0 10px 30px rgba(0,0,0,0.45);
 }
 
@@ -49,6 +47,7 @@ body {
   padding: 4px;
   background: #081a2f;
   box-shadow: 0 0 18px rgba(0, 200, 255, 0.6);
+  animation: logoPulse 3s infinite ease-in-out;
 }
 
 .navbar h1 {
@@ -58,7 +57,7 @@ body {
   color: #eaf6ff;
 }
 
-/* ===== Hamburger ===== */
+/* ===== Sidebar ===== */
 #sidebar-toggle {
   position: fixed;
   top: 18px;
@@ -107,6 +106,46 @@ body {
   background: rgba(255,255,255,0.1);
 }
 
+/* ===== Buttons ===== */
+.btn {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(90deg, #0a5cff, #00c6ff);
+  color: white;
+  border: 2px solid transparent;
+  padding: 14px 26px;
+  border-radius: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  z-index: 1;
+  background-clip: padding-box;
+  display: inline-block;
+  text-decoration: none;
+}
+
+.btn::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(120deg, transparent, rgba(255,255,255,0.4), transparent);
+  transition: 0.6s;
+  border-radius: 12px;
+  z-index: 2;
+}
+
+.btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 40px rgba(0,0,0,0.35);
+}
+
+.btn:hover::after {
+  left: 100%;
+}
+
 /* ===== Hero ===== */
 .hero {
   margin-top: 100px;
@@ -115,78 +154,41 @@ body {
   gap: 35px;
   align-items: center;
   padding: 50px 25px;
-
   opacity: 0;
   transform: translateY(30px);
   transition: all 0.8s ease-out;
 }
 
-.hero.visible {
-  opacity: 1;
-  transform: translateY(0);
-}
+.hero.visible { opacity:1; transform:translateY(0); }
 
 .hero h1 {
   font-size: 36px;
   color: #0a5cff;
   margin-bottom: 16px;
-  opacity: 0;
-  transform: translateY(20px);
-  transition: all 0.8s ease-out 0.2s;
-}
-
-.hero.visible h1 {
-  opacity: 1;
-  transform: translateY(0);
 }
 
 .hero p {
   font-size: 18px;
   margin-bottom: 28px;
   color: #555;
-  opacity: 0;
-  transform: translateY(20px);
-  transition: all 0.8s ease-out 0.4s;
-}
-
-.hero.visible p {
-  opacity: 1;
-  transform: translateY(0);
 }
 
 .hero img {
   width: 100%;
   border-radius: 20px;
   box-shadow: 0 18px 45px rgba(0,0,0,0.25);
-  opacity: 0;
-  transform: translateY(30px);
-  transition: all 0.8s ease-out 0.6s;
-}
-
-.hero.visible img {
-  opacity: 1;
-  transform: translateY(0);
 }
 
 /* ===== Services ===== */
 .services {
   padding: 60px 25px;
   text-align: center;
-  opacity: 0;
+  opacity:0;
   transform: translateY(30px);
   transition: all 0.8s ease-out;
 }
 
-.services.visible {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.services h2 {
-  font-size: 34px;
-  color: #0a5cff;
-  margin-bottom: 35px;
-}
+.services.visible { opacity:1; transform:translateY(0); }
 
 .services-grid {
   display: grid;
@@ -200,18 +202,15 @@ body {
   overflow: hidden;
   box-shadow: 0 10px 26px rgba(0,0,0,0.08);
   transition: transform 0.35s, box-shadow 0.35s;
-  opacity: 0;
+  opacity:0;
   transform: translateY(20px);
 }
 
-.service.visible {
-  opacity: 1;
-  transform: translateY(0);
-}
+.service.visible { opacity:1; transform:translateY(0); }
 
 .service:hover {
-  transform: translateY(-10px) scale(1.02);
-  box-shadow: 0 14px 30px rgba(0,0,0,0.25);
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 16px 40px rgba(0,0,0,0.25);
 }
 
 .service img {
@@ -220,14 +219,8 @@ body {
   object-fit: cover;
 }
 
-.service h3 {
-  color: #0a5cff;
-  margin: 18px;
-}
-
-.service p {
-  padding: 0 18px 22px;
-}
+.service h3 { color:#0a5cff; margin:18px; }
+.service p { padding:0 18px 22px; }
 
 /* ===== CTA ===== */
 .cta {
@@ -235,15 +228,12 @@ body {
   color: #fff;
   padding: 60px 25px;
   text-align: center;
-  opacity: 0;
-  transform: translateY(30px);
+  opacity:0;
+  transform:translateY(30px);
   transition: all 0.8s ease-out;
 }
 
-.cta.visible {
-  opacity: 1;
-  transform: translateY(0);
-}
+.cta.visible { opacity:1; transform:translateY(0); }
 
 .cta a {
   background: #fff;
@@ -251,27 +241,19 @@ body {
   padding: 14px 30px;
   border-radius: 12px;
   font-weight: 700;
-  transition: transform 0.3s, box-shadow 0.3s;
-}
-
-.cta a:hover {
-  transform: scale(1.05);
-  box-shadow: 0 14px 30px rgba(0,0,0,0.25);
+  text-decoration:none;
 }
 
 /* ===== Reviews ===== */
 .reviews {
   padding: 60px 25px;
   text-align: center;
-  opacity: 0;
-  transform: translateY(30px);
+  opacity:0;
+  transform:translateY(30px);
   transition: all 0.8s ease-out;
 }
 
-.reviews.visible {
-  opacity: 1;
-  transform: translateY(0);
-}
+.reviews.visible { opacity:1; transform:translateY(0); }
 
 .stars span {
   font-size: 34px;
@@ -279,47 +261,18 @@ body {
   transition: transform 0.25s, color 0.25s;
 }
 
-.stars span:hover {
-  transform: scale(1.3);
-}
-
-#rating-form {
-  display: none;
-  max-width: 420px;
-  margin: 20px auto;
-}
-
-#rating-form input {
-  width: 100%;
-  padding: 12px;
-  margin: 8px 0;
-  border-radius: 10px;
-  border: 1px solid #ddd;
-}
-
-#rating-form button {
-  width: 100%;
-  padding: 12px;
-  border-radius: 10px;
-  border: none;
-  background: linear-gradient(90deg, #0a5cff, #00c6ff);
-  color: #fff;
-  font-weight: 700;
-}
+.stars span:hover { transform: scale(1.3); }
 
 /* ===== Contact ===== */
 .contact {
   padding: 60px 25px;
   text-align: center;
-  opacity: 0;
-  transform: translateY(30px);
+  opacity:0;
+  transform:translateY(30px);
   transition: all 0.8s ease-out;
 }
 
-.contact.visible {
-  opacity: 1;
-  transform: translateY(0);
-}
+.contact.visible { opacity:1; transform:translateY(0); }
 
 .contact a {
   display: block;
@@ -328,15 +281,24 @@ body {
   font-weight: 700;
 }
 
+/* ===== Animations ===== */
+@keyframes pageFade {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes logoPulse {
+  0% { box-shadow: 0 0 18px rgba(0,200,255,0.5); }
+  50% { box-shadow: 0 0 28px rgba(0,200,255,0.9); }
+  100% { box-shadow: 0 0 18px rgba(0,200,255,0.5); }
+}
+
 /* ===== Responsive ===== */
 @media (max-width: 768px) {
-  .hero {
-    grid-template-columns: 1fr;
-  }
-  .hero h1 {
-    font-size: 28px;
-  }
+  .hero { grid-template-columns: 1fr; }
+  .hero h1 { font-size:28px; }
 }
+
 </style>
 
 <!-- Firebase -->
@@ -372,7 +334,7 @@ const db = firebase.firestore();
   <a href="#contact">Contact</a>
 </nav>
 
-<section class="hero">
+<section class="hero reveal">
   <div>
     <h1>Nettoyage de vitres professionnel</h1>
     <p>Maisons, commerces et bureaux – résultat impeccable garanti.</p>
@@ -381,34 +343,34 @@ const db = firebase.firestore();
   <img src="Pic1.jpg" alt="Window Cleaning">
 </section>
 
-<section class="services">
+<section class="services reveal">
   <h2>Nos services</h2>
   <div class="services-grid">
-    <div class="service">
-      <img src="Pic4.jpg">
+    <div class="service reveal">
+      <img src="Pic8.jpg">
       <h3>Maisons</h3>
       <p>Nettoyage intérieur et extérieur.</p>
     </div>
-    <div class="service">
+    <div class="service reveal">
       <img src="Pic3.jpg">
       <h3>Commerces</h3>
       <p>Façades vitrées brillantes.</p>
     </div>
-    <div class="service">
-      <img src="Pic6.jpg">
+    <div class="service reveal">
+      <img src="Pic7.jpg">
       <h3>Bureaux</h3>
       <p>Image professionnelle assurée.</p>
     </div>
   </div>
 </section>
 
-<section class="cta">
+<section class="cta reveal">
   <h2>Besoin d'un nettoyage rapide ?</h2>
   <p>Contactez-nous dès maintenant</p>
-  <a href="https://wa.me/21621477790">💬 WhatsApp</a>
+  <a href="https://wa.me/21621477790" class="btn">💬 WhatsApp</a>
 </section>
 
-<section class="reviews" id="reviews">
+<section class="reviews reveal" id="reviews">
   <h2>Évaluez notre service</h2>
   <div class="stars" id="stars">
     <span data-value="1">⭐</span>
@@ -426,11 +388,11 @@ const db = firebase.firestore();
   <p id="rating-msg"></p>
 </section>
 
-<section class="contact" id="contact">
+<section class="contact reveal" id="contact">
   <h2>Contact</h2>
   <a href="tel:+21624598941">📞 +216 24 598 941</a>
   <a href="tel:+21651084442">📞 +216 51 084 442</a>
-  <a href="https://wa.me/21621477790">💬 WhatsApp</a>
+  <a href="https://wa.me/21621477790" class="btn">💬 WhatsApp</a>
 </section>
 
 <script>
@@ -471,20 +433,18 @@ ratingForm.onsubmit = e => {
   });
 };
 
-// ===== Fade-up animation on scroll =====
-const sections = document.querySelectorAll('.hero, .services, .service, .cta, .reviews, .contact');
-const appearOptions = { threshold: 0.3 };
-
-const appearOnScroll = new IntersectionObserver((entries, observer) => {
-  entries.forEach(entry => {
-    if (!entry.isIntersecting) return;
-    entry.target.classList.add('visible');
-    observer.unobserve(entry.target);
+// ===== Scroll Reveal =====
+const reveals = document.querySelectorAll('.reveal');
+const revealOnScroll = () => {
+  const windowHeight = window.innerHeight;
+  reveals.forEach(el => {
+    const elementTop = el.getBoundingClientRect().top;
+    if (elementTop < windowHeight * 0.8) el.classList.add('visible');
   });
-}, appearOptions);
-
-sections.forEach(section => appearOnScroll.observe(section));
+};
+window.addEventListener('scroll', revealOnScroll);
+window.addEventListener('load', revealOnScroll);
 </script>
 
 </body>
-  </html>
+</html>
