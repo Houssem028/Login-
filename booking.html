@@ -5,179 +5,206 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Réserver un service - ASH</title>
 
-<!-- Leaflet CSS -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-<!-- Firebase Compat -->
+<!-- Leaflet -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+
+<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
-<!-- EmailJS -->
-<script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
 
 <style>
-body {
-  font-family: Arial, sans-serif;
-  margin:0; padding:0;
-  background:#f5f7fa;
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:Poppins,Arial,sans-serif;
+  background:linear-gradient(135deg,#eef3ff,#f9fbff);
   color:#333;
 }
-header {
-  background:#0a3cff;
-  color:white;
+
+/* ===== Back Button ===== */
+.back-home{
+  position:fixed;
+  left:15px;
+  top:50%;
+  transform:translateY(-50%);
+  background:#0a5cff;
+  color:#fff;
+  padding:12px 14px;
+  border-radius:12px;
+  text-decoration:none;
+  font-size:18px;
+  box-shadow:0 8px 20px rgba(0,0,0,.3);
+  z-index:1000;
+}
+
+/* ===== Header ===== */
+header{
+  background:linear-gradient(135deg,#0b1f33,#102f4f);
+  color:#fff;
   text-align:center;
   padding:20px;
-  font-size:20px;
-  font-weight:bold;
+  font-size:22px;
+  font-weight:700;
 }
-main {
-  max-width:600px;
-  margin:30px auto;
-  background:white;
+
+/* ===== Card ===== */
+main{
+  max-width:620px;
+  margin:40px auto;
+  background:#fff;
   padding:25px;
-  border-radius:12px;
-  box-shadow:0 8px 20px rgba(0,0,0,0.1);
+  border-radius:16px;
+  box-shadow:0 12px 30px rgba(0,0,0,.15);
 }
-label {
+
+h2{
+  color:#0a5cff;
+  margin-bottom:15px;
+}
+
+/* ===== Form ===== */
+label{
   display:block;
   margin-top:15px;
-  font-weight:bold;
+  font-weight:600;
 }
-input, select, button {
+input,select,button{
   width:100%;
-  padding:10px;
-  margin-top:5px;
-  border-radius:6px;
+  padding:11px;
+  margin-top:6px;
+  border-radius:8px;
   border:1px solid #ccc;
-  box-sizing:border-box;
 }
-button {
-  background:#0a3cff;
-  color:white;
+button{
+  background:linear-gradient(90deg,#0a5cff,#00c6ff);
+  color:#fff;
   border:none;
-  font-weight:bold;
+  font-weight:700;
   cursor:pointer;
   margin-top:20px;
 }
-button:hover { background:#084dcc; }
-#booking-map { height:300px; border:1px solid #ddd; border-radius:10px; margin-top:10px; }
-#msg, #map-msg { margin-top:15px; font-weight:bold; }
+button:hover{opacity:.9}
+
+#booking-map{
+  height:260px;
+  margin-top:10px;
+  border-radius:12px;
+  border:1px solid #ddd;
+}
+
+.small-btn{
+  background:#eee;
+  color:#0a5cff;
+  margin-top:8px;
+  font-weight:600;
+}
+
+#msg,#map-msg{
+  margin-top:12px;
+  font-weight:700;
+}
 </style>
 </head>
 
 <body>
 
-<header>ASH Window Cleaning - Réservation</header>
+<a href="index.html" class="back-home">⬅</a>
+
+<header>ASH Window Cleaning – Réservation</header>
 
 <main>
-  <h2>Réservez votre service maintenant</h2>
+<h2>Réservez votre service</h2>
 
-  <form id="booking-form">
-    <label>Nom *</label>
-    <input type="text" id="name" required placeholder="Votre nom">
+<form id="booking-form">
 
-    <label>Téléphone *</label>
-    <input type="tel" id="phone" required placeholder="Ex: 21612345678">
+<label>Nom *</label>
+<input id="name" required>
 
-    <label>Email</label>
-    <input type="email" id="email" placeholder="Optionnel">
+<label>Téléphone *</label>
+<input id="phone" required>
 
-    <label>Service *</label>
-    <select id="service" required>
-      <option disabled selected>Choisir un service</option>
-      <option>Nettoyage des vitres</option>
-      <option>Nettoyage des façades</option>
-      <option>Services réguliers</option>
-    </select>
+<label>Email</label>
+<input id="email" type="email">
 
-    <label>Adresse *</label>
-    <input type="text" id="address" required placeholder="Votre adresse">
+<label>Service *</label>
+<select id="service" required>
+<option disabled selected>Choisir</option>
+<option>Nettoyage des vitres</option>
+<option>Nettoyage des façades</option>
+<option>Service régulier</option>
+</select>
 
-    <label>Date *</label>
-    <input type="date" id="date" required>
+<label>Adresse (manuel)</label>
+<input id="address" placeholder="Optionnel si GPS utilisé">
 
-    <label>Heure *</label>
-    <input type="time" id="time" required>
+<label>Localisation</label>
+<div id="booking-map"></div>
+<button type="button" class="small-btn" onclick="detectLocation()">📍 Détecter ma position</button>
+<p id="map-msg"></p>
 
-    <label>Votre position actuelle</label>
-    <div id="booking-map"></div>
-    <p id="map-msg">Détection de votre position...</p>
+<label>Date *</label>
+<input type="date" id="date" required>
 
-    <button type="submit">Envoyer la réservation</button>
-  </form>
+<label>Heure *</label>
+<input type="time" id="time" required>
 
-  <p id="msg"></p>
+<button type="submit">Envoyer la réservation</button>
+</form>
+
+<p id="msg"></p>
 </main>
 
-<!-- Leaflet JS -->
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script>
-// ===== Firebase Config =====
-const firebaseConfig = {
-  apiKey: "AIzaSyAJxzFknapSh0fnPfIXwEEK3OijSKlqxco",
-  authDomain: "admin-ash-f622c.firebaseapp.com",
-  projectId: "admin-ash-f622c",
-  storageBucket: "admin-ash-f622c.appspot.com",
-  messagingSenderId: "76505742154",
-  appId: "1:76505742154:web:dc4f190f9f2de80acb1fb3"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+// Firebase
+firebase.initializeApp({
+ apiKey:"AIzaSyAJxzFknapSh0fnPfIXwEEK3OijSKlqxco",
+ authDomain:"admin-ash-f622c.firebaseapp.com",
+ projectId:"admin-ash-f622c"
+});
+const db=firebase.firestore();
 
-// EmailJS Init
-emailjs.init("dKDZhGvgDZ2OwDlZF");
+// Map
+let lat=null,lng=null;
+const map=L.map('booking-map').setView([36.8,10.18],12);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+let marker=null;
 
-// ===== Leaflet Map =====
-let lat = null, lng = null;
-const bookingMap = L.map('booking-map').setView([36.8, 10.18], 12); // Tunis par défaut
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(bookingMap);
-
-if(navigator.geolocation){
-  navigator.geolocation.getCurrentPosition(
-    position => {
-      lat = position.coords.latitude;
-      lng = position.coords.longitude;
-      bookingMap.setView([lat, lng], 15);
-      L.marker([lat, lng]).addTo(bookingMap).bindPopup("Votre position actuelle").openPopup();
-      document.getElementById("map-msg").textContent = "✔ Position détectée automatiquement";
-    },
-    err => {
-      console.warn(err.message);
-      document.getElementById("map-msg").textContent = "❌ Impossible de détecter votre position";
-    }
-  );
-} else {
-  document.getElementById("map-msg").textContent = "❌ Votre appareil ne supporte pas la géolocalisation";
+function detectLocation(){
+ if(!navigator.geolocation){
+  map-msg.textContent="❌ GPS non supporté";
+  return;
+ }
+ navigator.geolocation.getCurrentPosition(pos=>{
+  lat=pos.coords.latitude;
+  lng=pos.coords.longitude;
+  map.setView([lat,lng],15);
+  if(marker)marker.remove();
+  marker=L.marker([lat,lng]).addTo(map);
+  map-msg.textContent="✔ Position détectée automatiquement";
+ },()=>{
+  map-msg.textContent="❌ Autorisation GPS refusée";
+ });
 }
 
-// ===== Form Submit =====
-document.getElementById("booking-form").addEventListener("submit", function(e){
-  e.preventDefault();
-
-  if(lat === null || lng === null){
-    document.getElementById("map-msg").textContent = "❌ Position non détectée, essayez à nouveau";
-    return;
-  }
-
-  const data = {
-    name: document.getElementById("name").value,
-    phone: document.getElementById("phone").value,
-    email: document.getElementById("email").value || "Non fourni",
-    service: document.getElementById("service").value,
-    address: document.getElementById("address").value,
-    date: document.getElementById("date").value,
-    time: document.getElementById("time").value,
-    lat: lat,
-    lng: lng,
-    createdAt: new Date()
-  };
-
-  db.collection("bookings").add(data).then(() => {
-    document.getElementById("msg").textContent = "✔ Réservation envoyée avec succès!";
-    document.getElementById("booking-form").reset();
-  }).catch(err => {
-    console.error(err);
-    document.getElementById("msg").textContent = "❌ Erreur lors de l'envoi!";
-  });
-});
+// Submit
+booking-form.onsubmit=e=>{
+ e.preventDefault();
+ db.collection("bookings").add({
+  name:name.value,
+  phone:phone.value,
+  email:email.value||"—",
+  service:service.value,
+  address:address.value||"GPS",
+  lat,lng,
+  date:date.value,
+  time:time.value,
+  createdAt:new Date()
+ }).then(()=>{
+  msg.textContent="✔ Réservation envoyée avec succès";
+  booking-form.reset();
+ });
+};
 </script>
 
 </body>
