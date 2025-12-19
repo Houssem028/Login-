@@ -10,314 +10,156 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 
 <style>
-/* ===== Reset ===== */
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-  font-family: 'Poppins', Arial, sans-serif;
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Poppins',Arial,sans-serif}
+body{
+  background:linear-gradient(135deg,#eef3ff,#f9fbff);
+  color:#333;
+  line-height:1.6;
+  opacity:0;
+  animation:pageFade .9s ease forwards
+}
+@keyframes pageFade{from{opacity:0;transform:translateY(15px)}to{opacity:1}}
+
+.navbar{
+  position:fixed;top:0;left:0;right:0;z-index:999;
+  display:flex;align-items:center;gap:12px;
+  padding:12px 20px;
+  background:rgba(10,60,255,.85);
+  backdrop-filter:blur(10px);
+  box-shadow:0 6px 20px rgba(0,0,0,.2)
+}
+.navbar img{
+  width:56px;
+  border-radius:50%;
+  box-shadow:0 0 22px rgba(0,200,255,.8);
+  animation:logoPulse 3s infinite
+}
+@keyframes logoPulse{
+  0%{box-shadow:0 0 18px rgba(0,200,255,.5)}
+  50%{box-shadow:0 0 28px rgba(0,200,255,.9)}
+  100%{box-shadow:0 0 18px rgba(0,200,255,.5)}
+}
+.navbar h1{color:#fff;font-size:22px;font-weight:700}
+
+.hero{
+  margin-top:90px;
+  padding:60px 25px;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:30px;
+  align-items:center
+}
+.hero h1{font-size:36px;color:#0a3cff}
+.hero p{font-size:18px;margin:20px 0;color:#555}
+.hero img{
+  width:100%;
+  border-radius:18px;
+  box-shadow:0 20px 45px rgba(0,0,0,.25)
 }
 
-body {
-  background: linear-gradient(135deg, #eef3ff, #f9fbff);
-  color: #333;
-  line-height: 1.6;
+.btn{
+  display:inline-block;
+  background:linear-gradient(90deg,#0a3cff,#00c897);
+  color:#fff;
+  padding:14px 26px;
+  border-radius:12px;
+  font-weight:700;
+  box-shadow:0 12px 30px rgba(0,92,255,.4);
+  position:relative;
+  overflow:hidden
+}
+.btn::after{
+  content:"";
+  position:absolute;
+  top:0;left:-100%;
+  width:100%;height:100%;
+  background:linear-gradient(120deg,transparent,rgba(255,255,255,.4),transparent);
+  transition:.6s
+}
+.btn:hover::after{left:100%}
+
+section.reveal{
+  opacity:0;
+  transform:translateY(40px) scale(.96);
+  transition:.9s ease
+}
+section.reveal.show{
+  opacity:1;
+  transform:none
 }
 
-/* ===== Navbar ===== */
-.navbar {
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  z-index: 999;
-
-  display: flex;
-  align-items: center;
-  gap: 14px;
-
-  padding: 12px 22px;
-
-  background: linear-gradient(135deg, #0b1f33, #102f4f);
-  border-bottom: 1px solid rgba(0, 200, 255, 0.25);
-
-  box-shadow: 0 10px 30px rgba(0,0,0,0.45);
+.services,.reviews,.contact,.cta{
+  padding:60px 25px;
+  text-align:center
+}
+.services h2,.reviews h2,.contact h2{
+  font-size:32px;
+  color:#0a3cff;
+  margin-bottom:30px
 }
 
-.navbar img {
-  width: 58px;
-  height: 58px;
-  border-radius: 50%;
-  padding: 4px;
-  background: #081a2f;
-  box-shadow: 0 0 18px rgba(0, 200, 255, 0.6);
+.services-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+  gap:25px
+}
+.service{
+  background:#fff;
+  border-radius:18px;
+  box-shadow:0 10px 30px rgba(0,0,0,.08);
+  overflow:hidden;
+  transition:.3s
+}
+.service:hover{transform:translateY(-6px)}
+.service img{width:100%;height:180px;object-fit:cover}
+.service h3{margin:15px;color:#0a3cff}
+.service p{padding:0 15px 20px}
+
+.cta{
+  background:linear-gradient(135deg,#0a5cff,#084dcc);
+  color:#fff
+}
+.cta a{
+  background:#fff;
+  color:#0a5cff;
+  padding:14px 28px;
+  border-radius:12px;
+  font-weight:700;
+  display:inline-block;
+  margin-top:15px
 }
 
-.navbar h1 {
-  font-size: 22px;
-  font-weight: 700;
-  letter-spacing: 1px;
-  color: #eaf6ff;
+.contact a{
+  display:block;
+  margin:8px;
+  color:#0a3cff;
+  font-weight:700
 }
 
-/* ===== Hamburger ===== */
-#sidebar-toggle {
-  position: fixed;
-  top: 18px;
-  right: 20px;
-  font-size: 28px;
-  background: #0a5cff;
-  color: #fff;
-  padding: 8px 14px;
-  border-radius: 10px;
-  cursor: pointer;
-  z-index: 1001;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.35);
-}
-
-#sidebar-menu {
-  position: fixed;
-  top: 0;
-  right: -260px;
-  width: 260px;
-  height: 100%;
-  background: linear-gradient(180deg, #0b1f33, #102f4f);
-  display: flex;
-  flex-direction: column;
-  padding-top: 70px;
-  transition: right 0.35s ease;
-  z-index: 1000;
-}
-
-#sidebar-menu h2 {
-  color: #fff;
-  font-size: 20px;
-  font-weight: 700;
-  text-align: center;
-  margin-bottom: 25px;
-}
-
-#sidebar-menu a {
-  color: #eaf6ff;
-  padding: 16px 28px;
-  font-weight: 600;
-  text-decoration: none;
-  border-bottom: 1px solid rgba(255,255,255,0.15);
-}
-
-#sidebar-menu a:hover {
-  background: rgba(255,255,255,0.1);
-}
-
-/* ===== Hero ===== */
-.hero {
-  margin-top: 100px;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 35px;
-  align-items: center;
-  padding: 50px 25px;
-}
-
-.hero h1 {
-  font-size: 36px;
-  color: #0a5cff;
-  margin-bottom: 16px;
-}
-
-.hero p {
-  font-size: 18px;
-  margin-bottom: 28px;
-  color: #555;
-}
-
-.btn {
-  background: linear-gradient(90deg, #0a5cff, #00c6ff);
-  color: #fff;
-  padding: 14px 26px;
-  border-radius: 12px;
-  font-weight: 700;
-  box-shadow: 0 12px 30px rgba(10,92,255,0.45);
-  transition: 0.25s;
-  display: inline-block;
-}
-
-.btn:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 16px 40px rgba(0,0,0,0.35);
-}
-
-.hero img {
-  width: 100%;
-  border-radius: 20px;
-  box-shadow: 0 18px 45px rgba(0,0,0,0.25);
-}
-
-/* ===== Services ===== */
-.services {
-  padding: 60px 25px;
-  text-align: center;
-}
-
-.services h2 {
-  font-size: 34px;
-  color: #0a5cff;
-  margin-bottom: 35px;
-}
-
-.services-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 28px;
-}
-
-.service {
-  background: #fff;
-  border-radius: 18px;
-  overflow: hidden;
-  box-shadow: 0 10px 26px rgba(0,0,0,0.08);
-  transition: .35s;
-}
-
-.service:hover {
-  transform: translateY(-8px);
-}
-
-.service img {
-  width: 100%;
-  height: 180px;
-  object-fit: cover;
-}
-
-.service h3 {
-  color: #0a5cff;
-  margin: 18px;
-}
-
-.service p {
-  padding: 0 18px 22px;
-}
-
-/* ===== CTA ===== */
-.cta {
-  background: linear-gradient(135deg, #0a5cff, #003f88);
-  color: #fff;
-  padding: 60px 25px;
-  text-align: center;
-}
-
-.cta a {
-  background: #fff;
-  color: #003f88;
-  padding: 14px 30px;
-  border-radius: 12px;
-  font-weight: 700;
-}
-
-/* ===== Reviews ===== */
-.reviews {
-  padding: 60px 25px;
-  text-align: center;
-}
-
-.stars span {
-  font-size: 34px;
-  cursor: pointer;
-}
-
-.stars span.selected {
-  color: gold;
-}
-
-#rating-form {
-  display: none;
-  max-width: 420px;
-  margin: 20px auto;
-}
-
-#rating-form input {
-  width: 100%;
-  padding: 12px;
-  margin: 8px 0;
-  border-radius: 10px;
-  border: 1px solid #ddd;
-}
-
-#rating-form button {
-  width: 100%;
-  padding: 12px;
-  border-radius: 10px;
-  border: none;
-  background: linear-gradient(90deg, #0a5cff, #00c6ff);
-  color: #fff;
-  font-weight: 700;
-}
-
-/* ===== Contact ===== */
-.contact {
-  padding: 60px 25px;
-  text-align: center;
-}
-
-.contact a {
-  display: block;
-  margin: 10px;
-  color: #0a5cff;
-  font-weight: 700;
-}
-
-/* ===== Responsive ===== */
-@media (max-width: 768px) {
-  .hero {
-    grid-template-columns: 1fr;
-  }
-  .hero h1 {
-    font-size: 28px;
-  }
+@media(max-width:768px){
+  .hero{grid-template-columns:1fr}
+  .hero h1{font-size:28px}
 }
 </style>
-
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
-<script>
-const firebaseConfig = {
-  apiKey: "AIzaSyAJxzFknapSh0fnPfIXwEEK3OijSKlqxco",
-  authDomain: "admin-ash-f622c.firebaseapp.com",
-  projectId: "admin-ash-f622c",
-  storageBucket: "admin-ash-f622c.appspot.com",
-  messagingSenderId: "76505742154",
-  appId: "1:76505742154:web:dc4f190f9f2de80acb1fb3"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-</script>
-
 </head>
+
 <body>
 
 <header class="navbar">
-  <img src="Pic4.png" alt="ASH Logo">
+  <img src="Pic4.png">
   <h1>ASH Window Cleaning</h1>
 </header>
 
-<div id="sidebar-toggle">☰</div>
-<nav id="sidebar-menu">
-  <h2>ASH Window Cleaning</h2>
-  <a href="login.html">Login</a>
-  <a href="booking.html">Réservation</a>
-  <a href="#reviews">Avis</a>
-  <a href="#contact">Contact</a>
-</nav>
-
-<section class="hero">
+<section class="hero reveal">
   <div>
     <h1>Nettoyage de vitres professionnel</h1>
     <p>Maisons, commerces et bureaux – résultat impeccable garanti.</p>
     <a href="booking.html" class="btn">Devis gratuit</a>
   </div>
-  <img src="Pic1.jpg" alt="Window Cleaning">
+  <img src="Pic1.jpg">
 </section>
 
-<section class="services">
+<section class="services reveal">
   <h2>Nos services</h2>
   <div class="services-grid">
     <div class="service">
@@ -338,74 +180,33 @@ const db = firebase.firestore();
   </div>
 </section>
 
-<section class="cta">
+<section class="cta reveal">
   <h2>Besoin d'un nettoyage rapide ?</h2>
-  <p>Contactez-nous dès maintenant</p>
   <a href="https://wa.me/21621477790">💬 WhatsApp</a>
 </section>
 
-<section class="reviews" id="reviews">
-  <h2>Évaluez notre service</h2>
-  <div class="stars" id="stars">
-    <span data-value="1">⭐</span>
-    <span data-value="2">⭐</span>
-    <span data-value="3">⭐</span>
-    <span data-value="4">⭐</span>
-    <span data-value="5">⭐</span>
-  </div>
-
-  <form id="rating-form">
-    <input type="text" id="r-name" placeholder="Votre nom" required>
-    <input type="email" id="r-email" placeholder="Votre email" required>
-    <button type="submit">Envoyer</button>
-  </form>
-  <p id="rating-msg"></p>
+<section class="reviews reveal">
+  <h2>Votre confiance ⭐</h2>
 </section>
 
-<section class="contact" id="contact">
+<section class="contact reveal">
   <h2>Contact</h2>
   <a href="tel:+21624598941">📞 +216 24 598 941</a>
   <a href="tel:+21651084442">📞 +216 51 084 442</a>
-  <a href="https://wa.me/21621477790">💬 WhatsApp</a>
 </section>
 
 <script>
-const toggle = document.getElementById('sidebar-toggle');
-const sidebar = document.getElementById('sidebar-menu');
-toggle.onclick = () => {
-  sidebar.style.right = sidebar.style.right === '0px' ? '-260px' : '0';
-};
-
-let selectedRating = 0;
-const stars = document.querySelectorAll('#stars span');
-const ratingForm = document.getElementById('rating-form');
-const ratingMsg = document.getElementById('rating-msg');
-
-stars.forEach(star => {
-  star.onclick = () => {
-    selectedRating = star.dataset.value;
-    stars.forEach(s => s.classList.toggle('selected', s.dataset.value <= selectedRating));
-    ratingForm.style.display = 'block';
-  };
-});
-
-ratingForm.onsubmit = e => {
-  e.preventDefault();
-  if (!selectedRating) return;
-
-  db.collection("ratings").add({
-    name: r-name.value,
-    email: r-email.value,
-    rating: Number(selectedRating),
-    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-  }).then(() => {
-    ratingMsg.textContent = "Merci pour votre avis ⭐";
-    ratingForm.reset();
-    ratingForm.style.display = "none";
-    stars.forEach(s => s.classList.remove('selected'));
-    selectedRating = 0;
-  });
-};
+const items=document.querySelectorAll('.reveal');
+function show(){
+  const t=window.innerHeight*.85;
+  items.forEach(i=>{
+    if(i.getBoundingClientRect().top<t){
+      i.classList.add('show')
+    }
+  })
+}
+window.addEventListener('scroll',show);
+show();
 </script>
 
 </body>
