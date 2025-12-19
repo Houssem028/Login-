@@ -9,9 +9,6 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 
-<!-- Font Awesome for social icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-papd9BrN+k8cZJ9q5l+FqPPpG2G0TqDl3Z4v+Oe1E7U6C+T+6eHC+hi0qEXKlhIv4fFbzDA6Z1Fx6bJ5b+eo0w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-
 <style>
 /* ===== Reset ===== */
 * {
@@ -126,7 +123,10 @@ body {
   transition: all 0.8s ease;
 }
 
-.hero.show { opacity: 1; transform: translateY(0); }
+.hero.show {
+  opacity: 1;
+  transform: translateY(0);
+}
 
 .hero h1 {
   font-size: 36px;
@@ -166,8 +166,13 @@ body {
   border-radius: 12px;
   z-index: 1;
 }
-.hero .btn:hover::after { left: 100%; }
-.hero .btn:hover { transform: translateY(-3px); box-shadow: 0 16px 40px rgba(0,0,0,0.35); }
+.hero .btn:hover::after {
+  left: 100%;
+}
+.hero .btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 40px rgba(0,0,0,0.35);
+}
 
 @keyframes fadeInDown {
   0% { opacity: 0; transform: translateY(-30px); }
@@ -184,7 +189,9 @@ body {
   box-shadow: 0 18px 45px rgba(0,0,0,0.25);
   transition: transform 0.5s;
 }
-.hero img:hover { transform: scale(1.02); }
+.hero img:hover {
+  transform: scale(1.02);
+}
 
 /* ===== Services ===== */
 .services {
@@ -196,8 +203,18 @@ body {
 }
 .services.show { opacity: 1; transform: translateY(0); }
 
-.services h2 { font-size: 34px; color: #0a5cff; margin-bottom: 35px; }
-.services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 28px; }
+.services h2 {
+  font-size: 34px;
+  color: #0a5cff;
+  margin-bottom: 35px;
+}
+
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 28px;
+}
+
 .service {
   background: #fff;
   border-radius: 18px;
@@ -207,11 +224,25 @@ body {
   opacity: 0;
   transform: translateY(30px);
 }
-.service.show { opacity: 1; transform: translateY(0); }
-.service:hover { transform: translateY(-8px); }
-.service img { width: 100%; height: 180px; object-fit: cover; }
-.service h3 { color: #0a5cff; margin: 18px; }
-.service p { padding: 0 18px 22px; }
+.service.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+.service:hover {
+  transform: translateY(-8px);
+}
+.service img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+}
+.service h3 {
+  color: #0a5cff;
+  margin: 18px;
+}
+.service p {
+  padding: 0 18px 22px;
+}
 
 /* ===== CTA ===== */
 .cta {
@@ -224,6 +255,7 @@ body {
   transition: all 0.8s ease;
 }
 .cta.show { opacity: 1; transform: translateY(0); }
+
 .cta a {
   background: #fff;
   color: #003f88;
@@ -250,48 +282,71 @@ body {
 .cta a:hover { transform: translateY(-3px); box-shadow: 0 16px 40px rgba(0,0,0,0.35); }
 
 /* ===== Reviews ===== */
-.reviews { padding: 60px 25px; text-align: center; opacity: 0; transform: translateY(40px); transition: all 0.8s ease; }
+.reviews {
+  padding: 60px 25px;
+  text-align: center;
+  opacity: 0;
+  transform: translateY(40px);
+  transition: all 0.8s ease;
+}
 .reviews.show { opacity: 1; transform: translateY(0); }
-.stars span { font-size: 34px; cursor: pointer; transition: transform 0.3s ease; }
-.stars span:hover { transform: scale(1.3) rotate(-10deg); }
 
-#rating-form { display: none; max-width: 420px; margin: 20px auto; }
-#rating-form input { width: 100%; padding: 12px; margin: 8px 0; border-radius: 10px; border: 1px solid #ddd; }
-#rating-form button { width: 100%; padding: 12px; border-radius: 10px; border: none; background: linear-gradient(90deg, #0a5cff, #00c6ff); color: #fff; font-weight: 700; }
+.stars span {
+  font-size: 34px;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+.stars span:hover {
+  transform: scale(1.3) rotate(-10deg);
+}
+
+#rating-form {
+  display: none;
+  max-width: 420px;
+  margin: 20px auto;
+}
+#rating-form input {
+  width: 100%;
+  padding: 12px;
+  margin: 8px 0;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+}
+#rating-form button {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  background: linear-gradient(90deg, #0a5cff, #00c6ff);
+  color: #fff;
+  font-weight: 700;
+}
 
 /* ===== Contact ===== */
-.contact { padding: 60px 25px; text-align: center; opacity: 0; transform: translateY(40px); transition: all 0.8s ease; }
+.contact {
+  padding: 60px 25px;
+  text-align: center;
+  opacity: 0;
+  transform: translateY(40px);
+  transition: all 0.8s ease;
+}
 .contact.show { opacity: 1; transform: translateY(0); }
-.contact a { display: block; margin: 10px; color: #0a5cff; font-weight: 700; }
 
-/* ===== Social Bar ===== */
-.social-bar {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  background: #0b1f33;
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-  padding: 10px 0;
-  box-shadow: 0 -4px 12px rgba(0,0,0,0.25);
-  z-index: 999;
-}
-.social-bar a {
-  color: #fff;
-  font-size: 22px;
-  transition: transform 0.3s, color 0.3s;
-}
-.social-bar a:hover {
-  transform: scale(1.2);
-  color: #00c6ff;
+.contact a {
+  display: block;
+  margin: 10px;
+  color: #0a5cff;
+  font-weight: 700;
 }
 
 /* ===== Responsive ===== */
 @media (max-width: 768px) {
-  .hero { grid-template-columns: 1fr; }
-  .hero h1 { font-size: 28px; }
+  .hero {
+    grid-template-columns: 1fr;
+  }
+  .hero h1 {
+    font-size: 28px;
+  }
 }
 </style>
 
@@ -389,18 +444,12 @@ const db = firebase.firestore();
   <a href="https://wa.me/21621477790">💬 WhatsApp</a>
 </section>
 
-<!-- ===== Social Bar ===== -->
-<section class="social-bar">
-  <a href="https://www.facebook.com/share/161Qyaz5Gq/" target="_blank"><i class="fab fa-facebook-f"></i></a>
-  <a href="#"><i class="fab fa-twitter"></i></a>
-  <a href="#"><i class="fab fa-instagram"></i></a>
-  <a href="#"><i class="fab fa-linkedin-in"></i></a>
-</section>
-
 <script>
 const toggle = document.getElementById('sidebar-toggle');
 const sidebar = document.getElementById('sidebar-menu');
-toggle.onclick = () => { sidebar.style.right = sidebar.style.right === '0px' ? '-260px' : '0'; };
+toggle.onclick = () => {
+  sidebar.style.right = sidebar.style.right === '0px' ? '-260px' : '0';
+};
 
 let selectedRating = 0;
 const stars = document.querySelectorAll('#stars span');
@@ -445,4 +494,8 @@ function revealOnScroll() {
   });
 }
 window.addEventListener('scroll', revealOnScroll);
-window.addEventListener('load', revealOn
+window.addEventListener('load', revealOnScroll);
+</script>
+
+</body>
+</html>
