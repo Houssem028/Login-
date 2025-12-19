@@ -5,9 +5,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Réserver un service - ASH</title>
 
-<!-- Leaflet -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
 <!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
@@ -19,16 +18,13 @@ body{
   font-family:Poppins,Arial,sans-serif;
   background:linear-gradient(135deg,#eef3ff,#f9fbff);
 }
-
 header{
   background:linear-gradient(135deg,#0b1f33,#102f4f);
   color:#fff;
   padding:18px;
   text-align:center;
   font-weight:700;
-  font-size:20px;
 }
-
 main{
   max-width:650px;
   margin:30px auto;
@@ -37,13 +33,7 @@ main{
   border-radius:14px;
   box-shadow:0 12px 30px rgba(0,0,0,0.15);
 }
-
-label{
-  font-weight:700;
-  margin-top:15px;
-  display:block;
-}
-
+label{font-weight:700;margin-top:14px;display:block;}
 input,select,button{
   width:100%;
   padding:12px;
@@ -51,29 +41,22 @@ input,select,button{
   border-radius:8px;
   border:1px solid #ccc;
 }
-
 button{
-  background:linear-gradient(90deg,#0a5cff,#00c6ff);
+  background:#0a5cff;
   color:#fff;
   font-weight:700;
   border:none;
-  margin-top:20px;
   cursor:pointer;
+  margin-top:15px;
 }
-
 #booking-map{
-  height:300px;
+  height:320px;          /* مهم جدًا */
+  width:100%;
   margin-top:10px;
   border-radius:12px;
-  border:1px solid #ddd;
+  border:1px solid #ccc;
 }
-
-#msg,#map-msg{
-  margin-top:12px;
-  font-weight:700;
-}
-
-/* زر الرجوع */
+#map-msg,#msg{margin-top:10px;font-weight:700;}
 .back-home{
   position:fixed;
   left:15px;
@@ -83,9 +66,8 @@ button{
   color:#fff;
   padding:12px 14px;
   border-radius:12px;
-  font-weight:700;
   text-decoration:none;
-  box-shadow:0 8px 20px rgba(0,0,0,0.3);
+  font-weight:700;
 }
 </style>
 </head>
@@ -100,22 +82,17 @@ button{
 <h2>Réservez votre service</h2>
 
 <form id="booking-form">
-
 <label>Nom *</label>
 <input id="name" required>
 
 <label>Téléphone *</label>
 <input id="phone" required>
 
-<label>Email</label>
-<input id="email">
-
 <label>Service *</label>
 <select id="service" required>
   <option disabled selected>Choisir un service</option>
   <option>Nettoyage des vitres</option>
   <option>Nettoyage des façades</option>
-  <option>Services réguliers</option>
 </select>
 
 <label>Adresse *</label>
@@ -127,17 +104,19 @@ button{
 <label>Heure *</label>
 <input type="time" id="time" required>
 
-<label>Choisissez votre position</label>
+<label>Localisation</label>
 <div id="booking-map"></div>
 <p id="map-msg">📍 Cliquez sur la carte ou utilisez le GPS</p>
 
-<button type="button" onclick="detectLocation()">📡 Détecter ma position</button>
-<button type="submit">Envoyer la réservation</button>
-
+<button type="button" onclick="detectLocation()">📡 Utiliser le GPS</button>
+<button type="submit">Envoyer</button>
 </form>
 
 <p id="msg"></p>
 </main>
+
+<!-- Leaflet JS (ضعه هنا فقط) -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
 // Firebase
@@ -148,61 +127,65 @@ firebase.initializeApp({
 });
 const db=firebase.firestore();
 
-// Map
-let lat=null,lng=null,marker=null;
-const map=L.map('booking-map').setView([36.8,10.18],12);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+let map,marker,lat=null,lng=null;
 
-// ⭐ حل مشكلة عدم الظهور
-setTimeout(()=>{ map.invalidateSize(); },300);
+// 🔥 إنشاء الخريطة بعد تحميل الصفحة
+window.onload=()=>{
+  setTimeout(()=>{
+    map=L.map('booking-map').setView([36.8,10.18],12);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+      attribution:'© OpenStreetMap'
+    }).addTo(map);
 
-// اختيار يدوي
-map.on('click',e=>{
- lat=e.latlng.lat;
- lng=e.latlng.lng;
- if(marker)marker.remove();
- marker=L.marker([lat,lng]).addTo(map);
- document.getElementById("map-msg").textContent="✔ Position sélectionnée manuellement";
-});
+    map.invalidateSize(); // الحل السحري
+
+    map.on('click',e=>{
+      lat=e.latlng.lat;
+      lng=e.latlng.lng;
+      if(marker)marker.remove();
+      marker=L.marker([lat,lng]).addTo(map);
+      map-msg.textContent="✔ Position choisie manuellement";
+    });
+  },300);
+};
 
 // GPS
 function detectLocation(){
- if(!navigator.geolocation){
-  map-msg.textContent="❌ GPS غير مدعوم";
-  return;
- }
- navigator.geolocation.getCurrentPosition(pos=>{
-  lat=pos.coords.latitude;
-  lng=pos.coords.longitude;
-  map.setView([lat,lng],15);
-  if(marker)marker.remove();
-  marker=L.marker([lat,lng]).addTo(map);
-  map.invalidateSize();
-  map-msg.textContent="✔ Position détectée automatiquement";
- });
+  if(!navigator.geolocation){
+    map-msg.textContent="❌ GPS غير مدعوم";
+    return;
+  }
+  navigator.geolocation.getCurrentPosition(pos=>{
+    lat=pos.coords.latitude;
+    lng=pos.coords.longitude;
+    map.setView([lat,lng],15);
+    if(marker)marker.remove();
+    marker=L.marker([lat,lng]).addTo(map);
+    map.invalidateSize();
+    map-msg.textContent="✔ Position détectée automatiquement";
+  });
 }
 
 // Submit
-document.getElementById("booking-form").onsubmit=e=>{
- e.preventDefault();
- if(lat===null){
-  map-msg.textContent="❌ اختر الموقع أولًا";
-  return;
- }
- db.collection("bookings").add({
-  name:name.value,
-  phone:phone.value,
-  email:email.value||"—",
-  service:service.value,
-  address:address.value,
-  date:date.value,
-  time:time.value,
-  lat,lng,
-  createdAt:new Date()
- }).then(()=>{
-  msg.textContent="✔ Réservation envoyée avec succès";
-  e.target.reset();
- });
+booking-form.onsubmit=e=>{
+  e.preventDefault();
+  if(lat===null){
+    map-msg.textContent="❌ اختر الموقع أولًا";
+    return;
+  }
+  db.collection("bookings").add({
+    name:name.value,
+    phone:phone.value,
+    service:service.value,
+    address:address.value,
+    date:date.value,
+    time:time.value,
+    lat,lng,
+    createdAt:new Date()
+  }).then(()=>{
+    msg.textContent="✔ Réservation envoyée";
+    e.target.reset();
+  });
 };
 </script>
 
