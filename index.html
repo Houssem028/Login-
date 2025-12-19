@@ -29,16 +29,12 @@ body {
   position: fixed;
   top: 0; left: 0; right: 0;
   z-index: 999;
-
   display: flex;
   align-items: center;
   gap: 14px;
-
   padding: 12px 22px;
-
   background: linear-gradient(135deg, #0b1f33, #102f4f);
   border-bottom: 1px solid rgba(0, 200, 255, 0.25);
-
   box-shadow: 0 10px 30px rgba(0,0,0,0.45);
 }
 
@@ -49,6 +45,13 @@ body {
   padding: 4px;
   background: #081a2f;
   box-shadow: 0 0 18px rgba(0, 200, 255, 0.6);
+  animation: logoPulse 3s infinite ease-in-out;
+}
+
+@keyframes logoPulse {
+  0% { box-shadow: 0 0 18px rgba(0,200,255,0.5); }
+  50% { box-shadow: 0 0 28px rgba(0,200,255,0.9); }
+  100% { box-shadow: 0 0 18px rgba(0,200,255,0.5); }
 }
 
 .navbar h1 {
@@ -115,21 +118,29 @@ body {
   gap: 35px;
   align-items: center;
   padding: 50px 25px;
+  opacity: 0;
+  transform: translateY(40px);
+  transition: all 0.8s ease;
+}
+
+.hero.show {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .hero h1 {
   font-size: 36px;
   color: #0a5cff;
   margin-bottom: 16px;
+  animation: fadeInDown 1s ease forwards;
 }
-
 .hero p {
   font-size: 18px;
   margin-bottom: 28px;
   color: #555;
+  animation: fadeInDown 1s 0.3s ease forwards;
 }
-
-.btn {
+.hero .btn {
   background: linear-gradient(90deg, #0a5cff, #00c6ff);
   color: #fff;
   padding: 14px 26px;
@@ -138,24 +149,59 @@ body {
   box-shadow: 0 12px 30px rgba(10,92,255,0.45);
   transition: 0.25s;
   display: inline-block;
+  animation: fadeInUp 1s 0.6s ease forwards;
+  position: relative;
+  overflow: hidden;
 }
 
-.btn:hover {
+.hero .btn::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(120deg, transparent, rgba(255,255,255,0.4), transparent);
+  transition: 0.6s;
+  border-radius: 12px;
+  z-index: 1;
+}
+.hero .btn:hover::after {
+  left: 100%;
+}
+.hero .btn:hover {
   transform: translateY(-3px);
   box-shadow: 0 16px 40px rgba(0,0,0,0.35);
+}
+
+@keyframes fadeInDown {
+  0% { opacity: 0; transform: translateY(-30px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeInUp {
+  0% { opacity: 0; transform: translateY(30px); }
+  100% { opacity: 1; transform: translateY(0); }
 }
 
 .hero img {
   width: 100%;
   border-radius: 20px;
   box-shadow: 0 18px 45px rgba(0,0,0,0.25);
+  transition: transform 0.5s;
+}
+.hero img:hover {
+  transform: scale(1.02);
 }
 
 /* ===== Services ===== */
 .services {
   padding: 60px 25px;
   text-align: center;
+  opacity: 0;
+  transform: translateY(40px);
+  transition: all 0.8s ease;
 }
+.services.show { opacity: 1; transform: translateY(0); }
 
 .services h2 {
   font-size: 34px;
@@ -174,24 +220,26 @@ body {
   border-radius: 18px;
   overflow: hidden;
   box-shadow: 0 10px 26px rgba(0,0,0,0.08);
-  transition: .35s;
+  transition: transform .35s, opacity 0.6s;
+  opacity: 0;
+  transform: translateY(30px);
 }
-
+.service.show {
+  opacity: 1;
+  transform: translateY(0);
+}
 .service:hover {
   transform: translateY(-8px);
 }
-
 .service img {
   width: 100%;
   height: 180px;
   object-fit: cover;
 }
-
 .service h3 {
   color: #0a5cff;
   margin: 18px;
 }
-
 .service p {
   padding: 0 18px 22px;
 }
@@ -202,7 +250,11 @@ body {
   color: #fff;
   padding: 60px 25px;
   text-align: center;
+  opacity: 0;
+  transform: translateY(40px);
+  transition: all 0.8s ease;
 }
+.cta.show { opacity: 1; transform: translateY(0); }
 
 .cta a {
   background: #fff;
@@ -210,21 +262,42 @@ body {
   padding: 14px 30px;
   border-radius: 12px;
   font-weight: 700;
+  text-decoration: none;
+  display: inline-block;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
 }
+.cta a::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(120deg, transparent, rgba(255,255,255,0.4), transparent);
+  transition: 0.6s;
+}
+.cta a:hover::after { left: 100%; }
+.cta a:hover { transform: translateY(-3px); box-shadow: 0 16px 40px rgba(0,0,0,0.35); }
 
 /* ===== Reviews ===== */
 .reviews {
   padding: 60px 25px;
   text-align: center;
+  opacity: 0;
+  transform: translateY(40px);
+  transition: all 0.8s ease;
 }
+.reviews.show { opacity: 1; transform: translateY(0); }
 
 .stars span {
   font-size: 34px;
   cursor: pointer;
+  transition: transform 0.3s ease;
 }
-
-.stars span.selected {
-  color: gold;
+.stars span:hover {
+  transform: scale(1.3) rotate(-10deg);
 }
 
 #rating-form {
@@ -232,7 +305,6 @@ body {
   max-width: 420px;
   margin: 20px auto;
 }
-
 #rating-form input {
   width: 100%;
   padding: 12px;
@@ -240,7 +312,6 @@ body {
   border-radius: 10px;
   border: 1px solid #ddd;
 }
-
 #rating-form button {
   width: 100%;
   padding: 12px;
@@ -255,7 +326,11 @@ body {
 .contact {
   padding: 60px 25px;
   text-align: center;
+  opacity: 0;
+  transform: translateY(40px);
+  transition: all 0.8s ease;
 }
+.contact.show { opacity: 1; transform: translateY(0); }
 
 .contact a {
   display: block;
@@ -406,6 +481,20 @@ ratingForm.onsubmit = e => {
     selectedRating = 0;
   });
 };
+
+// ===== Scroll Reveal =====
+function revealOnScroll() {
+  const sections = document.querySelectorAll('.hero, .services, .cta, .reviews, .contact, .service');
+  const windowHeight = window.innerHeight;
+  sections.forEach(section => {
+    const sectionTop = section.getBoundingClientRect().top;
+    if(sectionTop < windowHeight - 100){
+      section.classList.add('show');
+    }
+  });
+}
+window.addEventListener('scroll', revealOnScroll);
+window.addEventListener('load', revealOnScroll);
 </script>
 
 </body>
