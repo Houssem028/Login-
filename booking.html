@@ -7,179 +7,210 @@
 
 <!-- Leaflet CSS -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-
-<!-- Firebase -->
+<!-- Firebase Compat -->
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+<!-- EmailJS -->
+<script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
 
 <style>
-body{
-  margin:0;
-  font-family:Arial,sans-serif;
-  background:#f4f6fb;
+body {
+  font-family: Arial, sans-serif;
+  margin:0; padding:0;
+  background:#f5f7fa;
+  color:#333;
 }
-header{
+header {
   background:#0a3cff;
-  color:#fff;
+  color:white;
   text-align:center;
-  padding:18px;
+  padding:20px;
+  font-size:20px;
   font-weight:bold;
 }
-main{
+main {
   max-width:600px;
-  margin:25px auto;
-  background:#fff;
+  margin:30px auto;
+  background:white;
   padding:25px;
   border-radius:12px;
+  box-shadow:0 8px 20px rgba(0,0,0,0.1);
 }
-label{display:block;margin-top:15px;font-weight:bold;}
-input,select,button{
+label {
+  display:block;
+  margin-top:15px;
+  font-weight:bold;
+}
+input, select, button {
   width:100%;
   padding:10px;
-  margin-top:6px;
+  margin-top:5px;
   border-radius:6px;
   border:1px solid #ccc;
+  box-sizing:border-box;
 }
-button{
+button {
   background:#0a3cff;
-  color:#fff;
+  color:white;
   border:none;
   font-weight:bold;
-  margin-top:15px;
   cursor:pointer;
+  margin-top:20px;
 }
-#booking-map{
+button:hover { background:#084dcc; }
+#booking-map {
   height:300px;
-  width:100%;
+  border:1px solid #ddd;
+  border-radius:10px;
   margin-top:10px;
-  border-radius:10px;
-  border:1px solid #ccc;
 }
-#map-msg,#msg{margin-top:10px;font-weight:bold;}
-.back{
-  position:fixed;
-  left:15px;
-  top:50%;
-  transform:translateY(-50%);
-  background:#0a3cff;
-  color:#fff;
-  padding:12px;
-  border-radius:10px;
-  text-decoration:none;
+#msg, #map-msg {
+  margin-top:15px;
   font-weight:bold;
+}
+
+/* ===== زر الرجوع للرئيسية (مضاف فقط) ===== */
+.back-home {
+  position: fixed;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: #0a3cff;
+  color: #fff;
+  padding: 12px 14px;
+  border-radius: 12px;
+  font-weight: bold;
+  text-decoration: none;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.25);
+  z-index: 999;
+}
+.back-home:hover {
+  background:#084dcc;
 }
 </style>
 </head>
 
 <body>
 
-<a href="index.html" class="back">← Accueil</a>
+<!-- زر الرجوع -->
+<a href="index.html" class="back-home">⬅ Accueil</a>
 
-<header>ASH Window Cleaning – Réservation</header>
+<header>ASH Window Cleaning - Réservation</header>
 
 <main>
-<form id="booking-form">
+  <h2>Réservez votre service maintenant</h2>
 
-<label>Nom *</label>
-<input id="name" required>
+  <form id="booking-form">
+    <label>Nom *</label>
+    <input type="text" id="name" required placeholder="Votre nom">
 
-<label>Téléphone *</label>
-<input id="phone" required>
+    <label>Téléphone *</label>
+    <input type="tel" id="phone" required placeholder="Ex: 21612345678">
 
-<label>Service *</label>
-<select id="service" required>
-<option disabled selected>Choisir un service</option>
-<option>Nettoyage des vitres</option>
-<option>Nettoyage des façades</option>
-</select>
+    <label>Email</label>
+    <input type="email" id="email" placeholder="Optionnel">
 
-<label>Adresse *</label>
-<input id="address" required>
+    <label>Service *</label>
+    <select id="service" required>
+      <option disabled selected>Choisir un service</option>
+      <option>Nettoyage des vitres</option>
+      <option>Nettoyage des façades</option>
+      <option>Services réguliers</option>
+    </select>
 
-<label>Date *</label>
-<input type="date" id="date" required>
+    <label>Adresse *</label>
+    <input type="text" id="address" required placeholder="Votre adresse">
 
-<label>Heure *</label>
-<input type="time" id="time" required>
+    <label>Date *</label>
+    <input type="date" id="date" required>
 
-<label>Localisation</label>
-<div id="booking-map"></div>
-<p id="map-msg">📍 Cliquez sur la carte ou utilisez le GPS</p>
+    <label>Heure *</label>
+    <input type="time" id="time" required>
 
-<button type="button" id="gpsBtn">📡 Utiliser le GPS</button>
-<button type="submit">Envoyer</button>
+    <label>Votre position actuelle</label>
+    <div id="booking-map"></div>
+    <p id="map-msg">Détection de votre position...</p>
 
-</form>
+    <button type="submit">Envoyer la réservation</button>
+  </form>
 
-<p id="msg"></p>
+  <p id="msg"></p>
 </main>
 
 <!-- Leaflet JS -->
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-
 <script>
-// Firebase
-firebase.initializeApp({
-  apiKey:"AIzaSyAJxzFknapSh0fnPfIXwEEK3OijSKlqxco",
-  authDomain:"admin-ash-f622c.firebaseapp.com",
-  projectId:"admin-ash-f622c"
-});
-const db=firebase.firestore();
-
-// ===== نفس كود الخريطة القديم =====
-let lat=null,lng=null,marker=null;
-
-const map=L.map('booking-map').setView([36.8,10.18],12);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
-  maxZoom:19
-}).addTo(map);
-
-// اختيار يدوي
-map.on('click',e=>{
-  lat=e.latlng.lat;
-  lng=e.latlng.lng;
-  if(marker)marker.remove();
-  marker=L.marker([lat,lng]).addTo(map);
-  document.getElementById("map-msg").textContent="✔ Position choisie manuellement";
-});
-
-// GPS
-document.getElementById("gpsBtn").onclick=()=>{
-  if(!navigator.geolocation){
-    map-msg.textContent="❌ GPS غير مدعوم";
-    return;
-  }
-  navigator.geolocation.getCurrentPosition(pos=>{
-    lat=pos.coords.latitude;
-    lng=pos.coords.longitude;
-    map.setView([lat,lng],15);
-    if(marker)marker.remove();
-    marker=L.marker([lat,lng]).addTo(map);
-    map-msg.textContent="✔ Position détectée automatiquement";
-  });
+// ===== Firebase Config =====
+const firebaseConfig = {
+  apiKey: "AIzaSyAJxzFknapSh0fnPfIXwEEK3OijSKlqxco",
+  authDomain: "admin-ash-f622c.firebaseapp.com",
+  projectId: "admin-ash-f622c",
+  storageBucket: "admin-ash-f622c.appspot.com",
+  messagingSenderId: "76505742154",
+  appId: "1:76505742154:web:dc4f190f9f2de80acb1fb3"
 };
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 
-// Submit
-booking-form.onsubmit=e=>{
+// EmailJS Init
+emailjs.init("dKDZhGvgDZ2OwDlZF");
+
+// ===== Leaflet Map =====
+let lat = null, lng = null;
+const bookingMap = L.map('booking-map').setView([36.8, 10.18], 12);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(bookingMap);
+
+if(navigator.geolocation){
+  navigator.geolocation.getCurrentPosition(
+    position => {
+      lat = position.coords.latitude;
+      lng = position.coords.longitude;
+      bookingMap.setView([lat, lng], 15);
+      L.marker([lat, lng]).addTo(bookingMap)
+        .bindPopup("Votre position actuelle").openPopup();
+      document.getElementById("map-msg").textContent =
+        "✔ Position détectée automatiquement";
+    },
+    err => {
+      document.getElementById("map-msg").textContent =
+        "❌ Impossible de détecter votre position";
+    }
+  );
+} else {
+  document.getElementById("map-msg").textContent =
+    "❌ Votre appareil ne supporte pas la géolocalisation";
+}
+
+// ===== Form Submit =====
+document.getElementById("booking-form").addEventListener("submit", function(e){
   e.preventDefault();
-  if(lat===null){
-    map-msg.textContent="❌ اختر الموقع أولًا";
+
+  if(lat === null || lng === null){
+    document.getElementById("map-msg").textContent =
+      "❌ Position non détectée";
     return;
   }
-  db.collection("bookings").add({
-    name:name.value,
-    phone:phone.value,
-    service:service.value,
-    address:address.value,
-    date:date.value,
-    time:time.value,
-    lat,lng,
-    createdAt:new Date()
-  }).then(()=>{
-    msg.textContent="✔ Réservation envoyée";
-    e.target.reset();
+
+  const data = {
+    name: name.value,
+    phone: phone.value,
+    email: email.value || "Non fourni",
+    service: service.value,
+    address: address.value,
+    date: date.value,
+    time: time.value,
+    lat: lat,
+    lng: lng,
+    createdAt: new Date()
+  };
+
+  db.collection("bookings").add(data).then(() => {
+    msg.textContent = "✔ Réservation envoyée avec succès!";
+    booking-form.reset();
+  }).catch(() => {
+    msg.textContent = "❌ Erreur lors de l'envoi!";
   });
-};
+});
 </script>
 
 </body>
