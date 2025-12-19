@@ -153,42 +153,35 @@ body {
   grid-template-columns: 1fr 1fr;
   gap: 35px;
   align-items: center;
-  padding: 50px 25px;
-  opacity: 0;
-  transform: translateY(30px);
-  transition: all 0.8s ease-out;
 }
-
-.hero.visible { opacity:1; transform:translateY(0); }
 
 .hero h1 {
   font-size: 36px;
   color: #0a5cff;
   margin-bottom: 16px;
+  position: sticky;
+  top: 20px;
+  z-index: 10;
+  background: rgba(255,255,255,0);
 }
 
-.hero p {
-  font-size: 18px;
-  margin-bottom: 28px;
-  color: #555;
+/* ===== Reveal Animation ===== */
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.8s ease-out;
 }
 
-.hero img {
-  width: 100%;
-  border-radius: 20px;
-  box-shadow: 0 18px 45px rgba(0,0,0,0.25);
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 /* ===== Services ===== */
 .services {
   padding: 60px 25px;
   text-align: center;
-  opacity:0;
-  transform: translateY(30px);
-  transition: all 0.8s ease-out;
 }
-
-.services.visible { opacity:1; transform:translateY(0); }
 
 .services-grid {
   display: grid;
@@ -202,11 +195,7 @@ body {
   overflow: hidden;
   box-shadow: 0 10px 26px rgba(0,0,0,0.08);
   transition: transform 0.35s, box-shadow 0.35s;
-  opacity:0;
-  transform: translateY(20px);
 }
-
-.service.visible { opacity:1; transform:translateY(0); }
 
 .service:hover {
   transform: translateY(-8px) scale(1.02);
@@ -228,32 +217,15 @@ body {
   color: #fff;
   padding: 60px 25px;
   text-align: center;
-  opacity:0;
-  transform:translateY(30px);
-  transition: all 0.8s ease-out;
 }
 
-.cta.visible { opacity:1; transform:translateY(0); }
-
-.cta a {
-  background: #fff;
-  color: #003f88;
-  padding: 14px 30px;
-  border-radius: 12px;
-  font-weight: 700;
-  text-decoration:none;
-}
+.cta a { background: #fff; color: #003f88; padding: 14px 30px; border-radius:12px; font-weight:700; text-decoration:none; }
 
 /* ===== Reviews ===== */
 .reviews {
   padding: 60px 25px;
   text-align: center;
-  opacity:0;
-  transform:translateY(30px);
-  transition: all 0.8s ease-out;
 }
-
-.reviews.visible { opacity:1; transform:translateY(0); }
 
 .stars span {
   font-size: 34px;
@@ -267,12 +239,7 @@ body {
 .contact {
   padding: 60px 25px;
   text-align: center;
-  opacity:0;
-  transform:translateY(30px);
-  transition: all 0.8s ease-out;
 }
-
-.contact.visible { opacity:1; transform:translateY(0); }
 
 .contact a {
   display: block;
@@ -298,7 +265,6 @@ body {
   .hero { grid-template-columns: 1fr; }
   .hero h1 { font-size:28px; }
 }
-
 </style>
 
 <!-- Firebase -->
@@ -334,13 +300,19 @@ const db = firebase.firestore();
   <a href="#contact">Contact</a>
 </nav>
 
-<section class="hero reveal">
-  <div>
+<section class="hero">
+  <div class="reveal" style="transition-delay: 0s;">
     <h1>Nettoyage de vitres professionnel</h1>
+  </div>
+  <div class="reveal" style="transition-delay: 0.2s;">
     <p>Maisons, commerces et bureaux – résultat impeccable garanti.</p>
+  </div>
+  <div class="reveal" style="transition-delay: 0.4s;">
     <a href="booking.html" class="btn">Devis gratuit</a>
   </div>
-  <img src="Pic1.jpg" alt="Window Cleaning">
+  <div class="reveal" style="transition-delay: 0.6s;">
+    <img src="Pic1.jpg" alt="Window Cleaning">
+  </div>
 </section>
 
 <section class="services reveal">
@@ -396,12 +368,14 @@ const db = firebase.firestore();
 </section>
 
 <script>
+// Sidebar toggle
 const toggle = document.getElementById('sidebar-toggle');
 const sidebar = document.getElementById('sidebar-menu');
 toggle.onclick = () => {
   sidebar.style.right = sidebar.style.right === '0px' ? '-260px' : '0';
 };
 
+// Rating stars
 let selectedRating = 0;
 const stars = document.querySelectorAll('#stars span');
 const ratingForm = document.getElementById('rating-form');
@@ -433,7 +407,7 @@ ratingForm.onsubmit = e => {
   });
 };
 
-// ===== Scroll Reveal =====
+// Scroll reveal
 const reveals = document.querySelectorAll('.reveal');
 const revealOnScroll = () => {
   const windowHeight = window.innerHeight;
@@ -447,4 +421,4 @@ window.addEventListener('load', revealOnScroll);
 </script>
 
 </body>
-</html>
+      </html>
