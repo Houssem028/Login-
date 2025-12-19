@@ -6,7 +6,7 @@
 <title>Réserver un service - ASH</title>
 
 <!-- Leaflet CSS -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 
 <!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
@@ -15,73 +15,71 @@
 <style>
 body{
   margin:0;
-  font-family:Poppins,Arial,sans-serif;
-  background:linear-gradient(135deg,#eef3ff,#f9fbff);
+  font-family:Arial,sans-serif;
+  background:#f4f6fb;
 }
 header{
-  background:linear-gradient(135deg,#0b1f33,#102f4f);
+  background:#0a3cff;
   color:#fff;
-  padding:18px;
   text-align:center;
-  font-weight:700;
+  padding:18px;
+  font-weight:bold;
 }
 main{
-  max-width:650px;
-  margin:30px auto;
+  max-width:600px;
+  margin:25px auto;
   background:#fff;
   padding:25px;
-  border-radius:14px;
-  box-shadow:0 12px 30px rgba(0,0,0,0.15);
+  border-radius:12px;
 }
-label{font-weight:700;margin-top:14px;display:block;}
+label{display:block;margin-top:15px;font-weight:bold;}
 input,select,button{
   width:100%;
-  padding:12px;
+  padding:10px;
   margin-top:6px;
-  border-radius:8px;
+  border-radius:6px;
   border:1px solid #ccc;
 }
 button{
-  background:#0a5cff;
+  background:#0a3cff;
   color:#fff;
-  font-weight:700;
   border:none;
-  cursor:pointer;
+  font-weight:bold;
   margin-top:15px;
+  cursor:pointer;
 }
 #booking-map{
-  height:320px;          /* مهم جدًا */
+  height:300px;
   width:100%;
   margin-top:10px;
-  border-radius:12px;
+  border-radius:10px;
   border:1px solid #ccc;
 }
-#map-msg,#msg{margin-top:10px;font-weight:700;}
-.back-home{
+#map-msg,#msg{margin-top:10px;font-weight:bold;}
+.back{
   position:fixed;
   left:15px;
   top:50%;
   transform:translateY(-50%);
-  background:#0a5cff;
+  background:#0a3cff;
   color:#fff;
-  padding:12px 14px;
-  border-radius:12px;
+  padding:12px;
+  border-radius:10px;
   text-decoration:none;
-  font-weight:700;
+  font-weight:bold;
 }
 </style>
 </head>
 
 <body>
 
-<a href="index.html" class="back-home">← Accueil</a>
+<a href="index.html" class="back">← Accueil</a>
 
 <header>ASH Window Cleaning – Réservation</header>
 
 <main>
-<h2>Réservez votre service</h2>
-
 <form id="booking-form">
+
 <label>Nom *</label>
 <input id="name" required>
 
@@ -90,9 +88,9 @@ button{
 
 <label>Service *</label>
 <select id="service" required>
-  <option disabled selected>Choisir un service</option>
-  <option>Nettoyage des vitres</option>
-  <option>Nettoyage des façades</option>
+<option disabled selected>Choisir un service</option>
+<option>Nettoyage des vitres</option>
+<option>Nettoyage des façades</option>
 </select>
 
 <label>Adresse *</label>
@@ -108,49 +106,45 @@ button{
 <div id="booking-map"></div>
 <p id="map-msg">📍 Cliquez sur la carte ou utilisez le GPS</p>
 
-<button type="button" onclick="detectLocation()">📡 Utiliser le GPS</button>
+<button type="button" id="gpsBtn">📡 Utiliser le GPS</button>
 <button type="submit">Envoyer</button>
+
 </form>
 
 <p id="msg"></p>
 </main>
 
-<!-- Leaflet JS (ضعه هنا فقط) -->
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
 <script>
 // Firebase
 firebase.initializeApp({
- apiKey:"AIzaSyAJxzFknapSh0fnPfIXwEEK3OijSKlqxco",
- authDomain:"admin-ash-f622c.firebaseapp.com",
- projectId:"admin-ash-f622c"
+  apiKey:"AIzaSyAJxzFknapSh0fnPfIXwEEK3OijSKlqxco",
+  authDomain:"admin-ash-f622c.firebaseapp.com",
+  projectId:"admin-ash-f622c"
 });
 const db=firebase.firestore();
 
-let map,marker,lat=null,lng=null;
+// ===== نفس كود الخريطة القديم =====
+let lat=null,lng=null,marker=null;
 
-// 🔥 إنشاء الخريطة بعد تحميل الصفحة
-window.onload=()=>{
-  setTimeout(()=>{
-    map=L.map('booking-map').setView([36.8,10.18],12);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
-      attribution:'© OpenStreetMap'
-    }).addTo(map);
+const map=L.map('booking-map').setView([36.8,10.18],12);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+  maxZoom:19
+}).addTo(map);
 
-    map.invalidateSize(); // الحل السحري
-
-    map.on('click',e=>{
-      lat=e.latlng.lat;
-      lng=e.latlng.lng;
-      if(marker)marker.remove();
-      marker=L.marker([lat,lng]).addTo(map);
-      map-msg.textContent="✔ Position choisie manuellement";
-    });
-  },300);
-};
+// اختيار يدوي
+map.on('click',e=>{
+  lat=e.latlng.lat;
+  lng=e.latlng.lng;
+  if(marker)marker.remove();
+  marker=L.marker([lat,lng]).addTo(map);
+  document.getElementById("map-msg").textContent="✔ Position choisie manuellement";
+});
 
 // GPS
-function detectLocation(){
+document.getElementById("gpsBtn").onclick=()=>{
   if(!navigator.geolocation){
     map-msg.textContent="❌ GPS غير مدعوم";
     return;
@@ -161,10 +155,9 @@ function detectLocation(){
     map.setView([lat,lng],15);
     if(marker)marker.remove();
     marker=L.marker([lat,lng]).addTo(map);
-    map.invalidateSize();
     map-msg.textContent="✔ Position détectée automatiquement";
   });
-}
+};
 
 // Submit
 booking-form.onsubmit=e=>{
