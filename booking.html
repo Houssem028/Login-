@@ -6,22 +6,74 @@
 <title>Réserver un service - ASH</title>
 
 <!-- Leaflet -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
 <!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
 
 <style>
-*{box-sizing:border-box}
 body{
   margin:0;
   font-family:Poppins,Arial,sans-serif;
   background:linear-gradient(135deg,#eef3ff,#f9fbff);
-  color:#333;
 }
 
-/* ===== Back Button ===== */
+header{
+  background:linear-gradient(135deg,#0b1f33,#102f4f);
+  color:#fff;
+  padding:18px;
+  text-align:center;
+  font-weight:700;
+  font-size:20px;
+}
+
+main{
+  max-width:650px;
+  margin:30px auto;
+  background:#fff;
+  padding:25px;
+  border-radius:14px;
+  box-shadow:0 12px 30px rgba(0,0,0,0.15);
+}
+
+label{
+  font-weight:700;
+  margin-top:15px;
+  display:block;
+}
+
+input,select,button{
+  width:100%;
+  padding:12px;
+  margin-top:6px;
+  border-radius:8px;
+  border:1px solid #ccc;
+}
+
+button{
+  background:linear-gradient(90deg,#0a5cff,#00c6ff);
+  color:#fff;
+  font-weight:700;
+  border:none;
+  margin-top:20px;
+  cursor:pointer;
+}
+
+#booking-map{
+  height:300px;
+  margin-top:10px;
+  border-radius:12px;
+  border:1px solid #ddd;
+}
+
+#msg,#map-msg{
+  margin-top:12px;
+  font-weight:700;
+}
+
+/* زر الرجوع */
 .back-home{
   position:fixed;
   left:15px;
@@ -31,84 +83,16 @@ body{
   color:#fff;
   padding:12px 14px;
   border-radius:12px;
+  font-weight:700;
   text-decoration:none;
-  font-size:18px;
-  box-shadow:0 8px 20px rgba(0,0,0,.3);
-  z-index:1000;
-}
-
-/* ===== Header ===== */
-header{
-  background:linear-gradient(135deg,#0b1f33,#102f4f);
-  color:#fff;
-  text-align:center;
-  padding:20px;
-  font-size:22px;
-  font-weight:700;
-}
-
-/* ===== Card ===== */
-main{
-  max-width:620px;
-  margin:40px auto;
-  background:#fff;
-  padding:25px;
-  border-radius:16px;
-  box-shadow:0 12px 30px rgba(0,0,0,.15);
-}
-
-h2{
-  color:#0a5cff;
-  margin-bottom:15px;
-}
-
-/* ===== Form ===== */
-label{
-  display:block;
-  margin-top:15px;
-  font-weight:600;
-}
-input,select,button{
-  width:100%;
-  padding:11px;
-  margin-top:6px;
-  border-radius:8px;
-  border:1px solid #ccc;
-}
-button{
-  background:linear-gradient(90deg,#0a5cff,#00c6ff);
-  color:#fff;
-  border:none;
-  font-weight:700;
-  cursor:pointer;
-  margin-top:20px;
-}
-button:hover{opacity:.9}
-
-#booking-map{
-  height:260px;
-  margin-top:10px;
-  border-radius:12px;
-  border:1px solid #ddd;
-}
-
-.small-btn{
-  background:#eee;
-  color:#0a5cff;
-  margin-top:8px;
-  font-weight:600;
-}
-
-#msg,#map-msg{
-  margin-top:12px;
-  font-weight:700;
+  box-shadow:0 8px 20px rgba(0,0,0,0.3);
 }
 </style>
 </head>
 
 <body>
 
-<a href="index.html" class="back-home">⬅</a>
+<a href="index.html" class="back-home">← Accueil</a>
 
 <header>ASH Window Cleaning – Réservation</header>
 
@@ -124,23 +108,18 @@ button:hover{opacity:.9}
 <input id="phone" required>
 
 <label>Email</label>
-<input id="email" type="email">
+<input id="email">
 
 <label>Service *</label>
 <select id="service" required>
-<option disabled selected>Choisir</option>
-<option>Nettoyage des vitres</option>
-<option>Nettoyage des façades</option>
-<option>Service régulier</option>
+  <option disabled selected>Choisir un service</option>
+  <option>Nettoyage des vitres</option>
+  <option>Nettoyage des façades</option>
+  <option>Services réguliers</option>
 </select>
 
-<label>Adresse (manuel)</label>
-<input id="address" placeholder="Optionnel si GPS utilisé">
-
-<label>Localisation</label>
-<div id="booking-map"></div>
-<button type="button" class="small-btn" onclick="detectLocation()">📍 Détecter ma position</button>
-<p id="map-msg"></p>
+<label>Adresse *</label>
+<input id="address" required>
 
 <label>Date *</label>
 <input type="date" id="date" required>
@@ -148,13 +127,18 @@ button:hover{opacity:.9}
 <label>Heure *</label>
 <input type="time" id="time" required>
 
+<label>Choisissez votre position</label>
+<div id="booking-map"></div>
+<p id="map-msg">📍 Cliquez sur la carte ou utilisez le GPS</p>
+
+<button type="button" onclick="detectLocation()">📡 Détecter ma position</button>
 <button type="submit">Envoyer la réservation</button>
+
 </form>
 
 <p id="msg"></p>
 </main>
 
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script>
 // Firebase
 firebase.initializeApp({
@@ -165,14 +149,26 @@ firebase.initializeApp({
 const db=firebase.firestore();
 
 // Map
-let lat=null,lng=null;
+let lat=null,lng=null,marker=null;
 const map=L.map('booking-map').setView([36.8,10.18],12);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-let marker=null;
 
+// ⭐ حل مشكلة عدم الظهور
+setTimeout(()=>{ map.invalidateSize(); },300);
+
+// اختيار يدوي
+map.on('click',e=>{
+ lat=e.latlng.lat;
+ lng=e.latlng.lng;
+ if(marker)marker.remove();
+ marker=L.marker([lat,lng]).addTo(map);
+ document.getElementById("map-msg").textContent="✔ Position sélectionnée manuellement";
+});
+
+// GPS
 function detectLocation(){
  if(!navigator.geolocation){
-  map-msg.textContent="❌ GPS non supporté";
+  map-msg.textContent="❌ GPS غير مدعوم";
   return;
  }
  navigator.geolocation.getCurrentPosition(pos=>{
@@ -181,28 +177,31 @@ function detectLocation(){
   map.setView([lat,lng],15);
   if(marker)marker.remove();
   marker=L.marker([lat,lng]).addTo(map);
+  map.invalidateSize();
   map-msg.textContent="✔ Position détectée automatiquement";
- },()=>{
-  map-msg.textContent="❌ Autorisation GPS refusée";
  });
 }
 
 // Submit
-booking-form.onsubmit=e=>{
+document.getElementById("booking-form").onsubmit=e=>{
  e.preventDefault();
+ if(lat===null){
+  map-msg.textContent="❌ اختر الموقع أولًا";
+  return;
+ }
  db.collection("bookings").add({
   name:name.value,
   phone:phone.value,
   email:email.value||"—",
   service:service.value,
-  address:address.value||"GPS",
-  lat,lng,
+  address:address.value,
   date:date.value,
   time:time.value,
+  lat,lng,
   createdAt:new Date()
  }).then(()=>{
   msg.textContent="✔ Réservation envoyée avec succès";
-  booking-form.reset();
+  e.target.reset();
  });
 };
 </script>
