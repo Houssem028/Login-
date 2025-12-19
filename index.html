@@ -83,7 +83,7 @@ body {
   display: flex;
   flex-direction: column;
   padding-top: 70px;
-  transition: right 0.35s ease;
+  transition: right 0.35s ease, opacity 0.35s ease;
   z-index: 1000;
 }
 
@@ -115,46 +115,71 @@ body {
   gap: 35px;
   align-items: center;
   padding: 50px 25px;
+
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.8s ease-out;
+}
+
+.hero.visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .hero h1 {
   font-size: 36px;
   color: #0a5cff;
   margin-bottom: 16px;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.8s ease-out 0.2s;
+}
+
+.hero.visible h1 {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .hero p {
   font-size: 18px;
   margin-bottom: 28px;
   color: #555;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.8s ease-out 0.4s;
 }
 
-.btn {
-  background: linear-gradient(90deg, #0a5cff, #00c6ff);
-  color: #fff;
-  padding: 14px 26px;
-  border-radius: 12px;
-  font-weight: 700;
-  box-shadow: 0 12px 30px rgba(10,92,255,0.45);
-  transition: 0.25s;
-  display: inline-block;
-}
-
-.btn:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 16px 40px rgba(0,0,0,0.35);
+.hero.visible p {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .hero img {
   width: 100%;
   border-radius: 20px;
   box-shadow: 0 18px 45px rgba(0,0,0,0.25);
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.8s ease-out 0.6s;
+}
+
+.hero.visible img {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 /* ===== Services ===== */
 .services {
   padding: 60px 25px;
   text-align: center;
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.8s ease-out;
+}
+
+.services.visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .services h2 {
@@ -174,11 +199,19 @@ body {
   border-radius: 18px;
   overflow: hidden;
   box-shadow: 0 10px 26px rgba(0,0,0,0.08);
-  transition: .35s;
+  transition: transform 0.35s, box-shadow 0.35s;
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.service.visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .service:hover {
-  transform: translateY(-8px);
+  transform: translateY(-10px) scale(1.02);
+  box-shadow: 0 14px 30px rgba(0,0,0,0.25);
 }
 
 .service img {
@@ -202,6 +235,14 @@ body {
   color: #fff;
   padding: 60px 25px;
   text-align: center;
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.8s ease-out;
+}
+
+.cta.visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .cta a {
@@ -210,21 +251,36 @@ body {
   padding: 14px 30px;
   border-radius: 12px;
   font-weight: 700;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.cta a:hover {
+  transform: scale(1.05);
+  box-shadow: 0 14px 30px rgba(0,0,0,0.25);
 }
 
 /* ===== Reviews ===== */
 .reviews {
   padding: 60px 25px;
   text-align: center;
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.8s ease-out;
+}
+
+.reviews.visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .stars span {
   font-size: 34px;
   cursor: pointer;
+  transition: transform 0.25s, color 0.25s;
 }
 
-.stars span.selected {
-  color: gold;
+.stars span:hover {
+  transform: scale(1.3);
 }
 
 #rating-form {
@@ -255,6 +311,14 @@ body {
 .contact {
   padding: 60px 25px;
   text-align: center;
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.8s ease-out;
+}
+
+.contact.visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .contact a {
@@ -321,7 +385,7 @@ const db = firebase.firestore();
   <h2>Nos services</h2>
   <div class="services-grid">
     <div class="service">
-      <img src="Pic7.jpg">
+      <img src="Pic4.jpg">
       <h3>Maisons</h3>
       <p>Nettoyage intérieur et extérieur.</p>
     </div>
@@ -331,7 +395,7 @@ const db = firebase.firestore();
       <p>Façades vitrées brillantes.</p>
     </div>
     <div class="service">
-      <img src="Pic8.jpg">
+      <img src="Pic6.jpg">
       <h3>Bureaux</h3>
       <p>Image professionnelle assurée.</p>
     </div>
@@ -394,8 +458,8 @@ ratingForm.onsubmit = e => {
   if (!selectedRating) return;
 
   db.collection("ratings").add({
-    name: r-name.value,
-    email: r-email.value,
+    name: document.getElementById('r-name').value,
+    email: document.getElementById('r-email').value,
     rating: Number(selectedRating),
     createdAt: firebase.firestore.FieldValue.serverTimestamp()
   }).then(() => {
@@ -406,7 +470,21 @@ ratingForm.onsubmit = e => {
     selectedRating = 0;
   });
 };
+
+// ===== Fade-up animation on scroll =====
+const sections = document.querySelectorAll('.hero, .services, .service, .cta, .reviews, .contact');
+const appearOptions = { threshold: 0.3 };
+
+const appearOnScroll = new IntersectionObserver((entries, observer) => {
+  entries.forEach(entry => {
+    if (!entry.isIntersecting) return;
+    entry.target.classList.add('visible');
+    observer.unobserve(entry.target);
+  });
+}, appearOptions);
+
+sections.forEach(section => appearOnScroll.observe(section));
 </script>
 
 </body>
-</html>
+  </html>
