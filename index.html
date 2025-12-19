@@ -11,71 +11,268 @@
 
 <style>
 /* ===== Reset ===== */
-* { box-sizing: border-box; margin:0; padding:0; font-family:'Poppins',Arial,sans-serif; }
-body { background: linear-gradient(135deg,#eef3ff,#f9fbff); color:#333; line-height:1.6; }
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Poppins', Arial, sans-serif;
+}
+
+body {
+  background: linear-gradient(135deg, #eef3ff, #f9fbff);
+  color: #333;
+  line-height: 1.6;
+}
 
 /* ===== Navbar ===== */
 .navbar {
-  position: fixed; top:0; left:0; right:0; z-index:999;
-  display:flex; align-items:center; justify-content:space-between;
-  padding:10px 18px; background: linear-gradient(90deg,#0a3cff,#00c897);
-  box-shadow:0 6px 20px rgba(0,0,0,0.18);
-}
-.navbar img { width:60px; padding:5px; border-radius:50%; }
-.navbar h1 { font-size:22px; font-weight:700; color:#fff; margin-left:15px; }
-.nav-links a { color:#fff; font-weight:700; margin:0 12px; }
-.nav-cta { background:#fff; color:#0a3cff; padding:8px 14px; border-radius:6px; font-size:14px; font-weight:700; }
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 999;
 
-/* ===== Hamburger Sidebar ===== */
+  display: flex;
+  align-items: center;
+  gap: 14px;
+
+  padding: 12px 22px;
+
+  background: linear-gradient(135deg, #0b1f33, #102f4f);
+  border-bottom: 1px solid rgba(0, 200, 255, 0.25);
+
+  box-shadow: 0 10px 30px rgba(0,0,0,0.45);
+}
+
+.navbar img {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  padding: 4px;
+  background: #081a2f;
+  box-shadow: 0 0 18px rgba(0, 200, 255, 0.6);
+}
+
+.navbar h1 {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #eaf6ff;
+}
+
+/* ===== Hamburger ===== */
 #sidebar-toggle {
-  position: fixed; top: 20px; right: 20px;
-  font-size: 28px; background: #0a3cff; color:#fff; padding:8px 12px; border-radius:8px; cursor:pointer; z-index:1001;
+  position: fixed;
+  top: 18px;
+  right: 20px;
+  font-size: 28px;
+  background: #0a5cff;
+  color: #fff;
+  padding: 8px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  z-index: 1001;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.35);
 }
+
 #sidebar-menu {
-  position: fixed; top:0; right:-250px; width:250px; height:100%;
-  background:#0a3cff; display:flex; flex-direction:column; padding-top:60px; transition:right 0.3s ease; z-index:1000;
+  position: fixed;
+  top: 0;
+  right: -260px;
+  width: 260px;
+  height: 100%;
+  background: linear-gradient(180deg, #0b1f33, #102f4f);
+  display: flex;
+  flex-direction: column;
+  padding-top: 70px;
+  transition: right 0.35s ease;
+  z-index: 1000;
 }
-#sidebar-menu h2 { color:#fff; font-size:20px; font-weight:700; text-align:center; margin-bottom:20px; }
-#sidebar-menu a { color:#fff; padding:15px 25px; font-weight:600; text-decoration:none; border-bottom:1px solid rgba(255,255,255,0.2); }
-#sidebar-menu a:hover { background: rgba(255,255,255,0.1); }
+
+#sidebar-menu h2 {
+  color: #fff;
+  font-size: 20px;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+#sidebar-menu a {
+  color: #eaf6ff;
+  padding: 16px 28px;
+  font-weight: 600;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(255,255,255,0.15);
+}
+
+#sidebar-menu a:hover {
+  background: rgba(255,255,255,0.1);
+}
 
 /* ===== Hero ===== */
-.hero { margin-top:80px; display:grid; grid-template-columns:1fr 1fr; gap:30px; align-items:center; padding:40px 25px; }
-.hero h1 { font-size:34px; color:#0a3cff; margin-bottom:15px; }
-.hero p { font-size:18px; margin-bottom:25px; color:#555; }
-.btn { background: linear-gradient(90deg,#0a3cff,#00c897); color:#fff; padding:14px 22px; border-radius:10px; font-weight:700; box-shadow:0 10px 25px rgba(10,92,255,0.4); transition:0.2s; }
-.btn:hover { transform: translateY(-3px); box-shadow:0 12px 30px rgba(0,0,0,0.25); }
-.hero img { width:100%; border-radius:18px; box-shadow:0 15px 35px rgba(0,0,0,0.2); }
+.hero {
+  margin-top: 100px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 35px;
+  align-items: center;
+  padding: 50px 25px;
+}
+
+.hero h1 {
+  font-size: 36px;
+  color: #0a5cff;
+  margin-bottom: 16px;
+}
+
+.hero p {
+  font-size: 18px;
+  margin-bottom: 28px;
+  color: #555;
+}
+
+.btn {
+  background: linear-gradient(90deg, #0a5cff, #00c6ff);
+  color: #fff;
+  padding: 14px 26px;
+  border-radius: 12px;
+  font-weight: 700;
+  box-shadow: 0 12px 30px rgba(10,92,255,0.45);
+  transition: 0.25s;
+  display: inline-block;
+}
+
+.btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 40px rgba(0,0,0,0.35);
+}
+
+.hero img {
+  width: 100%;
+  border-radius: 20px;
+  box-shadow: 0 18px 45px rgba(0,0,0,0.25);
+}
 
 /* ===== Services ===== */
-.services { padding:50px 25px; text-align:center; }
-.services h2 { font-size:32px; color:#0a3cff; margin-bottom:30px; }
-.services-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:25px; }
-.service { background:#fff; border-radius:16px; overflow:hidden; box-shadow:0 8px 20px rgba(0,0,0,0.06); transition:.3s; }
-.service:hover { transform:translateY(-6px); }
-.service img { width:100%; height:180px; object-fit:cover; }
-.service h3 { color:#0a3cff; margin:15px; }
-.service p { padding:0 15px 20px; }
+.services {
+  padding: 60px 25px;
+  text-align: center;
+}
+
+.services h2 {
+  font-size: 34px;
+  color: #0a5cff;
+  margin-bottom: 35px;
+}
+
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 28px;
+}
+
+.service {
+  background: #fff;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 10px 26px rgba(0,0,0,0.08);
+  transition: .35s;
+}
+
+.service:hover {
+  transform: translateY(-8px);
+}
+
+.service img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+}
+
+.service h3 {
+  color: #0a5cff;
+  margin: 18px;
+}
+
+.service p {
+  padding: 0 18px 22px;
+}
 
 /* ===== CTA ===== */
-.cta { background: linear-gradient(135deg,#0a5cff,#084dcc); color:#fff; padding:50px 25px; text-align:center; }
-.cta a { background:#fff; color:#0a5cff; padding:14px 28px; border-radius:10px; font-weight:700; }
+.cta {
+  background: linear-gradient(135deg, #0a5cff, #003f88);
+  color: #fff;
+  padding: 60px 25px;
+  text-align: center;
+}
 
-/* ===== Reviews / Rating ===== */
-.reviews { padding:50px 25px; text-align:center; }
-.review { background:#fff; display:inline-block; margin:10px; padding:20px 25px; border-radius:14px; box-shadow:0 6px 18px rgba(0,0,0,0.1); }
-.stars span { font-size:32px; cursor:pointer; transition:0.2s; }
-.stars span.selected { color: gold; }
-#rating-form { display:none; max-width:400px; margin:20px auto; }
-#rating-form input { width:100%; padding:12px; margin:6px 0; border-radius:8px; border:1px solid #ddd; }
-#rating-form button { width:100%; padding:12px; margin:6px 0; border-radius:8px; border:none; background:linear-gradient(90deg,#0a3cff,#00c897); color:#fff; font-weight:700; cursor:pointer; }
+.cta a {
+  background: #fff;
+  color: #003f88;
+  padding: 14px 30px;
+  border-radius: 12px;
+  font-weight: 700;
+}
+
+/* ===== Reviews ===== */
+.reviews {
+  padding: 60px 25px;
+  text-align: center;
+}
+
+.stars span {
+  font-size: 34px;
+  cursor: pointer;
+}
+
+.stars span.selected {
+  color: gold;
+}
+
+#rating-form {
+  display: none;
+  max-width: 420px;
+  margin: 20px auto;
+}
+
+#rating-form input {
+  width: 100%;
+  padding: 12px;
+  margin: 8px 0;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+}
+
+#rating-form button {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  background: linear-gradient(90deg, #0a5cff, #00c6ff);
+  color: #fff;
+  font-weight: 700;
+}
 
 /* ===== Contact ===== */
-.contact { padding:50px 25px; text-align:center; }
-.contact a { display:block; margin:8px; color:#0a3cff; font-weight:700; }
+.contact {
+  padding: 60px 25px;
+  text-align: center;
+}
+
+.contact a {
+  display: block;
+  margin: 10px;
+  color: #0a5cff;
+  font-weight: 700;
+}
 
 /* ===== Responsive ===== */
-@media(max-width:768px){ .hero { grid-template-columns:1fr; } .hero h1 { font-size:28px; } }
+@media (max-width: 768px) {
+  .hero {
+    grid-template-columns: 1fr;
+  }
+  .hero h1 {
+    font-size: 28px;
+  }
+}
 </style>
 
 <!-- Firebase -->
@@ -88,8 +285,7 @@ const firebaseConfig = {
   projectId: "admin-ash-f622c",
   storageBucket: "admin-ash-f622c.appspot.com",
   messagingSenderId: "76505742154",
-  appId: "1:76505742154:web:dc4f190f9f2de80acb1fb3",
-  measurementId: "G-MNPL104YPN"
+  appId: "1:76505742154:web:dc4f190f9f2de80acb1fb3"
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
@@ -103,18 +299,16 @@ const db = firebase.firestore();
   <h1>ASH Window Cleaning</h1>
 </header>
 
-<!-- Hamburger Sidebar -->
 <div id="sidebar-toggle">☰</div>
 <nav id="sidebar-menu">
   <h2>ASH Window Cleaning</h2>
-  <a href="login.html">login</a>
+  <a href="login.html">Login</a>
   <a href="booking.html">Réservation</a>
   <a href="#reviews">Avis</a>
   <a href="#contact">Contact</a>
 </nav>
 
-<!-- HERO -->
-<section class="hero" id="hero">
+<section class="hero">
   <div>
     <h1>Nettoyage de vitres professionnel</h1>
     <p>Maisons, commerces et bureaux – résultat impeccable garanti.</p>
@@ -123,8 +317,7 @@ const db = firebase.firestore();
   <img src="Pic1.jpg" alt="Window Cleaning">
 </section>
 
-<!-- Services -->
-<section class="services" id="services">
+<section class="services">
   <h2>Nos services</h2>
   <div class="services-grid">
     <div class="service">
@@ -145,14 +338,12 @@ const db = firebase.firestore();
   </div>
 </section>
 
-<!-- CTA -->
 <section class="cta">
   <h2>Besoin d'un nettoyage rapide ?</h2>
   <p>Contactez-nous dès maintenant</p>
   <a href="https://wa.me/21621477790">💬 WhatsApp</a>
 </section>
 
-<!-- Reviews / Rating -->
 <section class="reviews" id="reviews">
   <h2>Évaluez notre service</h2>
   <div class="stars" id="stars">
@@ -162,6 +353,7 @@ const db = firebase.firestore();
     <span data-value="4">⭐</span>
     <span data-value="5">⭐</span>
   </div>
+
   <form id="rating-form">
     <input type="text" id="r-name" placeholder="Votre nom" required>
     <input type="email" id="r-email" placeholder="Votre email" required>
@@ -170,7 +362,6 @@ const db = firebase.firestore();
   <p id="rating-msg"></p>
 </section>
 
-<!-- Contact -->
 <section class="contact" id="contact">
   <h2>Contact</h2>
   <a href="tel:+21624598941">📞 +216 24 598 941</a>
@@ -179,45 +370,42 @@ const db = firebase.firestore();
 </section>
 
 <script>
-// Sidebar toggle
 const toggle = document.getElementById('sidebar-toggle');
 const sidebar = document.getElementById('sidebar-menu');
-toggle.addEventListener('click', () => {
-  sidebar.style.right = (sidebar.style.right === '0px') ? '-250px' : '0';
-});
+toggle.onclick = () => {
+  sidebar.style.right = sidebar.style.right === '0px' ? '-260px' : '0';
+};
 
-// Rating system
 let selectedRating = 0;
 const stars = document.querySelectorAll('#stars span');
 const ratingForm = document.getElementById('rating-form');
 const ratingMsg = document.getElementById('rating-msg');
 
 stars.forEach(star => {
-  star.addEventListener('click', () => {
+  star.onclick = () => {
     selectedRating = star.dataset.value;
     stars.forEach(s => s.classList.toggle('selected', s.dataset.value <= selectedRating));
     ratingForm.style.display = 'block';
-  });
+  };
 });
 
-ratingForm.addEventListener('submit', e => {
+ratingForm.onsubmit = e => {
   e.preventDefault();
-  const name = document.getElementById('r-name').value;
-  const email = document.getElementById('r-email').value;
-  if(selectedRating === 0){ ratingMsg.textContent="Veuillez choisir une note"; return; }
+  if (!selectedRating) return;
 
   db.collection("ratings").add({
-    name, email,
+    name: r-name.value,
+    email: r-email.value,
     rating: Number(selectedRating),
-    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
   }).then(() => {
-    ratingMsg.textContent="Merci pour votre évaluation ⭐";
+    ratingMsg.textContent = "Merci pour votre avis ⭐";
     ratingForm.reset();
-    selectedRating=0;
-    stars.forEach(s=>s.classList.remove('selected'));
-    ratingForm.style.display='none';
-  }).catch(err => { console.error(err); ratingMsg.textContent="Erreur lors de l'envoi ❌"; });
-});
+    ratingForm.style.display = "none";
+    stars.forEach(s => s.classList.remove('selected'));
+    selectedRating = 0;
+  });
+};
 </script>
 
 </body>
