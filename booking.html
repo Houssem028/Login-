@@ -17,7 +17,7 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
 
-<!-- EmailJS -->
+<!-- EmailJS (الإضافة الوحيدة) -->
 <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
 
 <style>
@@ -27,6 +27,8 @@ body {
   background: linear-gradient(135deg, #eef3ff, #f9fbff);
   color:#333;
 }
+
+/* ===== Navbar ===== */
 .navbar {
   position: fixed;
   top: 0; left: 0; right: 0;
@@ -36,11 +38,21 @@ body {
   gap: 14px;
   padding: 12px 22px;
   background: linear-gradient(135deg, #0b1f33, #102f4f);
+  border-bottom: 1px solid rgba(0, 200, 255, 0.25);
   box-shadow: 0 10px 30px rgba(0,0,0,0.45);
 }
-.navbar img { width:50px; height:50px; border-radius:50%; }
-.navbar h1 { font-size:20px; color:#fff; }
+.navbar img {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+}
+.navbar h1 {
+  font-size: 20px;
+  font-weight: 700;
+  color:#eaf6ff;
+}
 
+/* Sidebar */
 #sidebar-toggle {
   position: fixed;
   top: 18px; left: 20px;
@@ -57,134 +69,176 @@ body {
   top:0; left:-260px;
   width:260px; height:100%;
   background: linear-gradient(180deg, #0b1f33, #102f4f);
+  display:flex; flex-direction:column;
   padding-top:70px;
   transition:left 0.35s ease;
+  z-index:1000;
+}
+#sidebar-menu h2 {
+  color:#fff;
+  text-align:center;
+  margin-bottom:25px;
 }
 #sidebar-menu a {
-  color:#fff;
-  display:block;
-  padding:15px 25px;
+  color:#eaf6ff;
+  padding:16px 28px;
+  font-weight:600;
   text-decoration:none;
+  border-bottom:1px solid rgba(255,255,255,0.15);
 }
+#sidebar-menu a:hover { background: rgba(255,255,255,0.1); }
 
+/* Main */
 main {
   max-width:600px;
   margin:130px auto 30px;
   background:white;
   padding:25px;
   border-radius:12px;
+  box-shadow:0 8px 20px rgba(0,0,0,0.1);
 }
 label { display:block; margin-top:15px; font-weight:bold; }
 input, select, button {
   width:100%; padding:10px; margin-top:5px;
+  border-radius:6px; border:1px solid #ccc;
 }
 button {
-  background:#0a3cff;
-  color:white;
-  border:none;
-  font-weight:bold;
-  margin-top:15px;
+  background:#0a3cff; color:white;
+  border:none; font-weight:bold;
+  cursor:pointer; margin-top:20px;
 }
+button:hover { background:#084dcc; }
+
 #booking-map {
   height:300px;
+  border:1px solid #ddd;
+  border-radius:10px;
   margin-top:10px;
 }
+#msg, #map-msg { margin-top:15px; font-weight:bold; }
+
 #manual-location-btn {
-  background:#555;
-  color:white;
+  background:#555; color:white;
 }
+#manual-location-btn:hover { background:#333; }
 </style>
 </head>
 
 <body>
 
 <header class="navbar">
-  <img src="Pic4.png">
+  <img src="Pic4.png" alt="ASH Logo">
   <h1>ASH Window Cleaning</h1>
 </header>
 
 <div id="sidebar-toggle">☰</div>
 <nav id="sidebar-menu">
-  <a href="index.html">Accueil</a>
+  <h2>ASH Window Cleaning</h2>
+  <a href="index.html">🏠 Accueil</a>
+  <a href="booking.html">Réservation</a>
 </nav>
 
 <main>
-<h2>Réservez votre service</h2>
+  <h2>Réservez votre service maintenant</h2>
 
-<form id="booking-form">
-  <label>Nom</label>
-  <input id="name" required>
+  <form id="booking-form">
+    <label>Nom *</label>
+    <input type="text" id="name" required>
 
-  <label>Téléphone</label>
-  <input id="phone" required>
+    <label>Téléphone *</label>
+    <input type="tel" id="phone" required>
 
-  <label>Email</label>
-  <input id="email">
+    <label>Email</label>
+    <input type="email" id="email">
 
-  <label>Service</label>
-  <select id="service">
-    <option>Nettoyage des vitres</option>
-    <option>Nettoyage façades</option>
-  </select>
+    <label>Service *</label>
+    <select id="service" required>
+      <option disabled selected>Choisir un service</option>
+      <option>Nettoyage des vitres</option>
+      <option>Nettoyage des façades</option>
+      <option>Services réguliers</option>
+    </select>
 
-  <label>Adresse</label>
-  <input id="address" required>
+    <label>Adresse *</label>
+    <input type="text" id="address" required>
 
-  <label>Date</label>
-  <input type="date" id="date" required>
+    <label>Date *</label>
+    <input type="date" id="date" required>
 
-  <label>Heure</label>
-  <input type="time" id="time" required>
+    <label>Heure *</label>
+    <input type="time" id="time" required>
 
-  <div id="booking-map"></div>
-  <button type="button" id="manual-location-btn">📍 Définir manuellement</button>
+    <label>Votre position actuelle</label>
+    <div id="booking-map"></div>
+    <button type="button" id="manual-location-btn">📍 Définir l'emplacement manuellement</button>
+    <p id="map-msg">Détection de votre position...</p>
 
-  <button type="submit">Envoyer</button>
-</form>
+    <button type="submit">Envoyer la réservation</button>
+  </form>
 
-<p id="msg"></p>
+  <p id="msg"></p>
 </main>
 
+<!-- Leaflet -->
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
 <script>
+// ===== EmailJS init (إضافة فقط) =====
 emailjs.init("dKDZhGvgDZ2OwDlZF");
 
+// ===== Firebase =====
 const firebaseConfig = {
   apiKey: "AIzaSyAJxzFknapSh0fnPfIXwEEK3OijSKlqxco",
   authDomain: "admin-ash-f622c.firebaseapp.com",
-  projectId: "admin-ash-f622c"
+  projectId: "admin-ash-f622c",
+  storageBucket: "admin-ash-f622c.appspot.com",
+  messagingSenderId: "76505742154",
+  appId: "1:76505742154:web:dc4f190f9f2de80acb1fb3"
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-const map = L.map('booking-map').setView([36.8,10.18], 12);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+// Sidebar
+document.getElementById("sidebar-toggle").onclick = () => {
+  const s = document.getElementById("sidebar-menu");
+  s.style.left = s.style.left === "0px" ? "-260px" : "0";
+};
 
-let lat=null, lng=null, marker=null, manual=false;
+// Map
+let lat=null,lng=null,manual=false,marker=null;
+const map=L.map("booking-map").setView([36.8,10.18],12);
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
 
-navigator.geolocation.getCurrentPosition(p=>{
-  lat=p.coords.latitude;
-  lng=p.coords.longitude;
+navigator.geolocation?.getCurrentPosition(p=>{
+  lat=p.coords.latitude; lng=p.coords.longitude;
   map.setView([lat,lng],15);
-  marker=L.marker([lat,lng]).addTo(map);
+  L.marker([lat,lng]).addTo(map);
+  document.getElementById("map-msg").textContent="✔ Position détectée automatiquement";
 });
 
-manual-location-btn.onclick=()=>manual=true;
+document.getElementById("manual-location-btn").onclick=()=>{
+  manual=true;
+  document.getElementById("map-msg").textContent="📍 Cliquez sur la carte";
+};
+
 map.on("click",e=>{
   if(!manual) return;
-  lat=e.latlng.lat;
-  lng=e.latlng.lng;
+  lat=e.latlng.lat; lng=e.latlng.lng;
   if(marker) map.removeLayer(marker);
   marker=L.marker([lat,lng]).addTo(map);
+  document.getElementById("map-msg").textContent="✔ Position définie manuellement";
   manual=false;
 });
 
-booking-form.onsubmit=e=>{
+// Submit
+document.getElementById("booking-form").addEventListener("submit",e=>{
   e.preventDefault();
+  if(lat===null||lng===null) return;
 
   const data={
     name:name.value,
     phone:phone.value,
-    email:email.value,
+    email:email.value||"Non fourni",
     service:service.value,
     address:address.value,
     date:date.value,
@@ -195,15 +249,12 @@ booking-form.onsubmit=e=>{
 
   db.collection("bookings").add(data);
 
-  emailjs.send("service_glkvhot","template_v6qi0el",data)
-  .then(()=>{
-    msg.textContent="✔ تم الإرسال (Firebase + Email)";
-    booking-form.reset();
-  })
-  .catch(()=>msg.textContent="❌ خطأ في الإيميل");
-};
+  emailjs.send("service_glkvhot","template_v6qi0el",data);
+
+  msg.textContent="✔ Réservation envoyée avec succès!";
+  e.target.reset();
+});
 </script>
 
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 </body>
 </html>
