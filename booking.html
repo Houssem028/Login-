@@ -17,7 +17,7 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
 
-<!-- EmailJS (الإضافة الوحيدة) -->
+<!-- ✅ EmailJS (الإضافة الوحيدة) -->
 <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
 
 <style>
@@ -71,7 +71,7 @@ body {
   background: linear-gradient(180deg, #0b1f33, #102f4f);
   display:flex; flex-direction:column;
   padding-top:70px;
-  transition:left 0.35s ease;
+  transition:right 0.35s ease, left 0.35s ease;
   z-index:1000;
 }
 #sidebar-menu h2 {
@@ -88,7 +88,7 @@ body {
 }
 #sidebar-menu a:hover { background: rgba(255,255,255,0.1); }
 
-/* Main */
+/* Main content */
 main {
   max-width:600px;
   margin:130px auto 30px;
@@ -99,26 +99,18 @@ main {
 }
 label { display:block; margin-top:15px; font-weight:bold; }
 input, select, button {
-  width:100%; padding:10px; margin-top:5px;
-  border-radius:6px; border:1px solid #ccc;
+  width:100%; padding:10px; margin-top:5px; border-radius:6px; border:1px solid #ccc;
 }
 button {
-  background:#0a3cff; color:white;
-  border:none; font-weight:bold;
-  cursor:pointer; margin-top:20px;
+  background:#0a3cff; color:white; border:none; font-weight:bold; cursor:pointer; margin-top:20px;
 }
 button:hover { background:#084dcc; }
-
-#booking-map {
-  height:300px;
-  border:1px solid #ddd;
-  border-radius:10px;
-  margin-top:10px;
-}
+#booking-map { height:300px; border:1px solid #ddd; border-radius:10px; margin-top:10px; }
 #msg, #map-msg { margin-top:15px; font-weight:bold; }
 
+/* زر التحديد اليدوي */
 #manual-location-btn {
-  background:#555; color:white;
+  background:#555; color:white; border:none; font-weight:bold; padding:10px; border-radius:6px; cursor:pointer;
 }
 #manual-location-btn:hover { background:#333; }
 </style>
@@ -136,6 +128,7 @@ button:hover { background:#084dcc; }
   <h2>ASH Window Cleaning</h2>
   <a href="index.html">🏠 Accueil</a>
   <a href="booking.html">Réservation</a>
+  <a href="#contact">Contact</a>
 </nav>
 
 <main>
@@ -179,80 +172,57 @@ button:hover { background:#084dcc; }
   <p id="msg"></p>
 </main>
 
-<!-- Leaflet -->
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
 <script>
-// ===== EmailJS init (إضافة فقط) =====
+/* ===== EmailJS init (إضافة فقط) ===== */
 emailjs.init("dKDZhGvgDZ2OwDlZF");
 
-// ===== Firebase =====
+/* ===== Firebase Config ===== */
 const firebaseConfig = {
   apiKey: "AIzaSyAJxzFknapSh0fnPfIXwEEK3OijSKlqxco",
   authDomain: "admin-ash-f622c.firebaseapp.com",
   projectId: "admin-ash-f622c",
-  storageBucket: "admin-ash-f622c.appspot.com",
-  messagingSenderId: "76505742154",
-  appId: "1:76505742154:web:dc4f190f9f2de80acb1fb3"
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-// Sidebar
-document.getElementById("sidebar-toggle").onclick = () => {
-  const s = document.getElementById("sidebar-menu");
-  s.style.left = s.style.left === "0px" ? "-260px" : "0";
-};
+/* ===== Map ===== */
+let lat=null, lng=null;
+const map = L.map('booking-map').setView([36.8,10.18],12);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
-// Map
-let lat=null,lng=null,manual=false,marker=null;
-const map=L.map("booking-map").setView([36.8,10.18],12);
-L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
-
-navigator.geolocation?.getCurrentPosition(p=>{
-  lat=p.coords.latitude; lng=p.coords.longitude;
+navigator.geolocation.getCurrentPosition(pos=>{
+  lat=pos.coords.latitude;
+  lng=pos.coords.longitude;
   map.setView([lat,lng],15);
   L.marker([lat,lng]).addTo(map);
-  document.getElementById("map-msg").textContent="✔ Position détectée automatiquement";
+  document.getElementById("map-msg").textContent="✔ Position détectée";
 });
 
-document.getElementById("manual-location-btn").onclick=()=>{
-  manual=true;
-  document.getElementById("map-msg").textContent="📍 Cliquez sur la carte";
-};
-
-map.on("click",e=>{
-  if(!manual) return;
-  lat=e.latlng.lat; lng=e.latlng.lng;
-  if(marker) map.removeLayer(marker);
-  marker=L.marker([lat,lng]).addTo(map);
-  document.getElementById("map-msg").textContent="✔ Position définie manuellement";
-  manual=false;
-});
-
-// Submit
-document.getElementById("booking-form").addEventListener("submit",e=>{
+/* ===== Form submit ===== */
+document.getElementById("booking-form").addEventListener("submit",function(e){
   e.preventDefault();
-  if(lat===null||lng===null) return;
 
   const data={
     name:name.value,
     phone:phone.value,
-    email:email.value||"Non fourni",
+    email:email.value || "Non fourni",
     service:service.value,
     address:address.value,
     date:date.value,
     time:time.value,
-    lat,lng,
+    lat, lng,
     createdAt:new Date()
   };
 
   db.collection("bookings").add(data);
 
+  /* 📧 إرسال الإيميل (الإضافة فقط) */
   emailjs.send("service_glkvhot","template_v6qi0el",data);
 
-  msg.textContent="✔ Réservation envoyée avec succès!";
-  e.target.reset();
+  document.getElementById("msg").textContent="✔ Réservation envoyée";
+  this.reset();
 });
 </script>
 
