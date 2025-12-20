@@ -17,9 +17,6 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
 
-<!-- ✅ EmailJS (الإضافة الوحيدة) -->
-<script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
-
 <style>
 body {
   font-family: 'Poppins', Arial, sans-serif;
@@ -136,13 +133,13 @@ button:hover { background:#084dcc; }
 
   <form id="booking-form">
     <label>Nom *</label>
-    <input type="text" id="name" required>
+    <input type="text" id="name" required placeholder="Votre nom">
 
     <label>Téléphone *</label>
-    <input type="tel" id="phone" required>
+    <input type="tel" id="phone" required placeholder="Ex: 21612345678">
 
     <label>Email</label>
-    <input type="email" id="email">
+    <input type="email" id="email" placeholder="Optionnel">
 
     <label>Service *</label>
     <select id="service" required>
@@ -153,7 +150,7 @@ button:hover { background:#084dcc; }
     </select>
 
     <label>Adresse *</label>
-    <input type="text" id="address" required>
+    <input type="text" id="address" required placeholder="Votre adresse">
 
     <label>Date *</label>
     <input type="date" id="date" required>
@@ -172,59 +169,107 @@ button:hover { background:#084dcc; }
   <p id="msg"></p>
 </main>
 
+<!-- Leaflet JS -->
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-
 <script>
-/* ===== EmailJS init (إضافة فقط) ===== */
-emailjs.init("dKDZhGvgDZ2OwDlZF");
-
-/* ===== Firebase Config ===== */
+// ===== Firebase Config =====
 const firebaseConfig = {
   apiKey: "AIzaSyAJxzFknapSh0fnPfIXwEEK3OijSKlqxco",
   authDomain: "admin-ash-f622c.firebaseapp.com",
   projectId: "admin-ash-f622c",
+  storageBucket: "admin-ash-f622c.appspot.com",
+  messagingSenderId: "76505742154",
+  appId: "1:76505742154:web:dc4f190f9f2de80acb1fb3"
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-/* ===== Map ===== */
-let lat=null, lng=null;
-const map = L.map('booking-map').setView([36.8,10.18],12);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+// ===== Sidebar toggle =====
+const toggle = document.getElementById('sidebar-toggle');
+const sidebar = document.getElementById('sidebar-menu');
+toggle.onclick = () => {
+  sidebar.style.left = sidebar.style.left === '0px' ? '-260px' : '0';
+};
 
-navigator.geolocation.getCurrentPosition(pos=>{
-  lat=pos.coords.latitude;
-  lng=pos.coords.longitude;
-  map.setView([lat,lng],15);
-  L.marker([lat,lng]).addTo(map);
-  document.getElementById("map-msg").textContent="✔ Position détectée";
+// ===== Leaflet Map =====
+let lat = null, lng = null;
+const bookingMap = L.map('booking-map').setView([36.8,10.18], 12);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(bookingMap);
+
+// GPS automatique
+if(navigator.geolocation){
+  navigator.geolocation.getCurrentPosition(
+    position => {
+      lat = position.coords.latitude;
+      lng = position.coords.longitude;
+      bookingMap.setView([lat,lng],15);
+      L.marker([lat,lng]).addTo(bookingMap).bindPopup("Votre position actuelle").openPopup();
+      document.getElementById("map-msg").textContent = "✔ Position détectée automatiquement";
+    },
+    err => {
+      console.warn(err.message);
+      document.getElementById("map-msg").textContent = "❌ Impossible de détecter votre position";
+    }
+  );
+} else {
+  document.getElementById("map-msg").textContent = "❌ Votre appareil ne supporte pas la géolocalisation";
+}
+
+// ===== Définir position manuellement =====
+let manualMarker = null;
+let manualMode = false;
+document.getElementById("manual-location-btn").addEventListener("click", () => {
+  manualMode = true;
+  document.getElementById("map-msg").textContent = "📍 Cliquez sur la carte pour définir votre position";
+});
+bookingMap.on('click', function(e){
+  if(!manualMode) return;
+  lat = e.latlng.lat;
+  lng = e.latlng.lng;
+  if(manualMarker) bookingMap.removeLayer(manualMarker);
+  manualMarker = L.marker([lat,lng]).addTo(bookingMap)
+    .bindPopup("📍 Position choisie").openPopup();
+  document.getElementById("map-msg").textContent = "✔ Position définie manuellement";
+  manualMode = false;
 });
 
-/* ===== Form submit ===== */
-document.getElementById("booking-form").addEventListener("submit",function(e){
+// ===== Formulaire =====
+document.getElementById("booking-form").addEventListener("submit", function(e){
   e.preventDefault();
+  if(lat===null || lng===null){
+    document.getElementById("map-msg").textContent = "❌ Position non détectée, essayez à nouveau";
+    return;
+  }
 
-  const data={
-    name:name.value,
-    phone:phone.value,
-    email:email.value || "Non fourni",
-    service:service.value,
-    address:address.value,
-    date:date.value,
-    time:time.value,
-    lat, lng,
-    createdAt:new Date()
+  const data = {
+    name: document.getElementById("name").value,
+    phone: document.getElementById("phone").value,
+    email: document.getElementById("email").value || "Non fourni",
+    service: document.getElementById("service").value,
+    address: document.getElementById("address").value,
+    date: document.getElementById("date").value,
+    time: document.getElementById("time").value,
+    lat: lat,
+    lng: lng,
+    createdAt: new Date()
   };
 
-  db.collection("bookings").add(data);
-
-  /* 📧 إرسال الإيميل (الإضافة فقط) */
-  emailjs.send("service_glkvhot","template_v6qi0el",data);
-
-  document.getElementById("msg").textContent="✔ Réservation envoyée";
-  this.reset();
+  db.collection("bookings").add(data).then(() => {
+    document.getElementById("msg").textContent = "✔ Réservation envoyée avec succès!";
+    document.getElementById("booking-form").reset();
+  }).catch(err => {
+    console.error(err);
+    document.getElementById("msg").textContent = "❌ Erreur lors de l'envoi!";
+  });
+  // ===== إرسال نسخة للإيميل باستخدام EmailJS =====
+emailjs.init("dKDZhGvgDZ2OwDlZF"); // المفتاح العام لديك مسبقًا
+emailjs.send("service_glkvhot","template_v6qi0el", data)
+.then(() => {
+    console.log("✔ Email envoyé avec succès!");
+})
+.catch(err => {
+    console.error("❌ Erreur lors de l'envoi de l'email:", err);
 });
 </script>
-
 </body>
 </html>
