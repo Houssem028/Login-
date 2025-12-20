@@ -261,12 +261,6 @@ document.getElementById("booking-form").addEventListener("submit", function(e){
     console.error(err);
     document.getElementById("msg").textContent = "❌ Erreur lors de l'envoi!";
   });
-  // ===== إرسال نسخة للإيميل باستخدام EmailJS =====
-emailjs.init("dKDZhGvgDZ2OwDlZF"); // المفتاح العام لديك مسبقًا
-emailjs.send("service_glkvhot","template_v6qi0el", data)
-.then(() => {
-    console.log("✔ Email envoyé avec succès!");
-})
 .catch(err => {
     console.error("❌ Erreur lors de l'envoi de l'email:", err);
 });
