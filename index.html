@@ -16,7 +16,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 
 <style>
-/* ===== Reset ===== */
 * { box-sizing: border-box; margin:0; padding:0; font-family: 'Poppins', Arial, sans-serif; }
 body { background: linear-gradient(135deg, #eef3ff, #f9fbff); color: #333; line-height: 1.6; }
 
@@ -65,13 +64,14 @@ body { background: linear-gradient(135deg, #eef3ff, #f9fbff); color: #333; line-
 .cta a { background:#fff; color:#003f88; padding:14px 30px; border-radius:12px; font-weight:700; text-decoration:none; display:inline-block; position:relative; overflow:hidden; transition:transform 0.2s, box-shadow 0.2s;}
 .cta a::after { content:""; position:absolute; top:0; left:-100%; width:100%; height:100%; background:linear-gradient(120deg,transparent,rgba(255,255,255,0.4),transparent); transition:0.6s;}
 .cta a:hover::after { left:100%;}
-.cta a:hover { transform:translateY(-3px); box-shadow:0 16px 40px rgba(0,0,0,0.35);}
+.cta a:hover { transform:translateY(-3px); box-shadow:0 16px 40px rgba(0,0,0,0.35); }
 
 /* ===== Reviews ===== */
 .reviews { padding:60px 25px; text-align:center; opacity:0; transform:translateY(40px); transition:all 0.8s ease;}
 .reviews.show { opacity:1; transform:translateY(0);}
 .stars span { font-size:34px; cursor:pointer; transition:transform 0.3s ease;}
 .stars span:hover { transform:scale(1.3) rotate(-10deg);}
+.stars span.selected { color: gold; }
 #rating-form { display:none; max-width:420px; margin:20px auto;}
 #rating-form input { width:100%; padding:12px; margin:8px 0; border-radius:10px; border:1px solid #ddd;}
 #rating-form button { width:100%; padding:12px; border-radius:10px; border:none; background:linear-gradient(90deg,#0a5cff,#00c6ff); color:#fff; font-weight:700;}
@@ -83,7 +83,6 @@ body { background: linear-gradient(135deg, #eef3ff, #f9fbff); color: #333; line-
 
 /* ===== Responsive ===== */
 @media (max-width:768px){ .hero{ grid-template-columns:1fr;} .hero h1{ font-size:28px;} }
-
 </style>
 
 <!-- Firebase -->
@@ -102,7 +101,6 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 </script>
 
-</head>
 <body>
 
 <header class="navbar">
@@ -146,7 +144,11 @@ const db = firebase.firestore();
 <section class="reviews" id="reviews">
   <h2>Évaluez notre service</h2>
   <div class="stars" id="stars">
-    <span data-value="1">⭐</span><span data-value="2">⭐</span><span data-value="3">⭐</span><span data-value="4">⭐</span><span data-value="5">⭐</span>
+    <span data-value="1">⭐</span>
+    <span data-value="2">⭐</span>
+    <span data-value="3">⭐</span>
+    <span data-value="4">⭐</span>
+    <span data-value="5">⭐</span>
   </div>
   <form id="rating-form">
     <input type="text" id="r-name" placeholder="Votre nom" required>
@@ -176,35 +178,40 @@ const sidebar = document.getElementById('sidebar-menu');
 toggle.onclick = () => { sidebar.style.right = sidebar.style.right === '0px' ? '-260px' : '0'; };
 
 // ===== Ratings =====
+const starsEl = document.querySelectorAll('#stars span');
+const ratingFormEl = document.getElementById('rating-form');
+const ratingMsgEl = document.getElementById('rating-msg');
+const rNameEl = document.getElementById('r-name');
+const rEmailEl = document.getElementById('r-email');
 let selectedRating = 0;
-const stars = document.querySelectorAll('#stars span');
-const ratingForm = document.getElementById('rating-form');
-const ratingMsg = document.getElementById('rating-msg');
 
-stars.forEach(star => {
-  star.onclick = () => {
+starsEl.forEach(star => {
+  star.addEventListener('click', () => {
     selectedRating = star.dataset.value;
-    stars.forEach(s => s.classList.toggle('selected', s.dataset.value <= selectedRating));
-    ratingForm.style.display = 'block';
-  };
+    starsEl.forEach(s => s.classList.toggle('selected', s.dataset.value <= selectedRating));
+    ratingFormEl.style.display = 'block';
+  });
 });
 
-ratingForm.onsubmit = e => {
+ratingFormEl.addEventListener('submit', (e) => {
   e.preventDefault();
   if (!selectedRating) return;
   db.collection("ratings").add({
-    name: r-name.value,
-    email: r-email.value,
+    name: rNameEl.value,
+    email: rEmailEl.value,
     rating: Number(selectedRating),
     createdAt: firebase.firestore.FieldValue.serverTimestamp()
   }).then(() => {
-    ratingMsg.textContent = "Merci pour votre avis ⭐";
-    ratingForm.reset();
-    ratingForm.style.display = "none";
-    stars.forEach(s => s.classList.remove('selected'));
+    ratingMsgEl.textContent = "Merci pour votre avis ⭐";
+    ratingFormEl.reset();
+    ratingFormEl.style.display = 'none';
+    starsEl.forEach(s => s.classList.remove('selected'));
     selectedRating = 0;
+  }).catch(err => {
+    ratingMsgEl.textContent = "Erreur lors de l'envoi. Réessayez.";
+    console.error(err);
   });
-};
+});
 
 // ===== Scroll Reveal =====
 function revealOnScroll() {
