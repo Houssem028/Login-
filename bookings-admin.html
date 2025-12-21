@@ -1,203 +1,106 @@
 <!doctype html>
-<html lang="fr" dir="ltr">
+<html lang="fr">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Administration - ASH Window Cleaning</title>
-
-<!-- Google Fonts -->
+<title>Admin Dashboard - ASH</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-
+<link rel="manifest" href="manifest-admin.json">
 <style>
-body { font-family:'Poppins',sans-serif; margin:0; padding:0; background:#f5f7fa; }
-header { background: linear-gradient(90deg,#0a3cff,#00c897); color:#fff; text-align:center; padding:20px; font-size:22px; font-weight:700; }
-.container { max-width:1200px; margin:20px auto; padding:15px; }
-
-h2 { color:#0a3cff; margin-top:30px; text-align:center; }
-table { width:100%; border-collapse:collapse; margin-top:15px; background:#fff; border-radius:10px; overflow:hidden; box-shadow:0 8px 20px rgba(0,0,0,0.1);}
-th,td { border:1px solid #ddd; padding:10px; text-align:center; }
-th { background:#0a3cff; color:#fff; }
-input, select { width:90%; padding:6px; border-radius:6px; border:1px solid #ccc; }
-button { background:#0a3cff; color:#fff; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; }
-button:hover { background:#084dcc; }
-
-.pagination { text-align:center; margin:15px 0; }
-.pagination button { margin:0 5px; }
-.stats { display:flex; justify-content:space-around; flex-wrap:wrap; margin-top:30px; }
-.stat-box { background:#fff; padding:20px; border-radius:12px; width:200px; margin:10px; text-align:center; box-shadow:0 4px 20px rgba(0,0,0,0.1); }
-.stat-box h3 { margin:10px 0; color:#0a3cff; }
+/* نفس التنسيقات التي تحدثنا عنها سابقاً مع الجداول والإحصائيات */
+body{font-family:'Poppins',sans-serif;margin:0;padding:0;background:#f5f7fa;color:#333;}
+header{background: linear-gradient(90deg,#0a3cff,#00c897);color:#fff;text-align:center;padding:20px;font-size:22px;font-weight:700;}
+.container{max-width:1200px;margin:20px auto;padding:15px;}
+h2{color:#0a3cff;margin-top:30px;text-align:center;}
+table{width:100%;border-collapse:collapse;margin-top:15px;background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 8px 20px rgba(0,0,0,0.1);}
+th,td{border:1px solid #ddd;padding:10px;text-align:center;}
+th{background:#0a3cff;color:#fff;}
+input,select{width:90%;padding:6px;border-radius:6px;border:1px solid #ccc;}
+button{background:#0a3cff;color:#fff;border:none;padding:6px 12px;border-radius:6px;cursor:pointer;}
+button:hover{background:#084dcc;}
+#map{height:400px;width:100%;margin-top:20px;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,0.1);}
+.stats{display:flex;justify-content:space-around;flex-wrap:wrap;margin-top:30px;}
+.stat-box{background:#fff;padding:20px;border-radius:12px;width:200px;margin:10px;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,0.1);}
+.stat-box h3{margin:10px 0;color:#0a3cff;}
 </style>
 
-<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
-
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 </head>
 <body>
 
-<header>ASH Window Cleaning - Administration</header>
-
+<header>ASH Admin Dashboard</header>
 <div class="container">
-
 <h2>📅 Réservations</h2>
 <table>
-<thead>
-<tr>
-  <th>Nom</th><th>Téléphone</th><th>Email</th><th>Service</th>
-  <th>Adresse</th><th>Date</th><th>Heure</th>
-  <th>Montant (DT)</th><th>Terminé</th><th>Actions</th>
-</tr>
-</thead>
+<thead><tr>
+<th>Nom</th><th>Téléphone</th><th>Email</th><th>Service</th><th>Adresse</th><th>Date</th><th>Heure</th><th>Montant</th><th>Terminé</th><th>Actions</th>
+</tr></thead>
 <tbody id="bookings"></tbody>
 </table>
-<div class="pagination" id="bookings-pagination"></div>
 
 <h2>⭐ Avis Clients</h2>
 <table>
-<thead>
-<tr>
-  <th>Nom</th><th>Email</th><th>Note</th><th>Message</th><th>Actions</th>
-</tr>
-</thead>
+<thead><tr><th>Nom</th><th>Email</th><th>Note</th><th>Message</th><th>Actions</th></tr></thead>
 <tbody id="ratings"></tbody>
 </table>
-<div class="pagination" id="ratings-pagination"></div>
+
+<h2>📍 Carte des réservations</h2>
+<div id="map"></div>
 
 <h2>📊 Statistiques</h2>
 <div class="stats">
-  <div class="stat-box" id="total-bookings">
-    <h3>Total Réservations</h3><p>0</p>
-  </div>
-  <div class="stat-box" id="total-done">
-    <h3>Réservations Terminées</h3><p>0</p>
-  </div>
-  <div class="stat-box" id="average-rating">
-    <h3>Note Moyenne</h3><p>0</p>
-  </div>
+<div class="stat-box" id="total-bookings"><h3>Total Réservations</h3><p>0</p></div>
+<div class="stat-box" id="total-done"><h3>Réservations Terminées</h3><p>0</p></div>
+<div class="stat-box" id="average-rating"><h3>Note Moyenne</h3><p>0</p></div>
 </div>
-
 </div>
 
 <script>
-// ===== Firebase Init =====
+// Firebase Init
 const firebaseConfig = {
   apiKey: "AIzaSyAJxzFknapSh0fnPfIXwEEK3OijSKlqxco",
   authDomain: "admin-ash-f622c.firebaseapp.com",
   projectId: "admin-ash-f622c",
   storageBucket: "admin-ash-f622c.appspot.com",
   messagingSenderId: "76505742154",
-  appId: "1:76505742154:web:dc4f190f9f2de80acb1fb3",
+  appId: "1:76505742154:web:dc4f190f9f2de80acb1fb3"
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-// ===== Notifications =====
-if(Notification.permission !== "granted"){ Notification.requestPermission(); }
-db.collection("bookings").onSnapshot(snapshot => {
-  snapshot.docChanges().forEach(change=>{
-    if(change.type==="added" && Notification.permission==="granted"){
-      new Notification("Nouvelle réservation",{
-        body:`Nom: ${change.doc.data().name}\nService: ${change.doc.data().service}`,
-        icon:"icon-192.png"
-      });
-    }
-  });
-});
-db.collection("ratings").onSnapshot(snapshot => {
-  snapshot.docChanges().forEach(change=>{
-    if(change.type==="added" && Notification.permission==="granted"){
-      new Notification("Nouvel avis reçu",{
-        body:`Nom: ${change.doc.data().name}\nNote: ${change.doc.data().rating} ⭐\nMessage: ${change.doc.data().message||""}`,
-        icon:"icon-192.png"
-      });
-    }
-  });
-});
+// Notifications
+if(Notification.permission!=="granted"){ Notification.requestPermission(); }
 
-// ===== Pagination Config =====
-const pageSize = 5;
-let bookingsData = [];
-let bookingsPage = 1;
-let ratingsData = [];
-let ratingsPage = 1;
-
-// ===== Load Bookings =====
+// Tableau des réservations
 function loadBookings(){
-  db.collection("bookings").orderBy("date","desc").get().then(snapshot=>{
-    bookingsData = snapshot.docs.map(d=>({id:d.id,...d.data()}));
-    renderBookings();
-    updateStats();
+  db.collection("bookings").orderBy("date","desc").onSnapshot(snapshot=>{
+    const tbody=document.getElementById("bookings");
+    tbody.innerHTML="";
+    let totalDone=0;
+    snapshot.forEach(doc=>{
+      const d=doc.data(); if(d.done) totalDone++;
+      tbody.innerHTML+=`<tr>
+<td><input value="${d.name}" onchange="updateBooking('${doc.id}','name',this.value)"></td>
+<td><input value="${d.phone}" onchange="updateBooking('${doc.id}','phone',this.value)"></td>
+<td>${d.email}</td><td>${d.service}</td><td>${d.address}</td>
+<td>${d.date}</td><td>${d.time}</td>
+<td><input type="number" value="${d.amount||0}" onchange="updateBooking('${doc.id}','amount',this.value)"></td>
+<td><input type="checkbox" ${d.done?'checked':''} onchange="updateBooking('${doc.id}','done',this.checked)"></td>
+<td><button onclick="deleteBooking('${doc.id}')">Supprimer</button></td>
+</tr>`;
+      if(Notification.permission==="granted" && snapshot.docChanges().some(c=>c.type==='added')){
+        new Notification("Nouvelle réservation", { body:`Nom: ${d.name}\nService: ${d.service}`, icon:"icon-192.png" });
+      }
+    });
+    document.getElementById("total-bookings").querySelector("p").textContent=snapshot.size;
+    document.getElementById("total-done").querySelector("p").textContent=totalDone;
+    updateMap(snapshot.docs);
   });
 }
 
-function renderBookings(){
-  const tbody = document.getElementById("bookings");
-  tbody.innerHTML="";
-  const start = (bookingsPage-1)*pageSize;
-  const pageItems = bookingsData.slice(start,start+pageSize);
-  let totalDone=0;
-  pageItems.forEach(d=>{
-    const doneChecked = d.done ? "checked" : "";
-    if(d.done) totalDone++;
-    tbody.innerHTML+=`
-      <tr>
-        <td><input value="${d.name}" onchange="updateBooking('${d.id}','name',this.value)"></td>
-        <td><input value="${d.phone}" onchange="updateBooking('${d.id}','phone',this.value)"></td>
-        <td>${d.email}</td>
-        <td>${d.service}</td>
-        <td>${d.address}</td>
-        <td>${d.date}</td>
-        <td>${d.time}</td>
-        <td><input type="number" value="${d.amount||0}" onchange="updateBooking('${d.id}','amount',this.value)"></td>
-        <td><input type="checkbox" ${doneChecked} onchange="updateBooking('${d.id}','done',this.checked)"></td>
-        <td><button onclick="deleteBooking('${d.id}')">Supprimer</button></td>
-      </tr>`;
-  });
-  document.getElementById("total-bookings").querySelector("p").textContent = bookingsData.length;
-  document.getElementById("total-done").querySelector("p").textContent = bookingsData.filter(b=>b.done).length;
-  renderPagination("bookings-pagination",bookingsData.length,bookingsPage,total=>{ bookingsPage=total; renderBookings(); });
-}
-
-// ===== Load Ratings =====
-function loadRatings(){
-  db.collection("ratings").orderBy("createdAt","desc").get().then(snapshot=>{
-    ratingsData = snapshot.docs.map(d=>({id:d.id,...d.data()}));
-    renderRatings();
-  });
-}
-
-function renderRatings(){
-  const tbody = document.getElementById("ratings");
-  tbody.innerHTML="";
-  const start = (ratingsPage-1)*pageSize;
-  const pageItems = ratingsData.slice(start,start+pageSize);
-  let totalRating=0;
-  pageItems.forEach(d=>{
-    totalRating+=d.rating||0;
-    tbody.innerHTML+=`
-      <tr>
-        <td>${d.name}</td>
-        <td>${d.email}</td>
-        <td>${"⭐".repeat(d.rating)}</td>
-        <td>${d.message||""}</td>
-        <td><button onclick="deleteRating('${d.id}')">Supprimer</button></td>
-      </tr>`;
-  });
-  document.getElementById("average-rating").querySelector("p").textContent = ratingsData.length ? (ratingsData.reduce((a,b)=>a+(b.rating||0),0)/ratingsData.length).toFixed(1) : 0;
-  renderPagination("ratings-pagination",ratingsData.length,ratingsPage,total=>{ ratingsPage=total; renderRatings(); });
-}
-
-// ===== Pagination Buttons =====
-function renderPagination(containerId,totalItems,currentPage,callback){
-  const container = document.getElementById(containerId);
-  container.innerHTML="";
-  const totalPages = Math.ceil(totalItems/pageSize);
-  if(totalPages<=1) return;
-  if(currentPage>1) container.innerHTML+=`<button onclick="${callback.name}(${currentPage-1})">Précédent</button>`;
-  if(currentPage<totalPages) container.innerHTML+=`<button onclick="${callback.name}(${currentPage+1})">Suivant</button>`;
-}
-
-// ===== Update/Delete Functions =====
 function updateBooking(id,field,value){
   if(field==="done") value=Boolean(value);
   if(field==="amount") value=Number(value);
@@ -206,28 +109,49 @@ function updateBooking(id,field,value){
 function deleteBooking(id){
   if(confirm("Voulez-vous vraiment supprimer cette réservation ?")){
     db.collection("bookings").doc(id).delete();
-    bookingsData = bookingsData.filter(b=>b.id!==id);
-    renderBookings();
-  }
-}
-function deleteRating(id){
-  if(confirm("Voulez-vous vraiment supprimer cet avis ?")){
-    db.collection("ratings").doc(id).delete();
-    ratingsData = ratingsData.filter(r=>r.id!==id);
-    renderRatings();
   }
 }
 
-// ===== Stats =====
-function updateStats(){
-  document.getElementById("total-bookings").querySelector("p").textContent = bookingsData.length;
-  document.getElementById("total-done").querySelector("p").textContent = bookingsData.filter(b=>b.done).length;
-  document.getElementById("average-rating").querySelector("p").textContent = ratingsData.length ? (ratingsData.reduce((a,b)=>a+(b.rating||0),0)/ratingsData.length).toFixed(1) : 0;
+// Tableau avis
+function loadRatings(){
+  db.collection("ratings").orderBy("createdAt","desc").onSnapshot(snapshot=>{
+    const tbody=document.getElementById("ratings");
+    tbody.innerHTML="";
+    let totalRating=0;
+    snapshot.forEach(doc=>{
+      const d=doc.data();
+      totalRating+=d.rating||0;
+      tbody.innerHTML+=`<tr>
+<td>${d.name}</td><td>${d.email}</td><td>${"⭐".repeat(d.rating)}</td><td>${d.message||""}</td>
+<td><button onclick="deleteRating('${doc.id}')">Supprimer</button></td>
+</tr>`;
+      if(Notification.permission==="granted" && snapshot.docChanges().some(c=>c.type==='added')){
+        new Notification("Nouvel avis reçu", { body:`Nom: ${d.name}\nNote: ${d.rating}⭐`, icon:"icon-192.png" });
+      }
+    });
+    document.getElementById("average-rating").querySelector("p").textContent = snapshot.size?(totalRating/snapshot.size).toFixed(1):0;
+  });
+}
+function deleteRating(id){ if(confirm("Voulez-vous vraiment supprimer cet avis ?")) db.collection("ratings").doc(id).delete(); }
+
+// Carte
+const map=L.map('map').setView([36.8,10.2],6);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{ attribution:'&copy; OpenStreetMap contributors' }).addTo(map);
+let markers=[];
+function updateMap(docs){
+  markers.forEach(m=>map.removeLayer(m));
+  markers=[];
+  docs.forEach(doc=>{
+    const d=doc.data();
+    if(d.lat && d.lng){
+      const m=L.marker([d.lat,d.lng]).addTo(map).bindPopup(`<b>${d.name}</b><br>${d.service}<br>${d.date} ${d.time}<br>${d.address}`);
+      markers.push(m);
+    }
+  });
 }
 
-// ===== Init =====
-loadBookings();
-loadRatings();
+// Initialisation
+loadBookings(); loadRatings();
 </script>
 
 </body>
