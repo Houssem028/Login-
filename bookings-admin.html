@@ -12,14 +12,8 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
 <style>
-body {
-  font-family:'Poppins',sans-serif; margin:0; padding:0; background:#f5f7fa;
-}
-header {
-  background: linear-gradient(90deg,#0a3cff,#00c897);
-  color:#fff; text-align:center; padding:20px; font-size:22px;
-  font-weight:700;
-}
+body { font-family:'Poppins',sans-serif; margin:0; padding:0; background:#f5f7fa; }
+header { background: linear-gradient(90deg,#0a3cff,#00c897); color:#fff; text-align:center; padding:20px; font-size:22px; font-weight:700; }
 .container { max-width:1200px; margin:20px auto; padding:15px; }
 
 h2 { color:#0a3cff; margin-top:30px; text-align:center; }
@@ -27,8 +21,8 @@ h2 { color:#0a3cff; margin-top:30px; text-align:center; }
 table { width:100%; border-collapse:collapse; margin-top:15px; background:#fff; border-radius:10px; overflow:hidden; box-shadow:0 8px 20px rgba(0,0,0,0.1);}
 th,td { border:1px solid #ddd; padding:10px; text-align:center; }
 th { background:#0a3cff; color:#fff; }
-input, select, textarea { width:90%; padding:6px; border-radius:6px; border:1px solid #ccc; }
-button { background:#0a3cff; color:#fff; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; }
+input, select { width:90%; padding:6px; border-radius:6px; border:1px solid #ccc; }
+button { background:#0a3cff; color:#fff; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; margin:2px; }
 button:hover { background:#084dcc; }
 
 #map { height:400px; width:100%; margin-top:20px; border-radius:12px; box-shadow:0 4px 20px rgba(0,0,0,0.1); }
@@ -36,6 +30,9 @@ button:hover { background:#084dcc; }
 .stats { display:flex; justify-content:space-around; flex-wrap:wrap; margin-top:30px; }
 .stat-box { background:#fff; padding:20px; border-radius:12px; width:200px; margin:10px; text-align:center; box-shadow:0 4px 20px rgba(0,0,0,0.1); }
 .stat-box h3 { margin:10px 0; color:#0a3cff; }
+
+.pagination { text-align:center; margin:10px; }
+.pagination button { margin:2px; }
 </style>
 
 <!-- Firebase -->
@@ -70,6 +67,7 @@ button:hover { background:#084dcc; }
 </thead>
 <tbody id="bookings"></tbody>
 </table>
+<div id="booking-pagination" class="pagination"></div>
 
 <h2>⭐ Avis Clients</h2>
 <table>
@@ -84,6 +82,7 @@ button:hover { background:#084dcc; }
 </thead>
 <tbody id="ratings"></tbody>
 </table>
+<div id="rating-pagination" class="pagination"></div>
 
 <h2>📍 Carte des réservations</h2>
 <div id="map"></div>
@@ -119,13 +118,24 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-// ===== Tableau Réservations =====
+// ===== Pagination Variables =====
+const bookingsPerPage = 5;
+let currentBookingPage = 1;
+
+const ratingsPerPage = 5;
+let currentRatingPage = 1;
+
+// ===== Bookings Table =====
 function loadBookings(){
-  db.collection("bookings").orderBy("date","desc").onSnapshot(snapshot=>{
+  db.collection("bookings").orderBy("date","desc").get().then(snapshot=>{
     const tbody = document.getElementById("bookings");
     tbody.innerHTML = "";
     let totalDone = 0;
-    snapshot.forEach(doc=>{
+    const totalPages = Math.ceil(snapshot.size / bookingsPerPage);
+    const startIndex = (currentBookingPage-1)*bookingsPerPage;
+    const endIndex = startIndex + bookingsPerPage;
+
+    snapshot.docs.slice(startIndex,endIndex).forEach(doc=>{
       const d = doc.data();
       const doneChecked = d.done ? "checked" : "";
       if(d.done) totalDone++;
@@ -144,10 +154,25 @@ function loadBookings(){
         <td><button onclick="deleteBooking('${doc.id}')">Supprimer</button></td>
       </tr>`;
     });
+
     document.getElementById("total-bookings").querySelector("p").textContent = snapshot.size;
     document.getElementById("total-done").querySelector("p").textContent = totalDone;
+
+    // Pagination buttons
+    const paginationDiv = document.getElementById("booking-pagination");
+    paginationDiv.innerHTML = "";
+    if(totalPages > 1){
+      for(let i=1;i<=totalPages;i++){
+        paginationDiv.innerHTML += `<button onclick="gotoBookingPage(${i})" ${i===currentBookingPage?'style="font-weight:bold;"':''}>${i}</button>`;
+      }
+    }
+
     updateMap(snapshot.docs);
   });
+}
+function gotoBookingPage(page){
+  currentBookingPage = page;
+  loadBookings();
 }
 function updateBooking(id,field,value){
   if(field==="done") value=Boolean(value);
@@ -160,16 +185,20 @@ function deleteBooking(id){
   }
 }
 
-// ===== Tableau Avis =====
+// ===== Ratings Table =====
 function loadRatings(){
-  db.collection("ratings").orderBy("createdAt","desc").onSnapshot(snapshot=>{
+  db.collection("ratings").orderBy("createdAt","desc").get().then(snapshot=>{
     const tbody = document.getElementById("ratings");
     tbody.innerHTML = "";
     let totalRating=0;
-    snapshot.forEach(doc=>{
+    const totalPages = Math.ceil(snapshot.size / ratingsPerPage);
+    const startIndex = (currentRatingPage-1)*ratingsPerPage;
+    const endIndex = startIndex + ratingsPerPage;
+
+    snapshot.docs.slice(startIndex,endIndex).forEach(doc=>{
       const d = doc.data();
-      totalRating+=d.rating||0;
-      tbody.innerHTML+=`
+      totalRating += d.rating||0;
+      tbody.innerHTML += `
       <tr>
         <td>${d.name}</td>
         <td>${d.email}</td>
@@ -178,8 +207,22 @@ function loadRatings(){
         <td><button onclick="deleteRating('${doc.id}')">Supprimer</button></td>
       </tr>`;
     });
+
     document.getElementById("average-rating").querySelector("p").textContent = snapshot.size ? (totalRating/snapshot.size).toFixed(1) : 0;
+
+    // Pagination buttons
+    const paginationDiv = document.getElementById("rating-pagination");
+    paginationDiv.innerHTML = "";
+    if(totalPages > 1){
+      for(let i=1;i<=totalPages;i++){
+        paginationDiv.innerHTML += `<button onclick="gotoRatingPage(${i})" ${i===currentRatingPage?'style="font-weight:bold;"':''}>${i}</button>`;
+      }
+    }
   });
+}
+function gotoRatingPage(page){
+  currentRatingPage = page;
+  loadRatings();
 }
 function deleteRating(id){
   if(confirm("Voulez-vous vraiment supprimer cet avis ?")){
@@ -187,7 +230,7 @@ function deleteRating(id){
   }
 }
 
-// ===== Carte =====
+// ===== Map =====
 const map = L.map('map').setView([36.8,10.2], 6);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
   attribution:'&copy; OpenStreetMap contributors'
