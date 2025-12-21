@@ -1,7 +1,7 @@
 {
   "name": "ASH Admin",
   "short_name": "ASH Admin",
-  "start_url": "./admin-app.html",
+  "start_url": "./bookings-admin.html",
   "display": "standalone",
   "background_color": "#0a3cff",
   "theme_color": "#0a3cff",
