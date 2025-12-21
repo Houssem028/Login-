@@ -24,7 +24,7 @@ nav button.active{background:#00c897;}
 table{width:100%;border-collapse:collapse;background:#fff;border-radius:10px;overflow:hidden;}
 th,td{border:1px solid #ddd;padding:8px;text-align:center;}
 th{background:#0a3cff;color:#fff;}
-input{width:90%;padding:5px;border-radius:6px;border:1px solid #ccc;}
+
 button.action{background:#e74c3c;color:#fff;border:none;padding:6px 10px;border-radius:6px;cursor:pointer;}
 
 #map{height:400px;border-radius:12px;}
@@ -37,6 +37,7 @@ button.action{background:#e74c3c;color:#fff;border:none;padding:6px 10px;border-
 
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-messaging-compat.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 
@@ -45,28 +46,26 @@ button.action{background:#e74c3c;color:#fff;border:none;padding:6px 10px;border-
 <header>ASH Admin Dashboard</header>
 
 <nav>
-<button onclick="showSection('bookings')" class="active">📅 Réservations</button>
-<button onclick="showSection('ratings')">⭐ Avis</button>
-<button onclick="showSection('mapSection')">📍 Carte</button>
-<button onclick="showSection('stats')">📊 Statistiques</button>
+<button class="active" onclick="showSection('bookings',this)">📅 Réservations</button>
+<button onclick="showSection('ratings',this)">⭐ Avis</button>
+<button onclick="showSection('mapSection',this)">📍 Carte</button>
+<button onclick="showSection('stats',this)">📊 Statistiques</button>
 </nav>
 
 <div class="container">
 
-<!-- BOOKINGS -->
 <div id="bookings" class="section active">
 <table>
 <thead>
 <tr>
 <th>Nom</th><th>Téléphone</th><th>Email</th><th>Service</th>
-<th>Date</th><th>Heure</th><th>Montant</th><th>Terminé</th><th></th>
+<th>Date</th><th>Heure</th><th>Montant</th><th>✔</th><th></th>
 </tr>
 </thead>
 <tbody id="bookingsBody"></tbody>
 </table>
 </div>
 
-<!-- RATINGS -->
 <div id="ratings" class="section">
 <table>
 <thead>
@@ -76,12 +75,10 @@ button.action{background:#e74c3c;color:#fff;border:none;padding:6px 10px;border-
 </table>
 </div>
 
-<!-- MAP -->
 <div id="mapSection" class="section">
 <div id="map"></div>
 </div>
 
-<!-- STATS -->
 <div id="stats" class="section">
 <div class="stats">
 <div class="stat-box"><h3>Total Réservations</h3><p id="statBookings">0</p></div>
@@ -93,40 +90,45 @@ button.action{background:#e74c3c;color:#fff;border:none;padding:6px 10px;border-
 </div>
 
 <script>
-// Firebase
+// ===== Firebase Init =====
 firebase.initializeApp({
   apiKey:"AIzaSyAJxzFknapSh0fnPfIXwEEK3OijSKlqxco",
   authDomain:"admin-ash-f622c.firebaseapp.com",
-  projectId:"admin-ash-f622c"
+  projectId:"admin-ash-f622c",
+  messagingSenderId:"76505742154",
+  appId:"1:76505742154:web:dc4f190f9f2de80acb1fb3"
 });
-const db=firebase.firestore();
+const db = firebase.firestore();
 
-// Navigation
-function showSection(id){
+// ===== Navigation =====
+function showSection(id,btn){
   document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
   document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
   document.getElementById(id).classList.add('active');
-  event.target.classList.add('active');
+  btn.classList.add('active');
 }
 
-// Map
-const map=L.map('map').setView([36.8,10.2],6);
+// ===== Map =====
+const map = L.map('map').setView([36.8,10.2],6);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 let markers=[];
 
-// BOOKINGS + STATS
+// ===== BOOKINGS + STATS =====
 db.collection("bookings").onSnapshot(snapshot=>{
-  const tbody=document.getElementById("bookingsBody");
-  tbody.innerHTML="";
+  const body=document.getElementById("bookingsBody");
+  body.innerHTML="";
   let done=0;
 
   document.getElementById("statBookings").textContent=snapshot.size;
+
+  markers.forEach(m=>map.removeLayer(m));
+  markers=[];
 
   snapshot.forEach(doc=>{
     const d=doc.data();
     if(d.done) done++;
 
-    tbody.innerHTML+=`
+    body.innerHTML+=`
 <tr>
 <td>${d.name}</td>
 <td>${d.phone}</td>
@@ -135,7 +137,7 @@ db.collection("bookings").onSnapshot(snapshot=>{
 <td>${d.date}</td>
 <td>${d.time}</td>
 <td>${d.amount||0}</td>
-<td>${d.done?"✔":"❌"}</td>
+<td>${d.done?'✔':'❌'}</td>
 <td><button class="action" onclick="db.collection('bookings').doc('${doc.id}').delete()">X</button></td>
 </tr>`;
 
@@ -147,16 +149,16 @@ db.collection("bookings").onSnapshot(snapshot=>{
   document.getElementById("statDone").textContent=done;
 });
 
-// RATINGS + AVG
+// ===== RATINGS =====
 db.collection("ratings").onSnapshot(snapshot=>{
-  const tbody=document.getElementById("ratingsBody");
-  tbody.innerHTML="";
+  const body=document.getElementById("ratingsBody");
+  body.innerHTML="";
   let total=0;
 
   snapshot.forEach(doc=>{
     const d=doc.data();
     total+=d.rating||0;
-    tbody.innerHTML+=`
+    body.innerHTML+=`
 <tr>
 <td>${d.name}</td>
 <td>${d.email}</td>
@@ -167,7 +169,31 @@ db.collection("ratings").onSnapshot(snapshot=>{
   });
 
   document.getElementById("statRating").textContent =
-    snapshot.size ? (total/snapshot.size).toFixed(1) : 0;
+    snapshot.size?(total/snapshot.size).toFixed(1):0;
+});
+
+// ===== PUSH NOTIFICATIONS =====
+const messaging=firebase.messaging();
+
+navigator.serviceWorker.register("firebase-messaging-sw.js")
+.then(reg=>{
+  messaging.useServiceWorker(reg);
+  Notification.requestPermission().then(p=>{
+    if(p==="granted"){
+      messaging.getToken().then(token=>{
+        if(token){
+          db.collection("adminTokens").doc(token).set({token});
+        }
+      });
+    }
+  });
+});
+
+messaging.onMessage(payload=>{
+  new Notification(payload.notification.title,{
+    body:payload.notification.body,
+    icon:"icon-192.png"
+  });
 });
 </script>
 
