@@ -27,7 +27,7 @@ h2 { color:#0a3cff; margin-top:30px; text-align:center; }
 table { width:100%; border-collapse:collapse; margin-top:15px; background:#fff; border-radius:10px; overflow:hidden; box-shadow:0 8px 20px rgba(0,0,0,0.1);}
 th,td { border:1px solid #ddd; padding:10px; text-align:center; }
 th { background:#0a3cff; color:#fff; }
-input, select { width:90%; padding:6px; border-radius:6px; border:1px solid #ccc; }
+input, select, textarea { width:90%; padding:6px; border-radius:6px; border:1px solid #ccc; }
 button { background:#0a3cff; color:#fff; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; }
 button:hover { background:#084dcc; }
 
@@ -36,7 +36,6 @@ button:hover { background:#084dcc; }
 .stats { display:flex; justify-content:space-around; flex-wrap:wrap; margin-top:30px; }
 .stat-box { background:#fff; padding:20px; border-radius:12px; width:200px; margin:10px; text-align:center; box-shadow:0 4px 20px rgba(0,0,0,0.1); }
 .stat-box h3 { margin:10px 0; color:#0a3cff; }
-
 </style>
 
 <!-- Firebase -->
@@ -79,6 +78,7 @@ button:hover { background:#084dcc; }
   <th>Nom</th>
   <th>Email</th>
   <th>Note</th>
+  <th>Message</th>
   <th>Actions</th>
 </tr>
 </thead>
@@ -162,18 +162,19 @@ function deleteBooking(id){
 
 // ===== Tableau Avis =====
 function loadRatings(){
-  db.collection("ratings").orderBy("timestamp","desc").onSnapshot(snapshot=>{
+  db.collection("ratings").orderBy("createdAt","desc").onSnapshot(snapshot=>{
     const tbody = document.getElementById("ratings");
     tbody.innerHTML = "";
     let totalRating=0;
     snapshot.forEach(doc=>{
-      const d=doc.data();
+      const d = doc.data();
       totalRating+=d.rating||0;
       tbody.innerHTML+=`
       <tr>
         <td>${d.name}</td>
         <td>${d.email}</td>
         <td>${"⭐".repeat(d.rating)}</td>
+        <td>${d.message || ""}</td>
         <td><button onclick="deleteRating('${doc.id}')">Supprimer</button></td>
       </tr>`;
     });
@@ -192,7 +193,6 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
   attribution:'&copy; OpenStreetMap contributors'
 }).addTo(map);
 let markers=[];
-
 function updateMap(docs){
   markers.forEach(m=>map.removeLayer(m));
   markers=[];
