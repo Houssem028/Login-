@@ -20,15 +20,6 @@
 * { box-sizing: border-box; margin:0; padding:0; font-family: 'Poppins', Arial, sans-serif; }
 body { background: linear-gradient(135deg, #eef3ff, #f9fbff); color: #333; line-height: 1.6; }
 
-/* ===== Splash Screen ===== */
-#splash {
-  position: fixed; top:0; left:0; right:0; bottom:0;
-  background-color: #0a3cff;
-  display: flex; justify-content: center; align-items: center;
-  z-index: 9999;
-}
-#splash img { width: 200px; height: auto; }
-
 /* ===== Navbar ===== */
 .navbar { position: fixed; top:0; left:0; right:0; z-index:999; display:flex; align-items:center; gap:14px; padding:12px 22px; background:linear-gradient(135deg,#0b1f33,#102f4f); border-bottom:1px solid rgba(0,200,255,0.25); box-shadow:0 10px 30px rgba(0,0,0,0.45);}
 .navbar img { width:58px;height:58px;border-radius:50%;padding:4px;background:#081a2f;box-shadow:0 0 18px rgba(0,200,255,0.6);animation:logoPulse 3s infinite ease-in-out;}
@@ -114,11 +105,6 @@ const db = firebase.firestore();
 </head>
 <body>
 
-<!-- Splash -->
-<div id="splash">
-  <img src="Pic4.png" alt="ASH Logo">
-</div>
-
 <header class="navbar">
   <img src="Pic4.png" alt="ASH Logo">
   <h1>ASH Window Cleaning</h1>
@@ -177,7 +163,6 @@ const db = firebase.firestore();
   <a href="https://wa.me/21621477790">💬 WhatsApp</a>
 </section>
 
-<!-- Social Bar -->
 <div class="social-bar" style="position: fixed; bottom:20px; right:20px; display:flex; gap:10px; z-index:1002;">
   <a href="https://www.facebook.com/share/161Qyaz5Gq/" target="_blank"><img src="Facebook.png" alt="Facebook" style="width:32px;height:32px;"></a>
   <a href="#" target="_blank"><img src="twitter.png" alt="Twitter" style="width:32px;height:32px;"></a>
@@ -185,16 +170,6 @@ const db = firebase.firestore();
 </div>
 
 <script>
-// ===== Splash Screen =====
-window.addEventListener('load', () => {
-  setTimeout(() => {
-    const splash = document.getElementById('splash');
-    splash.style.transition = 'opacity 0.5s';
-    splash.style.opacity = '0';
-    setTimeout(() => splash.style.display = 'none', 500);
-  }, 2000);
-});
-
 // ===== Sidebar =====
 const toggle = document.getElementById('sidebar-toggle');
 const sidebar = document.getElementById('sidebar-menu');
