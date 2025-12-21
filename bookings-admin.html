@@ -93,7 +93,6 @@ firebase.initializeApp({
   appId:"1:76505742154:web:dc4f190f9f2de80acb1fb3"
 });
 const db = firebase.firestore();
-const messaging = firebase.messaging();
 
 // ===== Navigation =====
 function showSection(id,btn){
@@ -108,7 +107,7 @@ const map = L.map('map').setView([36.8,10.2],6);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 let markers=[];
 
-// ===== BOOKINGS + STATS + Notifications =====
+// ===== BOOKINGS + STATS =====
 db.collection("bookings").onSnapshot(snapshot=>{
   const body=document.getElementById("bookingsBody");
   body.innerHTML="";
@@ -118,18 +117,6 @@ db.collection("bookings").onSnapshot(snapshot=>{
 
   markers.forEach(m=>map.removeLayer(m));
   markers=[];
-
-  snapshot.docChanges().forEach(change=>{
-    if(change.type === "added"){
-      const d = change.doc.data();
-      if(Notification.permission === "granted"){
-        new Notification("Nouvelle réservation", {
-          body: `Nom: ${d.name}\nService: ${d.service}`,
-          icon: "icon-192.png"
-        });
-      }
-    }
-  });
 
   snapshot.forEach(doc=>{
     const d=doc.data();
@@ -156,23 +143,11 @@ db.collection("bookings").onSnapshot(snapshot=>{
   document.getElementById("statDone").textContent=done;
 });
 
-// ===== RATINGS + Notifications =====
+// ===== RATINGS + AVG =====
 db.collection("ratings").onSnapshot(snapshot=>{
   const body=document.getElementById("ratingsBody");
   body.innerHTML="";
   let total=0;
-
-  snapshot.docChanges().forEach(change=>{
-    if(change.type === "added"){
-      const d = change.doc.data();
-      if(Notification.permission === "granted"){
-        new Notification("Nouvel avis reçu", {
-          body: `Nom: ${d.name}\nNote: ${d.rating}⭐`,
-          icon: "icon-192.png"
-        });
-      }
-    }
-  });
 
   snapshot.forEach(doc=>{
     const d=doc.data();
@@ -191,7 +166,8 @@ db.collection("ratings").onSnapshot(snapshot=>{
     snapshot.size?(total/snapshot.size).toFixed(1):0;
 });
 
-// ===== PUSH NOTIFICATIONS SW =====
+// ===== PUSH NOTIFICATIONS =====
+const messaging=firebase.messaging();
 navigator.serviceWorker.register("firebase-messaging-sw.js")
 .then(reg=>{
   messaging.useServiceWorker(reg);
@@ -205,7 +181,6 @@ navigator.serviceWorker.register("firebase-messaging-sw.js")
     }
   });
 });
-
 messaging.onMessage(payload=>{
   new Notification(payload.notification.title,{
     body:payload.notification.body,
@@ -215,4 +190,4 @@ messaging.onMessage(payload=>{
 </script>
 
 </body>
-</html>
+  </html>
