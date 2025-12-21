@@ -3,31 +3,36 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Admin Dashboard - ASH</title>
+<title>ASH Admin Dashboard</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 <link rel="manifest" href="manifest-admin.json">
-
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
 <style>
-body{font-family:'Poppins',sans-serif;margin:0;background:#f5f7fa;color:#333;}
-header{background:linear-gradient(90deg,#0a3cff,#00c897);color:#fff;text-align:center;padding:20px;font-size:22px;font-weight:700;}
-.container{max-width:1200px;margin:20px auto;padding:15px;}
-h2{color:#0a3cff;margin-top:30px;text-align:center;}
+body{margin:0;font-family:'Poppins',sans-serif;background:#f5f7fa;}
+header{background:linear-gradient(90deg,#0a3cff,#00c897);color:#fff;padding:15px;text-align:center;font-size:22px;font-weight:700;}
 
-table{width:100%;border-collapse:collapse;margin-top:15px;background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 8px 20px rgba(0,0,0,.1);}
-th,td{border:1px solid #ddd;padding:10px;text-align:center;}
+nav{display:flex;justify-content:center;gap:10px;background:#fff;padding:10px;box-shadow:0 4px 15px rgba(0,0,0,.1);}
+nav button{border:none;background:#0a3cff;color:#fff;padding:8px 14px;border-radius:8px;cursor:pointer;}
+nav button.active{background:#00c897;}
+
+.container{max-width:1200px;margin:20px auto;padding:10px;}
+.section{display:none;}
+.section.active{display:block;}
+
+table{width:100%;border-collapse:collapse;background:#fff;border-radius:10px;overflow:hidden;}
+th,td{border:1px solid #ddd;padding:8px;text-align:center;}
 th{background:#0a3cff;color:#fff;}
-input{width:90%;padding:6px;border-radius:6px;border:1px solid #ccc;}
-button{background:#0a3cff;color:#fff;border:none;padding:6px 12px;border-radius:6px;cursor:pointer;}
-button:hover{background:#084dcc;}
+input{width:90%;padding:5px;border-radius:6px;border:1px solid #ccc;}
+button.action{background:#e74c3c;color:#fff;border:none;padding:6px 10px;border-radius:6px;cursor:pointer;}
 
-#map{height:400px;width:100%;margin-top:20px;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,.1);}
+#map{height:400px;border-radius:12px;}
 
-.stats{display:flex;justify-content:space-around;flex-wrap:wrap;margin-top:30px;}
-.stat-box{background:#fff;padding:20px;border-radius:12px;width:200px;margin:10px;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,.1);}
-.stat-box h3{margin:10px 0;color:#0a3cff;}
+.stats{display:flex;flex-wrap:wrap;justify-content:center;gap:20px;}
+.stat-box{background:#fff;width:220px;padding:20px;border-radius:12px;text-align:center;box-shadow:0 4px 15px rgba(0,0,0,.1);}
+.stat-box h3{color:#0a3cff;margin-bottom:10px;}
+.stat-box p{font-size:24px;font-weight:700;}
 </style>
 
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
@@ -39,79 +44,83 @@ button:hover{background:#084dcc;}
 
 <header>ASH Admin Dashboard</header>
 
+<nav>
+<button onclick="showSection('bookings')" class="active">📅 Réservations</button>
+<button onclick="showSection('ratings')">⭐ Avis</button>
+<button onclick="showSection('mapSection')">📍 Carte</button>
+<button onclick="showSection('stats')">📊 Statistiques</button>
+</nav>
+
 <div class="container">
 
-<h2>📅 Réservations</h2>
+<!-- BOOKINGS -->
+<div id="bookings" class="section active">
 <table>
 <thead>
 <tr>
 <th>Nom</th><th>Téléphone</th><th>Email</th><th>Service</th>
-<th>Adresse</th><th>Date</th><th>Heure</th>
-<th>Montant</th><th>Terminé</th><th>Actions</th>
+<th>Date</th><th>Heure</th><th>Montant</th><th>Terminé</th><th></th>
 </tr>
 </thead>
-<tbody id="bookings"></tbody>
+<tbody id="bookingsBody"></tbody>
 </table>
+</div>
 
-<h2>⭐ Avis Clients</h2>
+<!-- RATINGS -->
+<div id="ratings" class="section">
 <table>
 <thead>
-<tr><th>Nom</th><th>Email</th><th>Note</th><th>Message</th><th>Actions</th></tr>
+<tr><th>Nom</th><th>Email</th><th>Note</th><th>Message</th><th></th></tr>
 </thead>
-<tbody id="ratings"></tbody>
+<tbody id="ratingsBody"></tbody>
 </table>
+</div>
 
-<h2>📍 Carte des réservations</h2>
+<!-- MAP -->
+<div id="mapSection" class="section">
 <div id="map"></div>
+</div>
 
-<h2>📊 Statistiques</h2>
+<!-- STATS -->
+<div id="stats" class="section">
 <div class="stats">
-<div class="stat-box" id="total-bookings"><h3>Total Réservations</h3><p>0</p></div>
-<div class="stat-box" id="total-done"><h3>Terminées</h3><p>0</p></div>
-<div class="stat-box" id="average-rating"><h3>Note Moyenne</h3><p>0</p></div>
+<div class="stat-box"><h3>Total Réservations</h3><p id="statBookings">0</p></div>
+<div class="stat-box"><h3>Terminées</h3><p id="statDone">0</p></div>
+<div class="stat-box"><h3>Note Moyenne</h3><p id="statRating">0</p></div>
+</div>
 </div>
 
 </div>
 
 <script>
-// ===== Firebase =====
+// Firebase
 firebase.initializeApp({
-  apiKey: "AIzaSyAJxzFknapSh0fnPfIXwEEK3OijSKlqxco",
-  authDomain: "admin-ash-f622c.firebaseapp.com",
-  projectId: "admin-ash-f622c"
+  apiKey:"AIzaSyAJxzFknapSh0fnPfIXwEEK3OijSKlqxco",
+  authDomain:"admin-ash-f622c.firebaseapp.com",
+  projectId:"admin-ash-f622c"
 });
-const db = firebase.firestore();
+const db=firebase.firestore();
 
-// ===== Notifications =====
-if(Notification.permission!=="granted"){
-  Notification.requestPermission();
+// Navigation
+function showSection(id){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.target.classList.add('active');
 }
 
-// ===== Map =====
-const map = L.map('map').setView([36.8,10.2],6);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
-  attribution:'© OpenStreetMap'
-}).addTo(map);
+// Map
+const map=L.map('map').setView([36.8,10.2],6);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 let markers=[];
 
-function updateMap(docs){
-  markers.forEach(m=>map.removeLayer(m));
-  markers=[];
-  docs.forEach(doc=>{
-    const d=doc.data();
-    if(d.lat && d.lng){
-      const m=L.marker([d.lat,d.lng]).addTo(map)
-      .bindPopup(`<b>${d.name}</b><br>${d.service}<br>${d.date} ${d.time}`);
-      markers.push(m);
-    }
-  });
-}
-
-// ===== Bookings =====
-db.collection("bookings").orderBy("date","desc").onSnapshot(snapshot=>{
-  const tbody=document.getElementById("bookings");
+// BOOKINGS + STATS
+db.collection("bookings").onSnapshot(snapshot=>{
+  const tbody=document.getElementById("bookingsBody");
   tbody.innerHTML="";
   let done=0;
+
+  document.getElementById("statBookings").textContent=snapshot.size;
 
   snapshot.forEach(doc=>{
     const d=doc.data();
@@ -119,46 +128,28 @@ db.collection("bookings").orderBy("date","desc").onSnapshot(snapshot=>{
 
     tbody.innerHTML+=`
 <tr>
-<td><input value="${d.name}" onchange="updateBooking('${doc.id}','name',this.value)"></td>
-<td><input value="${d.phone}" onchange="updateBooking('${doc.id}','phone',this.value)"></td>
+<td>${d.name}</td>
+<td>${d.phone}</td>
 <td>${d.email}</td>
 <td>${d.service}</td>
-<td>${d.address}</td>
 <td>${d.date}</td>
 <td>${d.time}</td>
-<td><input type="number" value="${d.amount||0}" onchange="updateBooking('${doc.id}','amount',this.value)"></td>
-<td><input type="checkbox" ${d.done?'checked':''} onchange="updateBooking('${doc.id}','done',this.checked)"></td>
-<td><button onclick="deleteBooking('${doc.id}')">Supprimer</button></td>
+<td>${d.amount||0}</td>
+<td>${d.done?"✔":"❌"}</td>
+<td><button class="action" onclick="db.collection('bookings').doc('${doc.id}').delete()">X</button></td>
 </tr>`;
-  });
 
-  snapshot.docChanges().forEach(c=>{
-    if(c.type==="added" && Notification.permission==="granted"){
-      const d=c.doc.data();
-      new Notification("Nouvelle réservation",{
-        body:`${d.name} - ${d.service}`,
-        icon:"icon-192.png"
-      });
+    if(d.lat && d.lng){
+      markers.push(L.marker([d.lat,d.lng]).addTo(map));
     }
   });
 
-  document.querySelector("#total-bookings p").textContent=snapshot.size;
-  document.querySelector("#total-done p").textContent=done;
-  updateMap(snapshot.docs);
+  document.getElementById("statDone").textContent=done;
 });
 
-function updateBooking(id,f,v){
-  if(f==="done") v=Boolean(v);
-  if(f==="amount") v=Number(v);
-  db.collection("bookings").doc(id).update({[f]:v});
-}
-function deleteBooking(id){
-  if(confirm("Supprimer ?")) db.collection("bookings").doc(id).delete();
-}
-
-// ===== Ratings =====
-db.collection("ratings").orderBy("createdAt","desc").onSnapshot(snapshot=>{
-  const tbody=document.getElementById("ratings");
+// RATINGS + AVG
+db.collection("ratings").onSnapshot(snapshot=>{
+  const tbody=document.getElementById("ratingsBody");
   tbody.innerHTML="";
   let total=0;
 
@@ -171,27 +162,13 @@ db.collection("ratings").orderBy("createdAt","desc").onSnapshot(snapshot=>{
 <td>${d.email}</td>
 <td>${"⭐".repeat(d.rating)}</td>
 <td>${d.message||""}</td>
-<td><button onclick="deleteRating('${doc.id}')">Supprimer</button></td>
+<td><button class="action" onclick="db.collection('ratings').doc('${doc.id}').delete()">X</button></td>
 </tr>`;
   });
 
-  snapshot.docChanges().forEach(c=>{
-    if(c.type==="added" && Notification.permission==="granted"){
-      const d=c.doc.data();
-      new Notification("Nouvel avis",{
-        body:`${d.name} - ${d.rating}⭐`,
-        icon:"icon-192.png"
-      });
-    }
-  });
-
-  document.querySelector("#average-rating p").textContent =
+  document.getElementById("statRating").textContent =
     snapshot.size ? (total/snapshot.size).toFixed(1) : 0;
 });
-
-function deleteRating(id){
-  if(confirm("Supprimer ?")) db.collection("ratings").doc(id).delete();
-}
 </script>
 
 </body>
