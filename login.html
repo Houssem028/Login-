@@ -18,8 +18,9 @@ body { font-family: 'Poppins', Arial, sans-serif; background:#f9fbff; display:fl
 #login-msg { margin-top:12px; color:red; font-size:14px; }
 </style>
 
+<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
 </head>
 <body>
 
@@ -42,22 +43,28 @@ const firebaseConfig = {
   appId: "1:76505742154:web:dc4f190f9f2de80acb1fb3"
 };
 firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+const auth = firebase.auth();
 
-// Admin login (simple check)
-const adminEmail = "admin@ash.com";
-const adminPassword = "123456"; // يمكنك تغييره لاحقًا
-
+// Login Button
 document.getElementById('login-btn').onclick = () => {
   const email = document.getElementById('login-email').value.trim();
   const password = document.getElementById('login-password').value.trim();
   const msg = document.getElementById('login-msg');
 
-  if(email === adminEmail && password === adminPassword){
-    window.location.href = "admin.html";
-  } else {
-    msg.textContent = "Email ou mot de passe incorrect.";
+  if(!email || !password){
+    msg.textContent = "Veuillez remplir tous les champs.";
+    return;
   }
+
+  auth.signInWithEmailAndPassword(email, password)
+    .then(userCredential => {
+      // Connexion réussie
+      window.location.href = "admin.html";
+    })
+    .catch(error => {
+      msg.textContent = "Email ou mot de passe incorrect.";
+      console.error(error);
+    });
 };
 </script>
 
