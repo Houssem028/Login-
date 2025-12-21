@@ -3,8 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Login - ASH Window Cleaning</title>
+<title>Login - ASH Admin</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+<link rel="manifest" href="manifest-admin.json">
+
 <style>
 body {
   font-family:'Poppins',sans-serif;
@@ -14,39 +16,24 @@ body {
   background: linear-gradient(135deg,#0a3cff,#00c6ff);
   overflow:hidden;
 }
-
-/* تدرج ديناميكي يتحرك حول الصندوق */
 .glow-box {
-  position:relative;
-  padding:2px;
-  border-radius:22px;
+  position:relative; padding:2px; border-radius:22px;
   background: linear-gradient(45deg,#0a3cff,#00c6ff,#0a3cff,#00c6ff);
   background-size:400% 400%;
   animation:moveGlow 8s linear infinite;
 }
-
 @keyframes moveGlow {
   0% {background-position:0% 50%;}
   50% {background-position:100% 50%;}
   100% {background-position:0% 50%;}
 }
-
-/* الصندوق الداخلي */
 .login-box {
-  position:relative;
-  background:#fff;
-  padding:50px 30px 30px 30px;
-  border-radius:20px;
-  width:350px;
-  text-align:center;
-  z-index:1;
-  overflow:hidden;
-  box-shadow:0 20px 40px rgba(0,0,0,0.25);
+  position:relative; background:#fff; padding:50px 30px 30px 30px;
+  border-radius:20px; width:350px; text-align:center; z-index:1;
+  overflow:hidden; box-shadow:0 20px 40px rgba(0,0,0,0.25);
 }
-
 .login-box img {
-  position:relative;
-  width:100px; height:100px; margin-bottom:15px;
+  position:relative; width:100px; height:100px; margin-bottom:15px;
   border-radius:50%; padding:10px; background:#0a3cff;
   box-shadow:0 0 20px rgba(10,60,255,0.8), 0 0 40px rgba(0,198,255,0.5);
   animation:glow 2s infinite alternate;
@@ -56,28 +43,14 @@ body {
   50% { box-shadow:0 0 30px rgba(10,60,255,0.8), 0 0 60px rgba(0,198,255,0.6);}
   100% { box-shadow:0 0 20px rgba(10,60,255,0.6), 0 0 40px rgba(0,198,255,0.4);}
 }
-
 .login-box h2 { color:#0a3cff; margin-bottom:20px; }
-.login-box input {
-  width:100%; padding:12px; margin:10px 0;
-  border-radius:8px; border:1px solid #ccc; font-size:16px;
-}
+.login-box input { width:100%; padding:12px; margin:10px 0; border-radius:8px; border:1px solid #ccc; font-size:16px; }
 .password-container { position:relative; }
 .password-container input { width:100%; padding-right:40px; }
-.toggle-password {
-  position:absolute; top:50%; right:10px; transform:translateY(-50%);
-  cursor:pointer; font-size:18px; color:#0a3cff;
-}
-.login-box button {
-  width:100%; padding:12px; margin-top:15px; border:none;
-  border-radius:8px; background:#0a3cff; color:#fff;
-  font-weight:700; font-size:16px; cursor:pointer; transition:0.3s;
-}
-.login-box button:hover {
-  background:#084dcc; box-shadow:0 0 20px rgba(0,198,255,0.7);
-}
+.toggle-password { position:absolute; top:50%; right:10px; transform:translateY(-50%); cursor:pointer; font-size:18px; color:#0a3cff; }
+.login-box button { width:100%; padding:12px; margin-top:15px; border:none; border-radius:8px; background:#0a3cff; color:#fff; font-weight:700; font-size:16px; cursor:pointer; transition:0.3s; }
+.login-box button:hover { background:#084dcc; box-shadow:0 0 20px rgba(0,198,255,0.7); }
 #error-msg { color:red; margin-top:10px; font-size:14px; }
-
 </style>
 
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
@@ -100,7 +73,6 @@ body {
 </div>
 
 <script>
-// Firebase Init
 const firebaseConfig = {
   apiKey: "AIzaSyAJxzFknapSh0fnPfIXwEEK3OijSKlqxco",
   authDomain: "admin-ash-f622c.firebaseapp.com",
@@ -112,7 +84,6 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 
-// Login
 document.getElementById('login-btn').onclick = () => {
   const email = document.getElementById('email').value.trim();
   const password = document.getElementById('password').value.trim();
@@ -129,7 +100,6 @@ document.getElementById('login-btn').onclick = () => {
   .catch(error => { errorMsg.textContent = error.message; });
 };
 
-// Toggle Password Visibility
 const togglePwd = document.querySelector('.toggle-password');
 const passwordInput = document.getElementById('password');
 togglePwd.addEventListener('click', () => {
@@ -141,6 +111,12 @@ togglePwd.addEventListener('click', () => {
     togglePwd.textContent = '👁️';
   }
 });
+
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('sw-admin.js')
+    .then(reg => console.log("SW Admin enregistré"))
+    .catch(err => console.log("Erreur SW Admin:", err));
+}
 </script>
 
 </body>
